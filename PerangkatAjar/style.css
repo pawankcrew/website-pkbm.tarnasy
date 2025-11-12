@@ -1,0 +1,150 @@
+/* style.css (Di-update) */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f0f4f8;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    width: 100%;
+    max-width: 800px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+header {
+    text-align: center;
+    padding: 20px 30px;
+    background-color: #004d40; /* Warna Hijau Tua (sesuai logo) */
+    color: white;
+}
+
+header .logo {
+    width: 80px;
+    margin-bottom: 10px;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 1.8rem;
+}
+
+header p {
+    margin: 5px 0 0;
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+form {
+    padding: 30px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #dcdcdc;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: 'Poppins', sans-serif;
+    box-sizing: border-box; /* Penting untuk padding */
+}
+
+.grup-inline {
+    display: flex;
+    gap: 20px;
+}
+
+.grup-inline .form-group {
+    flex: 1; /* Lebar sama rata */
+}
+
+.tombol-generate {
+    width: 100%;
+    padding: 15px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: white;
+    background-color: #00796b; /* Hijau Aksen */
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: background-color 0.3s ease;
+}
+
+.tombol-generate:hover {
+    background-color: #004d40; /* Hijau Tua */
+}
+
+/* Layar 2 */
+#layar-pilihan {
+    padding: 40px;
+    text-align: center;
+}
+
+#subjudul-pilihan {
+    font-size: 1.1rem;
+    color: #555;
+    margin-top: -15px;
+}
+
+.pilihan-dokumen {
+    display: grid;
+    /* Update: 2 kolom agar lebih rapi */
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.tombol-pilihan {
+    padding: 20px;
+    font-size: 1rem;
+    font-weight: 600;
+    border: 2px solid #00796b;
+    border-radius: 8px;
+    background-color: #ffffff;
+    color: #00796b;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    line-height: 1.4;
+}
+
+.tombol-pilihan:hover {
+    background-color: #00796b;
+    color: white;
+}
+
+.tombol-sekunder {
+    margin-top: 30px;
+    font-size: 0.9rem;
+    color: #555;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.tersembunyi {
+    display: none;
+}

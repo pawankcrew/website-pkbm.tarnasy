@@ -1,0 +1,1604 @@
+<!doctype html>
+<html lang="id">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ujian PKBM Tarnasy</title>
+  <script src="/_sdk/data_sdk.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    body {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+    html {
+      height: 100%;
+    }
+    .fade-in {
+      animation: fadeIn 0.5s ease-in;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .option-card {
+      transition: all 0.3s ease;
+    }
+    .option-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .option-card.selected {
+      border-width: 2px;
+    }
+    .tab-button {
+      transition: all 0.3s ease;
+    }
+    .tab-button.active {
+      border-bottom: 3px solid;
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+ </head>
+ <body>
+  <div id="app" class="min-h-full"></div>
+  <script>
+    const defaultConfig = {
+      background_color: "#f0f9ff",
+      surface_color: "#ffffff",
+      text_color: "#1e293b",
+      primary_action_color: "#3b82f6",
+      secondary_action_color: "#64748b",
+      font_family: "Inter",
+      font_size: 16,
+      judul_website: "Ujian PKBM Tarnasy",
+      subjudul: "Sistem Ujian Online Paket B & C",
+      instruksi_1: "Bacalah setiap soal dengan teliti",
+      instruksi_2: "Pilih jawaban yang paling tepat",
+      instruksi_3: "Jawab semua soal dengan jujur"
+    };
+
+    let currentView = 'login';
+    let studentData = null;
+    let answers = {
+      pg: Array(25).fill(null),
+      essay: Array(5).fill('')
+    };
+    let startTime = null;
+    let currentSoalPG = [];
+    let currentSoalEssay = [];
+    let allData = [];
+    let adminTab = 'soal';
+    let lembagaData = null;
+
+    const mapelPaketB = [
+      "Pendidikan Agama Islam",
+      "Pendidikan Kewarganegaraan",
+      "Bahasa Indonesia",
+      "Bahasa Inggris",
+      "Matematika",
+      "IPA",
+      "IPS",
+      "Komputer"
+    ];
+
+    const mapelPaketC = [
+      "Pendidikan Agama Islam",
+      "Pendidikan Kewarganegaraan",
+      "Bahasa Indonesia",
+      "Bahasa Inggris",
+      "Matematika",
+      "PJOK",
+      "Sejarah",
+      "Ekonomi",
+      "Geografi",
+      "Sosiologi",
+      "Komputer"
+    ];
+
+    // Bank Soal per Mata Pelajaran
+    const bankSoal = {
+      "Pendidikan Agama Islam": {
+        pg: [
+          { soal: "Rukun Islam yang pertama adalah...", pilihan: ["Syahadat", "Shalat", "Zakat", "Puasa"], kunci: 0 },
+          { soal: "Jumlah rakaat shalat Subuh adalah...", pilihan: ["2 rakaat", "3 rakaat", "4 rakaat", "5 rakaat"], kunci: 0 },
+          { soal: "Kitab suci umat Islam adalah...", pilihan: ["Taurat", "Injil", "Al-Quran", "Zabur"], kunci: 2 },
+          { soal: "Nabi Muhammad SAW lahir di kota...", pilihan: ["Madinah", "Makkah", "Thaif", "Yaman"], kunci: 1 },
+          { soal: "Malaikat yang bertugas menyampaikan wahyu adalah...", pilihan: ["Mikail", "Israfil", "Jibril", "Izrail"], kunci: 2 },
+          { soal: "Puasa Ramadhan dilaksanakan pada bulan ke...", pilihan: ["8", "9", "10", "11"], kunci: 1 },
+          { soal: "Zakat fitrah wajib dikeluarkan pada bulan...", pilihan: ["Syawal", "Ramadhan", "Dzulhijjah", "Muharram"], kunci: 1 },
+          { soal: "Rukun Iman yang pertama adalah...", pilihan: ["Iman kepada Allah", "Iman kepada Malaikat", "Iman kepada Rasul", "Iman kepada Kitab"], kunci: 0 },
+          { soal: "Shalat Jumat wajib bagi...", pilihan: ["Semua muslim", "Laki-laki muslim", "Perempuan muslim", "Anak-anak"], kunci: 1 },
+          { soal: "Haji wajib dilaksanakan di...", pilihan: ["Madinah", "Makkah", "Yerusalem", "Baghdad"], kunci: 1 },
+          { soal: "Jumlah surat dalam Al-Quran adalah...", pilihan: ["110", "112", "114", "116"], kunci: 2 },
+          { soal: "Nabi terakhir yang diutus Allah adalah...", pilihan: ["Nabi Isa", "Nabi Musa", "Nabi Ibrahim", "Nabi Muhammad"], kunci: 3 },
+          { soal: "Shalat yang dikerjakan pada malam hari adalah...", pilihan: ["Subuh", "Dzuhur", "Ashar", "Isya"], kunci: 3 },
+          { soal: "Bulan suci umat Islam adalah...", pilihan: ["Syawal", "Ramadhan", "Rajab", "Syaban"], kunci: 1 },
+          { soal: "Kiblat shalat umat Islam menghadap ke...", pilihan: ["Masjid Nabawi", "Masjid Al-Aqsa", "Ka'bah", "Gunung Uhud"], kunci: 2 },
+          { soal: "Nabi yang dijuluki Khalilullah adalah...", pilihan: ["Nabi Musa", "Nabi Ibrahim", "Nabi Isa", "Nabi Nuh"], kunci: 1 },
+          { soal: "Jumlah rakaat shalat Maghrib adalah...", pilihan: ["2 rakaat", "3 rakaat", "4 rakaat", "5 rakaat"], kunci: 1 },
+          { soal: "Hari raya umat Islam setelah puasa Ramadhan adalah...", pilihan: ["Idul Adha", "Idul Fitri", "Maulid Nabi", "Isra Mi'raj"], kunci: 1 },
+          { soal: "Zakat mal wajib dikeluarkan jika harta mencapai...", pilihan: ["Haul", "Nisab", "Kifayah", "Qiyas"], kunci: 1 },
+          { soal: "Rukun Islam ada...", pilihan: ["3", "4", "5", "6"], kunci: 2 },
+          { soal: "Surat pertama dalam Al-Quran adalah...", pilihan: ["Al-Baqarah", "Al-Fatihah", "An-Nas", "Al-Ikhlas"], kunci: 1 },
+          { soal: "Nabi yang mendapat gelar Ulul Azmi berjumlah...", pilihan: ["3 orang", "4 orang", "5 orang", "6 orang"], kunci: 2 },
+          { soal: "Malaikat yang bertugas mencatat amal baik adalah...", pilihan: ["Raqib", "Atid", "Munkar", "Nakir"], kunci: 0 },
+          { soal: "Shalat Tarawih dilaksanakan pada bulan...", pilihan: ["Syawal", "Ramadhan", "Dzulhijjah", "Rajab"], kunci: 1 },
+          { soal: "Hukum membaca Al-Fatihah dalam shalat adalah...", pilihan: ["Sunnah", "Wajib", "Makruh", "Mubah"], kunci: 1 }
+        ],
+        essay: [
+          { soal: "Jelaskan pengertian Rukun Islam dan sebutkan kelima rukunnya!", kunci: ["rukun islam", "syahadat", "shalat", "zakat", "puasa", "haji"] },
+          { soal: "Apa hikmah dari pelaksanaan ibadah puasa Ramadhan?", kunci: ["sabar", "taqwa", "menahan", "empati", "kesehatan", "spiritual"] },
+          { soal: "Sebutkan dan jelaskan 3 sifat wajib Allah SWT!", kunci: ["wujud", "qidam", "baqa", "mukhalafatu", "qiyamuhu", "wahdaniyah"] },
+          { soal: "Jelaskan perbedaan antara zakat fitrah dan zakat mal!", kunci: ["fitrah", "mal", "ramadhan", "harta", "badan", "nisab"] },
+          { soal: "Apa yang dimaksud dengan Rukun Iman? Sebutkan 6 Rukun Iman!", kunci: ["rukun iman", "allah", "malaikat", "kitab", "rasul", "hari akhir", "qada", "qadar"] }
+        ]
+      },
+      "Pendidikan Kewarganegaraan": {
+        pg: [
+          { soal: "Pancasila sebagai dasar negara Indonesia disahkan pada tanggal...", pilihan: ["17 Agustus 1945", "18 Agustus 1945", "1 Juni 1945", "22 Juni 1945"], kunci: 1 },
+          { soal: "Sila pertama Pancasila adalah...", pilihan: ["Kemanusiaan yang adil dan beradab", "Ketuhanan Yang Maha Esa", "Persatuan Indonesia", "Kerakyatan"], kunci: 1 },
+          { soal: "UUD 1945 disahkan oleh...", pilihan: ["BPUPKI", "PPKI", "MPR", "DPR"], kunci: 1 },
+          { soal: "Lambang negara Indonesia adalah...", pilihan: ["Burung Garuda", "Harimau", "Gajah", "Komodo"], kunci: 0 },
+          { soal: "Jumlah provinsi di Indonesia saat ini adalah...", pilihan: ["33", "34", "37", "38"], kunci: 3 },
+          { soal: "Presiden pertama Republik Indonesia adalah...", pilihan: ["Soeharto", "Soekarno", "Habibie", "Megawati"], kunci: 1 },
+          { soal: "Semboyan negara Indonesia adalah...", pilihan: ["Merdeka atau Mati", "Bhinneka Tunggal Ika", "Indonesia Raya", "Garuda Pancasila"], kunci: 1 },
+          { soal: "Hak dan kewajiban warga negara diatur dalam...", pilihan: ["UUD 1945", "Pancasila", "GBHN", "Tap MPR"], kunci: 0 },
+          { soal: "Lembaga negara yang bertugas membuat undang-undang adalah...", pilihan: ["Presiden", "DPR", "MA", "MK"], kunci: 1 },
+          { soal: "Pemilihan umum di Indonesia dilaksanakan setiap...", pilihan: ["3 tahun", "4 tahun", "5 tahun", "6 tahun"], kunci: 2 },
+          { soal: "Bentuk negara Indonesia adalah...", pilihan: ["Serikat", "Kesatuan", "Federal", "Monarki"], kunci: 1 },
+          { soal: "Sistem pemerintahan Indonesia adalah...", pilihan: ["Parlementer", "Presidensial", "Monarki", "Liberal"], kunci: 1 },
+          { soal: "Hari Kesaktian Pancasila diperingati setiap tanggal...", pilihan: ["1 Juni", "17 Agustus", "1 Oktober", "10 November"], kunci: 2 },
+          { soal: "Lembaga yang berwenang mengubah UUD 1945 adalah...", pilihan: ["DPR", "MPR", "Presiden", "MK"], kunci: 1 },
+          { soal: "Hak asasi manusia di Indonesia dijamin dalam...", pilihan: ["Pancasila", "UUD 1945", "GBHN", "Tap MPR"], kunci: 1 },
+          { soal: "Warga negara Indonesia yang baik harus memiliki sikap...", pilihan: ["Individualis", "Nasionalis", "Liberalis", "Kapitalis"], kunci: 1 },
+          { soal: "Kedaulatan tertinggi di Indonesia berada di tangan...", pilihan: ["Presiden", "DPR", "Rakyat", "MPR"], kunci: 2 },
+          { soal: "Lambang sila ke-5 Pancasila adalah...", pilihan: ["Bintang", "Rantai", "Pohon Beringin", "Padi dan Kapas"], kunci: 3 },
+          { soal: "Kewajiban utama warga negara adalah...", pilihan: ["Membayar pajak", "Membela negara", "Mengikuti pemilu", "Semua benar"], kunci: 3 },
+          { soal: "Bhinneka Tunggal Ika artinya...", pilihan: ["Berbeda-beda tetapi tetap satu", "Bersatu kita teguh", "Merdeka atau mati", "Indonesia raya"], kunci: 0 },
+          { soal: "Pancasila pertama kali dirumuskan oleh...", pilihan: ["Soekarno", "Hatta", "Soepomo", "Yamin"], kunci: 0 },
+          { soal: "Lembaga yudikatif di Indonesia adalah...", pilihan: ["DPR", "Presiden", "Mahkamah Agung", "MPR"], kunci: 2 },
+          { soal: "Hak untuk memilih dalam pemilu disebut...", pilihan: ["Hak politik", "Hak ekonomi", "Hak sosial", "Hak budaya"], kunci: 0 },
+          { soal: "Otonomi daerah bertujuan untuk...", pilihan: ["Sentralisasi", "Desentralisasi", "Dekonsentrasi", "Privatisasi"], kunci: 1 },
+          { soal: "Demokrasi Pancasila mengutamakan...", pilihan: ["Voting", "Musyawarah mufakat", "Suara mayoritas", "Keputusan pemimpin"], kunci: 1 }
+        ],
+        essay: [
+          { soal: "Jelaskan makna sila ke-3 Pancasila 'Persatuan Indonesia' dalam kehidupan berbangsa!", kunci: ["persatuan", "kesatuan", "bhinneka", "toleransi", "gotong royong"] },
+          { soal: "Sebutkan dan jelaskan 3 hak dan 3 kewajiban warga negara Indonesia!", kunci: ["hak", "kewajiban", "pendidikan", "pajak", "bela negara", "hidup"] },
+          { soal: "Apa yang dimaksud dengan demokrasi Pancasila? Jelaskan!", kunci: ["demokrasi", "pancasila", "musyawarah", "mufakat", "rakyat"] },
+          { soal: "Jelaskan pentingnya Bhinneka Tunggal Ika bagi bangsa Indonesia!", kunci: ["bhinneka", "berbeda", "satu", "toleransi", "keberagaman", "persatuan"] },
+          { soal: "Sebutkan 3 contoh perilaku yang mencerminkan nilai-nilai Pancasila dalam kehidupan sehari-hari!", kunci: ["gotong royong", "toleransi", "musyawarah", "tolong menolong", "menghormati"] }
+        ]
+      },
+      "Bahasa Indonesia": {
+        pg: [
+          { soal: "Kata baku dari 'apotek' adalah...", pilihan: ["Apotik", "Apothek", "Apotek", "Apotex"], kunci: 2 },
+          { soal: "Kalimat yang menggunakan kata tanya disebut kalimat...", pilihan: ["Berita", "Perintah", "Tanya", "Seru"], kunci: 2 },
+          { soal: "Kata ganti orang pertama tunggal adalah...", pilihan: ["Kami", "Saya", "Kita", "Mereka"], kunci: 1 },
+          { soal: "Imbuhan 'ber-' pada kata 'berlari' berfungsi sebagai...", pilihan: ["Awalan", "Akhiran", "Sisipan", "Gabungan"], kunci: 0 },
+          { soal: "Antonim dari kata 'rajin' adalah...", pilihan: ["Malas", "Giat", "Tekun", "Ulet"], kunci: 0 },
+          { soal: "Sinonim dari kata 'cantik' adalah...", pilihan: ["Jelek", "Indah", "Buruk", "Kotor"], kunci: 1 },
+          { soal: "Kalimat yang memiliki subjek dan predikat disebut kalimat...", pilihan: ["Tunggal", "Majemuk", "Efektif", "Kompleks"], kunci: 0 },
+          { soal: "Puisi yang terdiri dari 4 baris disebut...", pilihan: ["Distikon", "Terzina", "Kuatrain", "Oktaf"], kunci: 2 },
+          { soal: "Kata 'membaca' termasuk kata...", pilihan: ["Benda", "Kerja", "Sifat", "Bilangan"], kunci: 1 },
+          { soal: "Tanda baca yang digunakan untuk mengakhiri kalimat berita adalah...", pilihan: ["Tanda tanya (?)", "Tanda seru (!)", "Titik (.)", "Koma (,)"], kunci: 2 },
+          { soal: "Karya sastra yang berbentuk prosa adalah...", pilihan: ["Puisi", "Pantun", "Cerpen", "Syair"], kunci: 2 },
+          { soal: "Kata 'merah' termasuk kata...", pilihan: ["Benda", "Kerja", "Sifat", "Keterangan"], kunci: 2 },
+          { soal: "Pantun terdiri dari...", pilihan: ["2 baris", "3 baris", "4 baris", "5 baris"], kunci: 2 },
+          { soal: "Kalimat yang menyatakan perintah disebut kalimat...", pilihan: ["Berita", "Tanya", "Perintah", "Seru"], kunci: 2 },
+          { soal: "Kata 'kemarin' termasuk kata keterangan...", pilihan: ["Tempat", "Waktu", "Cara", "Alat"], kunci: 1 },
+          { soal: "Majas yang membandingkan dua hal menggunakan kata 'seperti' atau 'bagai' disebut...", pilihan: ["Metafora", "Personifikasi", "Simile", "Hiperbola"], kunci: 2 },
+          { soal: "Huruf kapital digunakan pada...", pilihan: ["Awal kalimat", "Tengah kalimat", "Akhir kalimat", "Semua kata"], kunci: 0 },
+          { soal: "Kata 'membeli' mendapat imbuhan...", pilihan: ["me-", "ber-", "di-", "ter-"], kunci: 0 },
+          { soal: "Kalimat yang memiliki lebih dari satu subjek atau predikat disebut kalimat...", pilihan: ["Tunggal", "Majemuk", "Sederhana", "Efektif"], kunci: 1 },
+          { soal: "Kata 'buku' termasuk kata...", pilihan: ["Kerja", "Sifat", "Benda", "Bilangan"], kunci: 2 },
+          { soal: "Cerita rakyat yang mengandung nilai moral disebut...", pilihan: ["Legenda", "Fabel", "Mitos", "Sage"], kunci: 1 },
+          { soal: "Kata 'sangat' termasuk kata...", pilihan: ["Benda", "Kerja", "Sifat", "Keterangan"], kunci: 3 },
+          { soal: "Tanda baca yang digunakan untuk memisahkan kalimat dalam dialog adalah...", pilihan: ["Titik", "Koma", "Titik dua", "Tanda petik"], kunci: 3 },
+          { soal: "Kata 'berlari' berasal dari kata dasar...", pilihan: ["Lari", "Ber", "Larian", "Pelari"], kunci: 0 },
+          { soal: "Paragraf yang kalimat utamanya di awal disebut paragraf...", pilihan: ["Induktif", "Deduktif", "Campuran", "Naratif"], kunci: 1 }
+        ],
+        essay: [
+          { soal: "Jelaskan perbedaan antara kalimat efektif dan kalimat tidak efektif! Berikan contohnya!", kunci: ["efektif", "tidak efektif", "hemat", "jelas", "logis", "subjek", "predikat"] },
+          { soal: "Buatlah sebuah paragraf deskripsi tentang pemandangan alam (minimal 5 kalimat)!", kunci: ["pemandangan", "alam", "indah", "gunung", "pantai", "sungai", "hijau"] },
+          { soal: "Sebutkan dan jelaskan 3 jenis majas yang kamu ketahui beserta contohnya!", kunci: ["majas", "personifikasi", "metafora", "simile", "hiperbola", "perumpamaan"] },
+          { soal: "Apa perbedaan antara puisi lama dan puisi baru? Jelaskan!", kunci: ["puisi lama", "puisi baru", "pantun", "syair", "bebas", "terikat", "rima"] },
+          { soal: "Buatlah sebuah pantun dengan tema pendidikan!", kunci: ["pantun", "sampiran", "isi", "belajar", "sekolah", "ilmu", "pendidikan"] }
+        ]
+      },
+      "Bahasa Inggris": {
+        pg: [
+          { soal: "What is the English word for 'buku'?", pilihan: ["Book", "Pen", "Paper", "Pencil"], kunci: 0 },
+          { soal: "I ... a student.", pilihan: ["am", "is", "are", "be"], kunci: 0 },
+          { soal: "She ... to school every day.", pilihan: ["go", "goes", "going", "gone"], kunci: 1 },
+          { soal: "What is the opposite of 'big'?", pilihan: ["Large", "Small", "Huge", "Giant"], kunci: 1 },
+          { soal: "How ... you?", pilihan: ["am", "is", "are", "be"], kunci: 2 },
+          { soal: "This is ... book.", pilihan: ["a", "an", "the", "some"], kunci: 0 },
+          { soal: "They ... playing football now.", pilihan: ["am", "is", "are", "be"], kunci: 2 },
+          { soal: "What is the past tense of 'eat'?", pilihan: ["Eated", "Ate", "Eaten", "Eating"], kunci: 1 },
+          { soal: "I have ... apple.", pilihan: ["a", "an", "the", "some"], kunci: 1 },
+          { soal: "She is ... than her sister.", pilihan: ["tall", "taller", "tallest", "more tall"], kunci: 1 },
+          { soal: "What is the English word for 'merah'?", pilihan: ["Red", "Blue", "Green", "Yellow"], kunci: 0 },
+          { soal: "We ... to the park yesterday.", pilihan: ["go", "goes", "went", "gone"], kunci: 2 },
+          { soal: "... you like coffee?", pilihan: ["Do", "Does", "Did", "Done"], kunci: 0 },
+          { soal: "He ... not come to school yesterday.", pilihan: ["do", "does", "did", "done"], kunci: 2 },
+          { soal: "What is the plural of 'child'?", pilihan: ["Childs", "Children", "Childes", "Childrens"], kunci: 1 },
+          { soal: "I ... watching TV when you called.", pilihan: ["am", "is", "was", "were"], kunci: 2 },
+          { soal: "This is the ... book I have ever read.", pilihan: ["good", "better", "best", "well"], kunci: 2 },
+          { soal: "... is your name?", pilihan: ["What", "Where", "When", "Who"], kunci: 0 },
+          { soal: "She ... her homework every evening.", pilihan: ["do", "does", "doing", "done"], kunci: 1 },
+          { soal: "I ... born in 2005.", pilihan: ["am", "is", "was", "were"], kunci: 2 },
+          { soal: "What is the English word for 'meja'?", pilihan: ["Chair", "Table", "Desk", "Bench"], kunci: 1 },
+          { soal: "They ... happy yesterday.", pilihan: ["am", "is", "was", "were"], kunci: 3 },
+          { soal: "I can ... English.", pilihan: ["speak", "speaks", "speaking", "spoke"], kunci: 0 },
+          { soal: "What is the opposite of 'hot'?", pilihan: ["Warm", "Cold", "Cool", "Freeze"], kunci: 1 },
+          { soal: "She ... a doctor.", pilihan: ["am", "is", "are", "be"], kunci: 1 }
+        ],
+        essay: [
+          { soal: "Write a short paragraph about yourself (name, age, hobby) in English!", kunci: ["name", "age", "hobby", "like", "years old", "my name"] },
+          { soal: "What is the difference between Simple Present Tense and Present Continuous Tense? Give examples!", kunci: ["simple present", "present continuous", "verb", "ing", "always", "now"] },
+          { soal: "Describe your favorite place in English (minimum 5 sentences)!", kunci: ["favorite", "place", "like", "beautiful", "because"] },
+          { soal: "Write 5 sentences using comparative and superlative adjectives!", kunci: ["comparative", "superlative", "than", "more", "most", "er", "est"] },
+          { soal: "What do you usually do on Sunday? Write in English (minimum 5 sentences)!", kunci: ["sunday", "usually", "do", "go", "play", "watch"] }
+        ]
+      },
+      "Matematika": {
+        pg: [
+          { soal: "Hasil dari 15 + 28 adalah...", pilihan: ["41", "42", "43", "44"], kunci: 2 },
+          { soal: "Hasil dari 56 - 23 adalah...", pilihan: ["31", "32", "33", "34"], kunci: 2 },
+          { soal: "Hasil dari 12 × 8 adalah...", pilihan: ["94", "95", "96", "97"], kunci: 2 },
+          { soal: "Hasil dari 144 ÷ 12 adalah...", pilihan: ["10", "11", "12", "13"], kunci: 2 },
+          { soal: "Bilangan prima antara 10 dan 20 adalah...", pilihan: ["12, 15, 18", "11, 13, 17, 19", "10, 14, 16", "15, 16, 17"], kunci: 1 },
+          { soal: "Hasil dari 25% dari 200 adalah...", pilihan: ["25", "50", "75", "100"], kunci: 1 },
+          { soal: "Luas persegi dengan sisi 8 cm adalah...", pilihan: ["32 cm²", "48 cm²", "64 cm²", "72 cm²"], kunci: 2 },
+          { soal: "Keliling lingkaran dengan diameter 14 cm (π = 22/7) adalah...", pilihan: ["44 cm", "88 cm", "22 cm", "66 cm"], kunci: 0 },
+          { soal: "Hasil dari √144 adalah...", pilihan: ["10", "11", "12", "13"], kunci: 2 },
+          { soal: "Jika x + 5 = 12, maka x = ...", pilihan: ["5", "6", "7", "8"], kunci: 2 },
+          { soal: "Hasil dari 2³ adalah...", pilihan: ["6", "8", "9", "12"], kunci: 1 },
+          { soal: "Volume kubus dengan rusuk 5 cm adalah...", pilihan: ["25 cm³", "75 cm³", "125 cm³", "150 cm³"], kunci: 2 },
+          { soal: "Hasil dari 0,5 + 0,25 adalah...", pilihan: ["0,5", "0,75", "1", "1,25"], kunci: 1 },
+          { soal: "KPK dari 12 dan 18 adalah...", pilihan: ["24", "36", "48", "72"], kunci: 1 },
+          { soal: "FPB dari 24 dan 36 adalah...", pilihan: ["6", "8", "12", "18"], kunci: 2 },
+          { soal: "Hasil dari 15² adalah...", pilihan: ["200", "215", "225", "250"], kunci: 2 },
+          { soal: "Luas segitiga dengan alas 10 cm dan tinggi 8 cm adalah...", pilihan: ["40 cm²", "80 cm²", "18 cm²", "160 cm²"], kunci: 0 },
+          { soal: "Hasil dari 3/4 + 1/4 adalah...", pilihan: ["1/2", "3/4", "1", "4/4"], kunci: 2 },
+          { soal: "Sudut siku-siku besarnya...", pilihan: ["45°", "60°", "90°", "180°"], kunci: 2 },
+          { soal: "Hasil dari 100 - 37 + 15 adalah...", pilihan: ["68", "72", "78", "82"], kunci: 2 },
+          { soal: "Bilangan genap terkecil adalah...", pilihan: ["0", "1", "2", "4"], kunci: 2 },
+          { soal: "Hasil dari 7 × 9 adalah...", pilihan: ["56", "63", "72", "81"], kunci: 1 },
+          { soal: "Keliling persegi panjang dengan panjang 12 cm dan lebar 8 cm adalah...", pilihan: ["20 cm", "40 cm", "96 cm", "160 cm"], kunci: 1 },
+          { soal: "Hasil dari 2/5 × 10 adalah...", pilihan: ["2", "4", "5", "8"], kunci: 1 },
+          { soal: "Jika 2x = 16, maka x = ...", pilihan: ["6", "7", "8", "9"], kunci: 2 }
+        ],
+        essay: [
+          { soal: "Sebuah taman berbentuk persegi panjang dengan panjang 15 meter dan lebar 10 meter. Hitunglah luas dan keliling taman tersebut!", kunci: ["luas", "keliling", "150", "50", "persegi panjang"] },
+          { soal: "Jelaskan perbedaan antara bilangan prima dan bilangan komposit! Berikan masing-masing 3 contoh!", kunci: ["prima", "komposit", "faktor", "pembagi", "2", "3", "5", "4", "6"] },
+          { soal: "Pak Budi membeli 5 kg beras seharga Rp 60.000. Berapa harga 1 kg beras? Berapa harga 8 kg beras?", kunci: ["12000", "96000", "harga", "kg", "beras"] },
+          { soal: "Hitunglah luas dan keliling lingkaran dengan jari-jari 7 cm! (π = 22/7)", kunci: ["luas", "keliling", "154", "44", "lingkaran", "jari-jari"] },
+          { soal: "Selesaikan persamaan berikut: 3x + 5 = 20. Tentukan nilai x!", kunci: ["x", "5", "persamaan", "3x", "15"] }
+        ]
+      },
+      "IPA": {
+        pg: [
+          { soal: "Proses perubahan air menjadi uap disebut...", pilihan: ["Pengembunan", "Penguapan", "Pembekuan", "Pencairan"], kunci: 1 },
+          { soal: "Planet terdekat dengan matahari adalah...", pilihan: ["Venus", "Merkurius", "Mars", "Bumi"], kunci: 1 },
+          { soal: "Hewan yang berkembang biak dengan bertelur disebut...", pilihan: ["Vivipar", "Ovipar", "Ovovivipar", "Fragmentasi"], kunci: 1 },
+          { soal: "Bagian tumbuhan yang berfungsi menyerap air adalah...", pilihan: ["Daun", "Batang", "Akar", "Bunga"], kunci: 2 },
+          { soal: "Satuan SI untuk panjang adalah...", pilihan: ["Kilogram", "Meter", "Sekon", "Kelvin"], kunci: 1 },
+          { soal: "Proses pembuatan makanan pada tumbuhan disebut...", pilihan: ["Respirasi", "Fotosintesis", "Transpirasi", "Evaporasi"], kunci: 1 },
+          { soal: "Energi yang tersimpan dalam makanan adalah energi...", pilihan: ["Kinetik", "Potensial", "Kimia", "Listrik"], kunci: 2 },
+          { soal: "Alat pernapasan pada ikan adalah...", pilihan: ["Paru-paru", "Insang", "Kulit", "Trakea"], kunci: 1 },
+          { soal: "Gaya yang menyebabkan benda jatuh ke bumi adalah gaya...", pilihan: ["Magnet", "Gesek", "Gravitasi", "Pegas"], kunci: 2 },
+          { soal: "Perubahan wujud dari padat ke gas disebut...", pilihan: ["Menyublim", "Mengembun", "Mencair", "Membeku"], kunci: 0 },
+          { soal: "Hewan yang hidup di dua alam disebut...", pilihan: ["Mamalia", "Reptil", "Amfibi", "Aves"], kunci: 2 },
+          { soal: "Bagian sel yang mengatur seluruh kegiatan sel adalah...", pilihan: ["Sitoplasma", "Nukleus", "Membran sel", "Vakuola"], kunci: 1 },
+          { soal: "Bunyi merambat paling cepat melalui...", pilihan: ["Udara", "Air", "Besi", "Vakum"], kunci: 2 },
+          { soal: "Hewan yang memiliki tulang belakang disebut...", pilihan: ["Invertebrata", "Vertebrata", "Protozoa", "Arthropoda"], kunci: 1 },
+          { soal: "Sumber energi terbesar di bumi adalah...", pilihan: ["Angin", "Air", "Matahari", "Batu bara"], kunci: 2 },
+          { soal: "Proses pernapasan yang menghasilkan energi disebut...", pilihan: ["Fotosintesis", "Respirasi", "Transpirasi", "Difusi"], kunci: 1 },
+          { soal: "Alat peredaran darah pada manusia adalah...", pilihan: ["Paru-paru", "Jantung", "Hati", "Ginjal"], kunci: 1 },
+          { soal: "Lapisan atmosfer yang paling dekat dengan bumi adalah...", pilihan: ["Stratosfer", "Troposfer", "Mesosfer", "Termosfer"], kunci: 1 },
+          { soal: "Metamorfosis sempurna terjadi pada...", pilihan: ["Belalang", "Kecoa", "Kupu-kupu", "Jangkrik"], kunci: 2 },
+          { soal: "Zat yang dapat mempercepat reaksi kimia disebut...", pilihan: ["Inhibitor", "Katalis", "Reaktan", "Produk"], kunci: 1 },
+          { soal: "Organ pencernaan yang menghasilkan enzim pepsin adalah...", pilihan: ["Mulut", "Lambung", "Usus", "Hati"], kunci: 1 },
+          { soal: "Satuan untuk mengukur suhu adalah...", pilihan: ["Meter", "Kilogram", "Celcius", "Joule"], kunci: 2 },
+          { soal: "Hewan yang termasuk mamalia adalah...", pilihan: ["Ikan paus", "Hiu", "Buaya", "Penyu"], kunci: 0 },
+          { soal: "Bagian bunga yang berfungsi sebagai alat kelamin jantan adalah...", pilihan: ["Putik", "Benang sari", "Mahkota", "Kelopak"], kunci: 1 },
+          { soal: "Perubahan yang dapat kembali ke bentuk semula disebut perubahan...", pilihan: ["Kimia", "Fisika", "Biologi", "Permanen"], kunci: 1 }
+        ],
+        essay: [
+          { soal: "Jelaskan proses fotosintesis pada tumbuhan dan sebutkan faktor-faktor yang mempengaruhinya!", kunci: ["fotosintesis", "cahaya", "klorofil", "air", "karbon dioksida", "oksigen"] },
+          { soal: "Sebutkan dan jelaskan 3 jenis energi yang kamu ketahui beserta contohnya!", kunci: ["energi", "kinetik", "potensial", "listrik", "panas", "cahaya", "kimia"] },
+          { soal: "Apa perbedaan antara hewan vertebrata dan invertebrata? Berikan masing-masing 3 contoh!", kunci: ["vertebrata", "invertebrata", "tulang belakang", "mamalia", "ikan", "serangga", "cacing"] },
+          { soal: "Jelaskan fungsi dari 3 organ pencernaan pada manusia!", kunci: ["lambung", "usus", "mulut", "hati", "pencernaan", "enzim"] },
+          { soal: "Apa yang dimaksud dengan rantai makanan? Buatlah contoh rantai makanan di ekosistem sawah!", kunci: ["rantai makanan", "produsen", "konsumen", "padi", "tikus", "ular", "elang"] }
+        ]
+      },
+      "IPS": {
+        pg: [
+          { soal: "Ibu kota Indonesia adalah...", pilihan: ["Bandung", "Jakarta", "Surabaya", "Medan"], kunci: 1 },
+          { soal: "Benua terbesar di dunia adalah...", pilihan: ["Afrika", "Amerika", "Asia", "Eropa"], kunci: 2 },
+          { soal: "Mata uang Indonesia adalah...", pilihan: ["Ringgit", "Rupiah", "Baht", "Peso"], kunci: 1 },
+          { soal: "Proklamasi kemerdekaan Indonesia dibacakan pada tanggal...", pilihan: ["17 Agustus 1945", "17 Agustus 1944", "1 Juni 1945", "20 Mei 1945"], kunci: 0 },
+          { soal: "Pulau terbesar di Indonesia adalah...", pilihan: ["Jawa", "Sumatra", "Kalimantan", "Papua"], kunci: 3 },
+          { soal: "Pahlawan yang dijuluki 'Bapak Pendidikan' adalah...", pilihan: ["Diponegoro", "Ki Hajar Dewantara", "Kartini", "Sudirman"], kunci: 1 },
+          { soal: "Sumber daya alam yang tidak dapat diperbaharui adalah...", pilihan: ["Air", "Udara", "Minyak bumi", "Hutan"], kunci: 2 },
+          { soal: "Negara tetangga Indonesia di sebelah utara adalah...", pilihan: ["Malaysia", "Singapura", "Filipina", "Timor Leste"], kunci: 2 },
+          { soal: "Kegiatan ekonomi yang menghasilkan barang disebut...", pilihan: ["Konsumsi", "Distribusi", "Produksi", "Investasi"], kunci: 2 },
+          { soal: "Gunung tertinggi di Indonesia adalah...", pilihan: ["Semeru", "Merapi", "Puncak Jaya", "Rinjani"], kunci: 2 },
+          { soal: "Organisasi negara-negara Asia Tenggara adalah...", pilihan: ["APEC", "ASEAN", "OPEC", "NATO"], kunci: 1 },
+          { soal: "Selat yang memisahkan Sumatra dan Jawa adalah...", pilihan: ["Selat Sunda", "Selat Bali", "Selat Malaka", "Selat Lombok"], kunci: 0 },
+          { soal: "Kegiatan menyalurkan barang dari produsen ke konsumen disebut...", pilihan: ["Produksi", "Konsumsi", "Distribusi", "Investasi"], kunci: 2 },
+          { soal: "Pahlawan wanita Indonesia yang memperjuangkan emansipasi adalah...", pilihan: ["Cut Nyak Dien", "R.A. Kartini", "Dewi Sartika", "Martha Christina Tiahahu"], kunci: 1 },
+          { soal: "Laut yang terletak di antara Jawa dan Kalimantan adalah...", pilihan: ["Laut Jawa", "Laut Banda", "Laut Flores", "Laut Arafuru"], kunci: 0 },
+          { soal: "Sistem ekonomi yang dianut Indonesia adalah...", pilihan: ["Liberal", "Sosialis", "Pancasila", "Kapitalis"], kunci: 2 },
+          { soal: "Candi terbesar di Indonesia adalah...", pilihan: ["Prambanan", "Borobudur", "Mendut", "Sewu"], kunci: 1 },
+          { soal: "Kebutuhan yang harus dipenuhi untuk kelangsungan hidup disebut kebutuhan...", pilihan: ["Primer", "Sekunder", "Tersier", "Mewah"], kunci: 0 },
+          { soal: "Danau terbesar di Indonesia adalah...", pilihan: ["Danau Toba", "Danau Singkarak", "Danau Maninjau", "Danau Poso"], kunci: 0 },
+          { soal: "Penjajah pertama yang datang ke Indonesia adalah...", pilihan: ["Inggris", "Belanda", "Portugis", "Jepang"], kunci: 2 },
+          { soal: "Kegiatan menggunakan barang atau jasa disebut...", pilihan: ["Produksi", "Distribusi", "Konsumsi", "Investasi"], kunci: 2 },
+          { soal: "Iklim di Indonesia adalah...", pilihan: ["Subtropis", "Tropis", "Sedang", "Dingin"], kunci: 1 },
+          { soal: "Sumber daya alam yang dapat diperbaharui adalah...", pilihan: ["Batu bara", "Minyak bumi", "Hutan", "Gas alam"], kunci: 2 },
+          { soal: "Organisasi kerjasama ekonomi negara-negara penghasil minyak adalah...", pilihan: ["ASEAN", "OPEC", "APEC", "WTO"], kunci: 1 },
+          { soal: "Pahlawan yang memimpin Perang Diponegoro adalah...", pilihan: ["Pangeran Diponegoro", "Tuanku Imam Bonjol", "Pattimura", "Sultan Hasanuddin"], kunci: 0 }
+        ],
+        essay: [
+          { soal: "Jelaskan 3 faktor yang mempengaruhi kegiatan ekonomi masyarakat!", kunci: ["ekonomi", "sumber daya", "modal", "tenaga kerja", "teknologi", "pasar"] },
+          { soal: "Sebutkan dan jelaskan 3 kekayaan alam Indonesia yang dapat dimanfaatkan!", kunci: ["kekayaan alam", "minyak", "gas", "hutan", "tambang", "laut", "pertanian"] },
+          { soal: "Apa yang dimaksud dengan interaksi sosial? Berikan 3 contohnya!", kunci: ["interaksi sosial", "komunikasi", "kerja sama", "tolong menolong", "gotong royong"] },
+          { soal: "Jelaskan perbedaan antara kebutuhan primer, sekunder, dan tersier! Berikan contohnya!", kunci: ["primer", "sekunder", "tersier", "makanan", "pakaian", "rumah", "pendidikan"] },
+          { soal: "Sebutkan 3 dampak positif dan 3 dampak negatif dari kemajuan teknologi!", kunci: ["teknologi", "positif", "negatif", "komunikasi", "informasi", "efisien", "ketergantungan"] }
+        ]
+      },
+      "PJOK": {
+        pg: [
+          { soal: "Jumlah pemain dalam satu tim sepak bola adalah...", pilihan: ["9 orang", "10 orang", "11 orang", "12 orang"], kunci: 2 },
+          { soal: "Induk organisasi bola basket Indonesia adalah...", pilihan: ["PSSI", "PERBASI", "PBVSI", "PBSI"], kunci: 1 },
+          { soal: "Lama permainan sepak bola adalah...", pilihan: ["2 x 35 menit", "2 x 40 menit", "2 x 45 menit", "2 x 50 menit"], kunci: 2 },
+          { soal: "Teknik dasar dalam permainan bola voli adalah...", pilihan: ["Dribbling", "Passing", "Smash", "Tackle"], kunci: 1 },
+          { soal: "Jumlah pemain bola basket dalam satu tim adalah...", pilihan: ["4 orang", "5 orang", "6 orang", "7 orang"], kunci: 1 },
+          { soal: "Induk organisasi sepak bola Indonesia adalah...", pilihan: ["PSSI", "PERBASI", "PBVSI", "PBSI"], kunci: 0 },
+          { soal: "Tinggi net putra dalam permainan bola voli adalah...", pilihan: ["2,24 m", "2,34 m", "2,43 m", "2,53 m"], kunci: 2 },
+          { soal: "Lari jarak pendek disebut juga...", pilihan: ["Marathon", "Sprint", "Estafet", "Cross country"], kunci: 1 },
+          { soal: "Induk organisasi bulu tangkis Indonesia adalah...", pilihan: ["PSSI", "PERBASI", "PBSI", "PBVSI"], kunci: 2 },
+          { soal: "Jumlah set dalam permainan bola voli adalah...", pilihan: ["2 set", "3 set", "4 set", "5 set"], kunci: 1 },
+          { soal: "Teknik dasar dalam permainan sepak bola adalah...", pilihan: ["Smash", "Passing", "Spike", "Dunk"], kunci: 1 },
+          { soal: "Lari jarak jauh disebut juga...", pilihan: ["Sprint", "Marathon", "Hurdles", "Relay"], kunci: 1 },
+          { soal: "Induk organisasi bola voli Indonesia adalah...", pilihan: ["PSSI", "PERBASI", "PBVSI", "PBSI"], kunci: 2 },
+          { soal: "Jumlah pemain bola voli dalam satu tim adalah...", pilihan: ["4 orang", "5 orang", "6 orang", "7 orang"], kunci: 2 },
+          { soal: "Teknik memasukkan bola ke ring dalam basket disebut...", pilihan: ["Passing", "Dribbling", "Shooting", "Blocking"], kunci: 2 },
+          { soal: "Lari sambung atau lari beranting disebut...", pilihan: ["Sprint", "Marathon", "Estafet", "Hurdles"], kunci: 2 },
+          { soal: "Panjang lapangan sepak bola standar internasional adalah...", pilihan: ["90-100 m", "100-110 m", "110-120 m", "120-130 m"], kunci: 1 },
+          { soal: "Teknik dasar renang gaya bebas adalah...", pilihan: ["Gerakan kaki gunting", "Gerakan kaki naik turun", "Gerakan kaki melingkar", "Gerakan kaki menyamping"], kunci: 1 },
+          { soal: "Jumlah pemain dalam permainan bulu tangkis ganda adalah...", pilihan: ["1 orang", "2 orang", "3 orang", "4 orang"], kunci: 1 },
+          { soal: "Induk organisasi atletik Indonesia adalah...", pilihan: ["PSSI", "PASI", "PBSI", "PBVSI"], kunci: 1 },
+          { soal: "Teknik memegang raket bulu tangkis yang benar adalah...", pilihan: ["Forehand grip", "Backhand grip", "Shakehand grip", "Semua benar"], kunci: 3 },
+          { soal: "Lebar lapangan bola voli adalah...", pilihan: ["7 meter", "8 meter", "9 meter", "10 meter"], kunci: 2 },
+          { soal: "Teknik dasar dalam permainan tenis meja adalah...", pilihan: ["Smash", "Service", "Passing", "Dribbling"], kunci: 1 },
+          { soal: "Jumlah babak dalam pertandingan tinju amatir adalah...", pilihan: ["2 babak", "3 babak", "4 babak", "5 babak"], kunci: 1 },
+          { soal: "Gaya renang yang paling cepat adalah...", pilihan: ["Gaya bebas", "Gaya dada", "Gaya punggung", "Gaya kupu-kupu"], kunci: 0 }
+        ],
+        essay: [
+          { soal: "Jelaskan 3 teknik dasar dalam permainan sepak bola!", kunci: ["sepak bola", "passing", "dribbling", "shooting", "teknik", "menendang"] },
+          { soal: "Sebutkan dan jelaskan 3 manfaat olahraga bagi kesehatan tubuh!", kunci: ["olahraga", "kesehatan", "jantung", "stamina", "otot", "kebugaran"] },
+          { soal: "Apa yang dimaksud dengan fair play dalam olahraga? Berikan contohnya!", kunci: ["fair play", "sportif", "jujur", "menghormati", "aturan", "lawan"] },
+          { soal: "Jelaskan perbedaan antara lari jarak pendek dan lari jarak jauh!", kunci: ["lari", "sprint", "marathon", "jarak pendek", "jarak jauh", "kecepatan", "daya tahan"] },
+          { soal: "Sebutkan 3 peraturan dasar dalam permainan bola basket!", kunci: ["basket", "dribbling", "traveling", "double", "foul", "peraturan"] }
+        ]
+      },
+      "Sejarah": {
+        pg: [
+          { soal: "Proklamasi kemerdekaan Indonesia dibacakan pada tanggal...", pilihan: ["17 Agustus 1945", "17 Agustus 1944", "1 Juni 1945", "20 Mei 1945"], kunci: 0 },
+          { soal: "Presiden pertama Republik Indonesia adalah...", pilihan: ["Soeharto", "Soekarno", "Habibie", "Megawati"], kunci: 1 },
+          { soal: "Kerajaan Hindu pertama di Indonesia adalah...", pilihan: ["Majapahit", "Sriwijaya", "Kutai", "Mataram"], kunci: 2 },
+          { soal: "Penjajah yang pertama kali datang ke Indonesia adalah...", pilihan: ["Belanda", "Inggris", "Portugis", "Jepang"], kunci: 2 },
+          { soal: "Perang Diponegoro terjadi pada tahun...", pilihan: ["1825-1830", "1830-1835", "1835-1840", "1840-1845"], kunci: 0 },
+          { soal: "Organisasi pemuda yang memproklamasikan Sumpah Pemuda adalah...", pilihan: ["Budi Utomo", "Jong Java", "Perhimpunan Indonesia", "Berbagai organisasi"], kunci: 3 },
+          { soal: "Sumpah Pemuda diikrarkan pada tanggal...", pilihan: ["20 Mei 1908", "28 Oktober 1928", "17 Agustus 1945", "1 Juni 1945"], kunci: 1 },
+          { soal: "Candi Borobudur dibangun pada masa kerajaan...", pilihan: ["Majapahit", "Sriwijaya", "Mataram Kuno", "Singasari"], kunci: 2 },
+          { soal: "VOC didirikan pada tahun...", pilihan: ["1596", "1602", "1619", "1800"], kunci: 1 },
+          { soal: "Peristiwa Rengasdengklok terjadi pada tanggal...", pilihan: ["15 Agustus 1945", "16 Agustus 1945", "17 Agustus 1945", "18 Agustus 1945"], kunci: 1 },
+          { soal: "Kerajaan Islam pertama di Indonesia adalah...", pilihan: ["Demak", "Samudra Pasai", "Mataram", "Banten"], kunci: 1 },
+          { soal: "Agresi Militer Belanda I terjadi pada tahun...", pilihan: ["1945", "1946", "1947", "1948"], kunci: 2 },
+          { soal: "Konferensi Meja Bundar dilaksanakan di...", pilihan: ["Jakarta", "Den Haag", "Amsterdam", "Brussel"], kunci: 1 },
+          { soal: "Budi Utomo didirikan pada tanggal...", pilihan: ["20 Mei 1908", "28 Oktober 1928", "17 Agustus 1945", "1 Juni 1945"], kunci: 0 },
+          { soal: "Perang Padri terjadi di daerah...", pilihan: ["Jawa", "Sumatra Barat", "Sulawesi", "Kalimantan"], kunci: 1 },
+          { soal: "Kerajaan Majapahit mencapai puncak kejayaan pada masa...", pilihan: ["Ken Arok", "Hayam Wuruk", "Gajah Mada", "Kertanegara"], kunci: 1 },
+          { soal: "Jepang menjajah Indonesia selama...", pilihan: ["2,5 tahun", "3 tahun", "3,5 tahun", "4 tahun"], kunci: 2 },
+          { soal: "BPUPKI dibentuk pada tanggal...", pilihan: ["29 April 1945", "1 Mei 1945", "28 Mei 1945", "1 Juni 1945"], kunci: 0 },
+          { soal: "Peristiwa 10 November 1945 terjadi di kota...", pilihan: ["Jakarta", "Bandung", "Surabaya", "Semarang"], kunci: 2 },
+          { soal: "Kerajaan Sriwijaya terkenal sebagai pusat...", pilihan: ["Perdagangan", "Pertanian", "Kebudayaan Hindu", "Kebudayaan Buddha"], kunci: 3 },
+          { soal: "Cut Nyak Dien adalah pahlawan dari daerah...", pilihan: ["Jawa", "Sumatra", "Aceh", "Sulawesi"], kunci: 2 },
+          { soal: "Sistem tanam paksa (cultuurstelsel) diterapkan oleh...", pilihan: ["Daendels", "Van den Bosch", "Raffles", "De Kock"], kunci: 1 },
+          { soal: "Peristiwa Bandung Lautan Api terjadi pada tahun...", pilihan: ["1945", "1946", "1947", "1948"], kunci: 1 },
+          { soal: "Kerajaan Kutai meninggalkan prasasti yang ditulis dengan huruf...", pilihan: ["Jawa", "Pallava", "Arab", "Latin"], kunci: 1 },
+          { soal: "Perjanjian Linggarjati ditandatangani pada tahun...", pilihan: ["1945", "1946", "1947", "1948"], kunci: 1 }
+        ],
+        essay: [
+          { soal: "Jelaskan latar belakang terjadinya Perang Diponegoro!", kunci: ["diponegoro", "belanda", "perlawanan", "jawa", "kolonial", "tanam paksa"] },
+          { soal: "Sebutkan dan jelaskan 3 faktor pendorong munculnya pergerakan nasional Indonesia!", kunci: ["pergerakan nasional", "pendidikan", "organisasi", "kesadaran", "penjajahan", "budi utomo"] },
+          { soal: "Apa makna Sumpah Pemuda bagi bangsa Indonesia? Jelaskan!", kunci: ["sumpah pemuda", "persatuan", "bahasa", "tanah air", "bangsa", "indonesia"] },
+          { soal: "Jelaskan peran BPUPKI dalam proses kemerdekaan Indonesia!", kunci: ["bpupki", "pancasila", "dasar negara", "kemerdekaan", "persiapan", "sidang"] },
+          { soal: "Sebutkan 3 kerajaan Hindu-Buddha di Indonesia dan jelaskan peninggalannya!", kunci: ["kerajaan", "hindu", "buddha", "borobudur", "prambanan", "majapahit", "sriwijaya", "candi"] }
+        ]
+      },
+      "Ekonomi": {
+        pg: [
+          { soal: "Ilmu yang mempelajari perilaku manusia dalam memenuhi kebutuhan disebut...", pilihan: ["Sosiologi", "Ekonomi", "Geografi", "Sejarah"], kunci: 1 },
+          { soal: "Kebutuhan yang harus dipenuhi untuk kelangsungan hidup disebut kebutuhan...", pilihan: ["Primer", "Sekunder", "Tersier", "Mewah"], kunci: 0 },
+          { soal: "Alat pemuas kebutuhan yang jumlahnya terbatas disebut...", pilihan: ["Barang bebas", "Barang ekonomi", "Barang illith", "Barang substitusi"], kunci: 1 },
+          { soal: "Kegiatan menghasilkan barang atau jasa disebut...", pilihan: ["Konsumsi", "Distribusi", "Produksi", "Investasi"], kunci: 2 },
+          { soal: "Sistem ekonomi yang dianut Indonesia adalah...", pilihan: ["Liberal", "Sosialis", "Pancasila", "Kapitalis"], kunci: 2 },
+          { soal: "Badan usaha yang modalnya berasal dari penjualan saham disebut...", pilihan: ["Firma", "CV", "PT", "Koperasi"], kunci: 2 },
+          { soal: "Kegiatan menyalurkan barang dari produsen ke konsumen disebut...", pilihan: ["Produksi", "Konsumsi", "Distribusi", "Investasi"], kunci: 2 },
+          { soal: "Badan usaha yang berasaskan kekeluargaan adalah...", pilihan: ["PT", "CV", "Koperasi", "Firma"], kunci: 2 },
+          { soal: "Permintaan dan penawaran bertemu pada titik...", pilihan: ["Maksimum", "Minimum", "Keseimbangan", "Optimum"], kunci: 2 },
+          { soal: "Pajak yang dikenakan atas penghasilan disebut pajak...", pilihan: ["PBB", "PPh", "PPN", "Bea Materai"], kunci: 1 },
+          { soal: "Bank sentral di Indonesia adalah...", pilihan: ["BRI", "BNI", "Bank Indonesia", "Mandiri"], kunci: 2 },
+          { soal: "Uang yang nilainya sama dengan bahan pembuatannya disebut uang...", pilihan: ["Kartal", "Giral", "Full bodied money", "Token money"], kunci: 2 },
+          { soal: "Kegiatan menggunakan barang atau jasa disebut...", pilihan: ["Produksi", "Distribusi", "Konsumsi", "Investasi"], kunci: 2 },
+          { soal: "Pasar yang memperjualbelikan tenaga kerja disebut pasar...", pilihan: ["Barang", "Modal", "Uang", "Tenaga kerja"], kunci: 3 },
+          { soal: "Inflasi adalah...", pilihan: ["Kenaikan harga secara umum", "Penurunan harga", "Kenaikan nilai uang", "Penurunan produksi"], kunci: 0 },
+          { soal: "BUMN yang berbentuk persero adalah...", pilihan: ["Pertamina", "PLN", "Telkom", "Pos Indonesia"], kunci: 2 },
+          { soal: "Faktor produksi asli adalah...", pilihan: ["Modal dan tenaga kerja", "Alam dan tenaga kerja", "Modal dan kewirausahaan", "Alam dan modal"], kunci: 1 },
+          { soal: "Hukum permintaan menyatakan bahwa jika harga naik maka permintaan akan...", pilihan: ["Naik", "Turun", "Tetap", "Tidak tentu"], kunci: 1 },
+          { soal: "Barang yang dapat menggantikan fungsi barang lain disebut barang...", pilihan: ["Komplementer", "Substitusi", "Ekonomi", "Bebas"], kunci: 1 },
+          { soal: "Lembaga keuangan yang menghimpun dana masyarakat adalah...", pilihan: ["Pasar modal", "Bank", "Asuransi", "Pegadaian"], kunci: 1 },
+          { soal: "Devisa negara dapat diperoleh dari...", pilihan: ["Impor", "Ekspor", "Konsumsi", "Produksi"], kunci: 1 },
+          { soal: "Pajak yang dikenakan atas tanah dan bangunan disebut...", pilihan: ["PPh", "PPN", "PBB", "Bea Materai"], kunci: 2 },
+          { soal: "Pelaku ekonomi yang menggunakan barang dan jasa adalah...", pilihan: ["Produsen", "Distributor", "Konsumen", "Investor"], kunci: 2 },
+          { soal: "Bursa efek Indonesia berlokasi di...", pilihan: ["Bandung", "Jakarta", "Surabaya", "Medan"], kunci: 1 },
+          { soal: "Kegiatan menanam modal untuk memperoleh keuntungan disebut...", pilihan: ["Konsumsi", "Produksi", "Distribusi", "Investasi"], kunci: 3 }
+        ],
+        essay: [
+          { soal: "Jelaskan perbedaan antara kebutuhan dan keinginan! Berikan contohnya!", kunci: ["kebutuhan", "keinginan", "primer", "sekunder", "makanan", "pakaian"] },
+          { soal: "Sebutkan dan jelaskan 4 faktor produksi dalam kegiatan ekonomi!", kunci: ["faktor produksi", "alam", "tenaga kerja", "modal", "kewirausahaan"] },
+          { soal: "Apa yang dimaksud dengan kelangkaan? Jelaskan penyebab terjadinya kelangkaan!", kunci: ["kelangkaan", "terbatas", "kebutuhan", "sumber daya", "tidak terbatas"] },
+          { soal: "Jelaskan perbedaan antara sistem ekonomi liberal dan sistem ekonomi sosialis!", kunci: ["liberal", "sosialis", "pasar", "pemerintah", "swasta", "negara"] },
+          { soal: "Sebutkan 3 fungsi bank dan jelaskan masing-masing!", kunci: ["bank", "menghimpun", "menyalurkan", "dana", "kredit", "tabungan"] }
+        ]
+      },
+      "Geografi": {
+        pg: [
+          { soal: "Benua terbesar di dunia adalah...", pilihan: ["Afrika", "Amerika", "Asia", "Eropa"], kunci: 2 },
+          { soal: "Garis khayal yang membagi bumi menjadi belahan utara dan selatan disebut...", pilihan: ["Meridian", "Ekuator", "Tropic of Cancer", "Tropic of Capricorn"], kunci: 1 },
+          { soal: "Iklim di Indonesia adalah...", pilihan: ["Subtropis", "Tropis", "Sedang", "Dingin"], kunci: 1 },
+          { soal: "Gunung tertinggi di dunia adalah...", pilihan: ["Kilimanjaro", "Everest", "Fuji", "Kinabalu"], kunci: 1 },
+          { soal: "Samudra terluas di dunia adalah...", pilihan: ["Atlantik", "Hindia", "Pasifik", "Arktik"], kunci: 2 },
+          { soal: "Negara dengan jumlah penduduk terbanyak di dunia adalah...", pilihan: ["India", "China", "Amerika", "Indonesia"], kunci: 1 },
+          { soal: "Lapisan atmosfer yang paling dekat dengan bumi adalah...", pilihan: ["Stratosfer", "Troposfer", "Mesosfer", "Termosfer"], kunci: 1 },
+          { soal: "Proses perpindahan penduduk dari desa ke kota disebut...", pilihan: ["Transmigrasi", "Urbanisasi", "Imigrasi", "Emigrasi"], kunci: 1 },
+          { soal: "Garis bujur 0° melewati kota...", pilihan: ["London", "Greenwich", "Paris", "Berlin"], kunci: 1 },
+          { soal: "Danau terbesar di dunia adalah...", pilihan: ["Danau Superior", "Danau Victoria", "Danau Kaspia", "Danau Baikal"], kunci: 2 },
+          { soal: "Negara yang terletak di dua benua adalah...", pilihan: ["Rusia", "Turki", "Mesir", "Semua benar"], kunci: 3 },
+          { soal: "Sungai terpanjang di dunia adalah...", pilihan: ["Amazon", "Nil", "Yangtze", "Mississippi"], kunci: 1 },
+          { soal: "Letak astronomis Indonesia adalah...", pilihan: ["6°LU - 11°LS dan 95°BT - 141°BT", "6°LU - 11°LU dan 95°BT - 141°BT", "6°LS - 11°LS dan 95°BB - 141°BB", "6°LU - 11°LS dan 95°BB - 141°BB"], kunci: 0 },
+          { soal: "Gunung berapi yang masih aktif di Indonesia adalah...", pilihan: ["Semeru", "Merapi", "Krakatau", "Semua benar"], kunci: 3 },
+          { soal: "Negara kepulauan terbesar di dunia adalah...", pilihan: ["Filipina", "Indonesia", "Jepang", "Inggris"], kunci: 1 },
+          { soal: "Proses pengikisan batuan oleh air, angin, atau es disebut...", pilihan: ["Erosi", "Sedimentasi", "Vulkanisme", "Tektonisme"], kunci: 0 },
+          { soal: "Hutan hujan tropis terluas di dunia terdapat di...", pilihan: ["Afrika", "Asia", "Amerika Selatan", "Australia"], kunci: 2 },
+          { soal: "Peta yang menggambarkan ketinggian suatu wilayah disebut peta...", pilihan: ["Topografi", "Tematik", "Umum", "Khusus"], kunci: 0 },
+          { soal: "Batas wilayah laut Indonesia adalah...", pilihan: ["10 mil", "12 mil", "15 mil", "20 mil"], kunci: 1 },
+          { soal: "Negara yang dilalui garis khatulistiwa adalah...", pilihan: ["Indonesia", "Malaysia", "Singapura", "Thailand"], kunci: 0 },
+          { soal: "Pulau terbesar di dunia adalah...", pilihan: ["Kalimantan", "Papua", "Greenland", "Madagascar"], kunci: 2 },
+          { soal: "Angin muson barat di Indonesia terjadi pada bulan...", pilihan: ["April - Oktober", "Oktober - April", "Januari - Juni", "Juli - Desember"], kunci: 1 },
+          { soal: "Negara yang terletak di kawasan Asia Tenggara berjumlah...", pilihan: ["8 negara", "9 negara", "10 negara", "11 negara"], kunci: 3 },
+          { soal: "Laut terluas di Indonesia adalah...", pilihan: ["Laut Jawa", "Laut Banda", "Laut Sulawesi", "Laut Arafuru"], kunci: 1 },
+          { soal: "Zona waktu Indonesia bagian barat adalah...", pilihan: ["WIB (GMT +7)", "WITA (GMT +8)", "WIT (GMT +9)", "GMT +6"], kunci: 0 }
+        ],
+        essay: [
+          { soal: "Jelaskan 3 faktor yang mempengaruhi iklim di Indonesia!", kunci: ["iklim", "tropis", "laut", "angin", "muson", "curah hujan"] },
+          { soal: "Sebutkan dan jelaskan 3 dampak positif dan negatif dari urbanisasi!", kunci: ["urbanisasi", "positif", "negatif", "kota", "desa", "penduduk", "ekonomi"] },
+          { soal: "Apa yang dimaksud dengan letak geografis Indonesia? Jelaskan keuntungannya!", kunci: ["letak geografis", "strategis", "perdagangan", "samudra", "benua", "asia", "australia"] },
+          { soal: "Jelaskan proses terjadinya gempa bumi tektonik!", kunci: ["gempa", "tektonik", "lempeng", "patahan", "getaran", "bumi"] },
+          { soal: "Sebutkan 3 jenis peta dan jelaskan fungsinya masing-masing!", kunci: ["peta", "topografi", "tematik", "umum", "khusus", "wilayah"] }
+        ]
+      },
+      "Sosiologi": {
+        pg: [
+          { soal: "Ilmu yang mempelajari hubungan antar manusia dalam masyarakat disebut...", pilihan: ["Antropologi", "Sosiologi", "Psikologi", "Ekonomi"], kunci: 1 },
+          { soal: "Proses belajar individu untuk menyesuaikan diri dengan norma masyarakat disebut...", pilihan: ["Sosialisasi", "Interaksi", "Akulturasi", "Asimilasi"], kunci: 0 },
+          { soal: "Kelompok sosial yang anggotanya memiliki hubungan erat disebut...", pilihan: ["Out group", "In group", "Reference group", "Formal group"], kunci: 1 },
+          { soal: "Perubahan sosial yang terjadi secara cepat disebut...", pilihan: ["Evolusi", "Revolusi", "Reformasi", "Transformasi"], kunci: 1 },
+          { soal: "Norma yang memiliki sanksi paling tegas adalah...", pilihan: ["Cara", "Kebiasaan", "Tata kelakuan", "Hukum"], kunci: 3 },
+          { soal: "Mobilitas sosial vertikal ke atas disebut juga...", pilihan: ["Social climbing", "Social sinking", "Social moving", "Social changing"], kunci: 0 },
+          { soal: "Lembaga sosial yang mengatur hubungan kekerabatan adalah...", pilihan: ["Keluarga", "Sekolah", "Negara", "Agama"], kunci: 0 },
+          { soal: "Konflik yang terjadi antar kelompok disebut konflik...", pilihan: ["Individu", "Horizontal", "Vertikal", "Diagonal"], kunci: 1 },
+          { soal: "Proses penyatuan dua kebudayaan yang berbeda disebut...", pilihan: ["Akulturasi", "Asimilasi", "Difusi", "Inovasi"], kunci: 1 },
+          { soal: "Stratifikasi sosial berdasarkan keturunan disebut sistem...", pilihan: ["Kasta", "Kelas", "Estamen", "Campuran"], kunci: 0 },
+          { soal: "Tokoh yang dikenal sebagai bapak sosiologi adalah...", pilihan: ["Max Weber", "Emile Durkheim", "Auguste Comte", "Karl Marx"], kunci: 2 },
+          { soal: "Kelompok sosial yang dijadikan acuan perilaku disebut...", pilihan: ["In group", "Out group", "Reference group", "Primary group"], kunci: 2 },
+          { soal: "Nilai sosial yang bersifat universal adalah...", pilihan: ["Kejujuran", "Gotong royong", "Musyawarah", "Kekeluargaan"], kunci: 0 },
+          { soal: "Lembaga sosial yang mengatur pendidikan adalah...", pilihan: ["Keluarga", "Sekolah", "Masyarakat", "Negara"], kunci: 1 },
+          { soal: "Penyimpangan sosial yang dilakukan secara berkelompok disebut...", pilihan: ["Penyimpangan primer", "Penyimpangan sekunder", "Penyimpangan individu", "Penyimpangan kolektif"], kunci: 3 },
+          { soal: "Proses masuknya unsur budaya asing ke dalam budaya lokal disebut...", pilihan: ["Akulturasi", "Asimilasi", "Difusi", "Enkulturasi"], kunci: 2 },
+          { soal: "Masyarakat yang masih sederhana dan homogen disebut masyarakat...", pilihan: ["Modern", "Tradisional", "Industrial", "Post-modern"], kunci: 1 },
+          { soal: "Pengendalian sosial yang dilakukan melalui hukum disebut pengendalian...", pilihan: ["Formal", "Informal", "Preventif", "Represif"], kunci: 0 },
+          { soal: "Interaksi sosial yang bersifat mendekatkan disebut...", pilihan: ["Asosiatif", "Disosiatif", "Kompetitif", "Konfliktif"], kunci: 0 },
+          { soal: "Mobilitas sosial yang terjadi dalam satu generasi disebut mobilitas...", pilihan: ["Horizontal", "Vertikal", "Intragenerasi", "Antargenerasi"], kunci: 2 },
+          { soal: "Lembaga sosial yang mengatur hubungan dengan Tuhan adalah...", pilihan: ["Keluarga", "Pendidikan", "Agama", "Ekonomi"], kunci: 2 },
+          { soal: "Perubahan sosial yang direncanakan disebut...", pilihan: ["Social planning", "Social change", "Social revolution", "Social evolution"], kunci: 0 },
+          { soal: "Kelompok sosial yang memiliki struktur organisasi jelas disebut kelompok...", pilihan: ["Informal", "Formal", "Primer", "Sekunder"], kunci: 1 },
+          { soal: "Faktor pendorong perubahan sosial dari dalam masyarakat adalah...", pilihan: ["Kontak budaya", "Penemuan baru", "Perang", "Kolonialisme"], kunci: 1 },
+          { soal: "Sikap menilai kebudayaan lain berdasarkan kebudayaan sendiri disebut...", pilihan: ["Etnosentrisme", "Relativisme", "Primordialisme", "Nasionalisme"], kunci: 0 }
+        ],
+        essay: [
+          { soal: "Jelaskan pengertian sosialisasi dan sebutkan 3 agen sosialisasi!", kunci: ["sosialisasi", "keluarga", "sekolah", "masyarakat", "media", "teman"] },
+          { soal: "Apa yang dimaksud dengan mobilitas sosial? Sebutkan faktor pendorong dan penghambatnya!", kunci: ["mobilitas sosial", "vertikal", "horizontal", "pendidikan", "ekonomi", "status"] },
+          { soal: "Jelaskan perbedaan antara konflik sosial dan integrasi sosial!", kunci: ["konflik", "integrasi", "pertentangan", "persatuan", "masyarakat"] },
+          { soal: "Sebutkan dan jelaskan 3 dampak positif dan negatif dari perubahan sosial!", kunci: ["perubahan sosial", "positif", "negatif", "modernisasi", "teknologi", "budaya"] },
+          { soal: "Apa yang dimaksud dengan lembaga sosial? Sebutkan 5 contoh lembaga sosial!", kunci: ["lembaga sosial", "keluarga", "pendidikan", "agama", "ekonomi", "politik"] }
+        ]
+      },
+      "Komputer": {
+        pg: [
+          { soal: "Perangkat keras komputer disebut juga...", pilihan: ["Software", "Hardware", "Brainware", "Firmware"], kunci: 1 },
+          { soal: "Otak dari komputer adalah...", pilihan: ["Monitor", "Keyboard", "CPU", "Mouse"], kunci: 2 },
+          { soal: "Perangkat lunak pengolah kata adalah...", pilihan: ["Excel", "PowerPoint", "Word", "Access"], kunci: 2 },
+          { soal: "Tombol untuk menghapus karakter di sebelah kiri kursor adalah...", pilihan: ["Delete", "Backspace", "Enter", "Esc"], kunci: 1 },
+          { soal: "Kepanjangan dari CPU adalah...", pilihan: ["Central Processing Unit", "Computer Processing Unit", "Central Program Unit", "Computer Program Unit"], kunci: 0 },
+          { soal: "Perangkat input komputer adalah...", pilihan: ["Monitor", "Printer", "Keyboard", "Speaker"], kunci: 2 },
+          { soal: "Perangkat output komputer adalah...", pilihan: ["Mouse", "Scanner", "Keyboard", "Monitor"], kunci: 3 },
+          { soal: "Satuan terkecil dalam penyimpanan data adalah...", pilihan: ["Byte", "Bit", "Kilobyte", "Megabyte"], kunci: 1 },
+          { soal: "1 Kilobyte sama dengan...", pilihan: ["1000 byte", "1024 byte", "1000 bit", "1024 bit"], kunci: 1 },
+          { soal: "Perangkat lunak sistem operasi adalah...", pilihan: ["Microsoft Word", "Windows", "Google Chrome", "Adobe Photoshop"], kunci: 1 },
+          { soal: "Jaringan komputer dalam satu gedung disebut...", pilihan: ["LAN", "WAN", "MAN", "Internet"], kunci: 0 },
+          { soal: "WWW adalah kepanjangan dari...", pilihan: ["World Wide Web", "World Web Wide", "Wide World Web", "Web World Wide"], kunci: 0 },
+          { soal: "Perangkat lunak untuk browsing internet adalah...", pilihan: ["Microsoft Word", "Google Chrome", "Excel", "PowerPoint"], kunci: 1 },
+          { soal: "Tombol pintas untuk menyalin teks adalah...", pilihan: ["Ctrl + X", "Ctrl + C", "Ctrl + V", "Ctrl + Z"], kunci: 1 },
+          { soal: "Tombol pintas untuk menempel teks adalah...", pilihan: ["Ctrl + X", "Ctrl + C", "Ctrl + V", "Ctrl + Z"], kunci: 2 },
+          { soal: "RAM adalah singkatan dari...", pilihan: ["Read Access Memory", "Random Access Memory", "Read And Memory", "Random And Memory"], kunci: 1 },
+          { soal: "Perangkat penyimpanan eksternal adalah...", pilihan: ["RAM", "ROM", "Flashdisk", "Cache"], kunci: 2 },
+          { soal: "Ekstensi file gambar adalah...", pilihan: [".doc", ".xls", ".jpg", ".exe"], kunci: 2 },
+          { soal: "Perangkat lunak pengolah angka adalah...", pilihan: ["Word", "Excel", "PowerPoint", "Access"], kunci: 1 },
+          { soal: "Perangkat lunak presentasi adalah...", pilihan: ["Word", "Excel", "PowerPoint", "Photoshop"], kunci: 2 },
+          { soal: "Tombol untuk membatalkan perintah terakhir adalah...", pilihan: ["Ctrl + X", "Ctrl + C", "Ctrl + V", "Ctrl + Z"], kunci: 3 },
+          { soal: "Email adalah singkatan dari...", pilihan: ["Electronic Mail", "Electric Mail", "Electronic Message", "Electric Message"], kunci: 0 },
+          { soal: "Search engine yang populer adalah...", pilihan: ["Facebook", "Google", "Instagram", "Twitter"], kunci: 1 },
+          { soal: "Virus komputer dapat merusak...", pilihan: ["Hardware", "Software", "Data", "Semua benar"], kunci: 3 },
+          { soal: "Antivirus berfungsi untuk...", pilihan: ["Membuat virus", "Mendeteksi virus", "Menyebarkan virus", "Mengaktifkan virus"], kunci: 1 }
+        ],
+        essay: [
+          { soal: "Jelaskan perbedaan antara hardware, software, dan brainware!", kunci: ["hardware", "software", "brainware", "perangkat keras", "perangkat lunak", "pengguna"] },
+          { soal: "Sebutkan dan jelaskan 3 fungsi sistem operasi pada komputer!", kunci: ["sistem operasi", "mengelola", "hardware", "software", "interface", "windows"] },
+          { soal: "Apa yang dimaksud dengan internet? Sebutkan 3 manfaat internet!", kunci: ["internet", "jaringan", "informasi", "komunikasi", "global", "world wide web"] },
+          { soal: "Jelaskan perbedaan antara RAM dan ROM!", kunci: ["ram", "rom", "random access", "read only", "memory", "volatile"] },
+          { soal: "Sebutkan 3 jenis jaringan komputer dan jelaskan perbedaannya!", kunci: ["jaringan", "lan", "wan", "man", "lokal", "luas", "metropolitan"] }
+        ]
+      }
+    };
+
+    function shuffleArray(array) {
+      const shuffled = [...array];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      return shuffled;
+    }
+
+    function scoreEssay(answer, keywords) {
+      const lowerAnswer = answer.toLowerCase();
+      let matchCount = 0;
+      
+      keywords.forEach(keyword => {
+        if (lowerAnswer.includes(keyword.toLowerCase())) {
+          matchCount++;
+        }
+      });
+
+      const percentage = (matchCount / keywords.length) * 100;
+      const lengthBonus = answer.length >= 50 ? 10 : 0;
+      let score = Math.min(100, percentage + lengthBonus);
+      
+      return Math.round(score / 5) * 5;
+    }
+
+    async function initApp() {
+      try {
+        const dataHandler = {
+          onDataChanged(data) {
+            allData = data.filter(d => !d.data_type || d.data_type === 'exam');
+            
+            const lembagaRecords = data.filter(d => d.data_type === 'lembaga');
+            if (lembagaRecords.length > 0) {
+              lembagaData = lembagaRecords[0];
+            }
+            
+            if (currentView === 'admin') {
+              render();
+            }
+          }
+        };
+
+        if (window.dataSdk) {
+          const initResult = await window.dataSdk.init(dataHandler);
+          if (!initResult.isOk) {
+            console.error("Failed to initialize data SDK");
+          }
+        }
+
+        if (window.elementSdk) {
+          window.elementSdk.init({
+            defaultConfig,
+            onConfigChange,
+            mapToCapabilities,
+            mapToEditPanelValues
+          });
+        }
+
+        render();
+      } catch (error) {
+        console.error("Init error:", error);
+        render();
+      }
+    }
+
+    function render() {
+      const app = document.getElementById('app');
+      const config = window.elementSdk?.config || defaultConfig;
+
+      const baseSize = config.font_size || defaultConfig.font_size;
+      const customFont = config.font_family || defaultConfig.font_family;
+      const fontStack = `${customFont}, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
+
+      app.style.backgroundColor = config.background_color || defaultConfig.background_color;
+      app.style.fontFamily = fontStack;
+      app.style.color = config.text_color || defaultConfig.text_color;
+
+      if (currentView === 'login') {
+        renderLogin(config, baseSize);
+      } else if (currentView === 'exam') {
+        renderExam(config, baseSize);
+      } else if (currentView === 'success') {
+        renderSuccess(config, baseSize);
+      } else if (currentView === 'admin') {
+        renderAdmin(config, baseSize);
+      }
+    }
+
+    function renderLogin(config, baseSize) {
+      const app = document.getElementById('app');
+      
+      // Logo default
+      const defaultLogoUrl = 'https://i.imgur.com/D061ewy.png';
+      const logoUrl = (lembagaData && lembagaData.logo_url && lembagaData.logo_url.trim() !== '') ? lembagaData.logo_url : defaultLogoUrl;
+      
+      const logoHTML = `<div class="mb-6">
+        <img src="${logoUrl}" alt="Logo Lembaga" class="w-32 h-32 mx-auto object-contain drop-shadow-lg" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\\'w-32 h-32 mx-auto rounded-full flex items-center justify-center\\' style=\\'background: linear-gradient(135deg, ${config.primary_action_color || defaultConfig.primary_action_color}, ${config.secondary_action_color || defaultConfig.secondary_action_color});\\'>  <svg class=\\'w-16 h-16 text-white\\' fill=\\'none\\' stroke=\\'currentColor\\' viewBox=\\'0 0 24 24\\'>    <path stroke-linecap=\\'round\\' stroke-linejoin=\\'round\\' stroke-width=\\'2\\' d=\\'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253\\'>    </path>  </svg></div>';">
+      </div>`;
+      
+      const namaLembaga = lembagaData?.nama_lembaga || 'PKBM Tarbiyatunnasyiin';
+      const alamatLembaga = lembagaData?.alamat || '';
+      
+      app.innerHTML = `
+        <div class="min-h-full flex items-center justify-center p-4" style="background: linear-gradient(135deg, ${config.background_color || defaultConfig.background_color} 0%, ${config.surface_color || defaultConfig.surface_color} 100%);">
+          <div class="w-full max-w-md fade-in">
+            <div class="text-center mb-8">
+              ${logoHTML}
+              <h1 class="font-bold mb-2" style="font-size: ${baseSize * 2}px; color: ${config.text_color || defaultConfig.text_color}; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                ${namaLembaga}
+              </h1>
+              <p class="font-medium" style="font-size: ${baseSize * 1.1}px; color: ${config.secondary_action_color || defaultConfig.secondary_action_color};">
+                ${config.subjudul || defaultConfig.subjudul}
+              </p>
+              ${alamatLembaga ? `
+                <p class="mt-2" style="font-size: ${baseSize * 0.9}px; color: ${config.secondary_action_color || defaultConfig.secondary_action_color};">
+                  📍 ${alamatLembaga}
+                </p>
+              ` : ''}
+            </div>
+
+            <div class="rounded-xl shadow-lg p-8" style="background-color: ${config.surface_color || defaultConfig.surface_color};">
+              <h2 class="font-semibold mb-6" style="font-size: ${baseSize * 1.5}px; color: ${config.text_color || defaultConfig.text_color};">
+                Login Siswa
+              </h2>
+
+              <form id="loginForm" class="space-y-4">
+                <div>
+                  <label for="nama" class="block mb-2 font-medium" style="font-size: ${baseSize}px; color: ${config.text_color || defaultConfig.text_color};">
+                    Nama Lengkap
+                  </label>
+                  <input 
+                    type="text" 
+                    id="nama" 
+                    required
+                    class="w-full px-4 py-3 rounded-lg border-2 focus:outline-none"
+                    style="font-size: ${baseSize}px; border-color: ${config.secondary_action_color || defaultConfig.secondary_action_color};"
+                    placeholder="Masukkan nama lengkap"
+                  />
+                </div>
+
+                <div>
+                  <label for="kelas" class="block mb-2 font-medium" style="font-size: ${baseSize}px; color: ${config.text_color || defaultConfig.text_color};">
+                    Kelas
+                  </label>
+                  <select 
+                    id="kelas" 
+                    required
+                    class="w-full px-4 py-3 rounded-lg border-2 focus:outline-none"
+                    style="font-size: ${baseSize}px; border-color: ${config.secondary_action_color || defaultConfig.secondary_action_color};"
+                  >
+                    <option value="">-- Pilih Kelas --</option>
+                    <option value="VII">Kelas VII (Paket B)</option>
+                    <option value="VIII">Kelas VIII (Paket B)</option>
+                    <option value="IX">Kelas IX (Paket B)</option>
+                    <option value="X">Kelas X (Paket C)</option>
+                    <option value="XI">Kelas XI (Paket C)</option>
+                    <option value="XII">Kelas XII (Paket C)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label for="mapel" class="block mb-2 font-medium" style="font-size: ${baseSize}px; color: ${config.text_color || defaultConfig.text_color};">
+                    Mata Pelajaran
+                  </label>
+                  <select 
+                    id="mapel" 
+                    required
+                    class="w-full px-4 py-3 rounded-lg border-2 focus:outline-none"
+                    style="font-size: ${baseSize}px; border-color: ${config.secondary_action_color || defaultConfig.secondary_action_color};"
+                    disabled
+                  >
+                    <option value="">-- Pilih Mata Pelajaran --</option>
+                  </select>
+                </div>
+
+                <button 
+                  type="submit"
+                  class="w-full py-4 rounded-lg font-semibold text-white transition-all hover:opacity-90"
+                  style="font-size: ${baseSize * 1.1}px; background-color: ${config.primary_action_color || defaultConfig.primary_action_color};"
+                >
+                  Mulai Ujian
+                </button>
+              </form>
+              
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      setupLoginForm();
+    }
+
+    function setupLoginForm() {
+      const kelasSelect = document.getElementById('kelas');
+      const mapelSelect = document.getElementById('mapel');
+      const loginForm = document.getElementById('loginForm');
+      const namaInput = document.getElementById('nama');
+
+      namaInput.addEventListener('input', (e) => {
+        if (e.target.value.toLowerCase() === 'pkbm.tarnasy') {
+          currentView = 'admin';
+          render();
+        }
+      });
+
+      kelasSelect.addEventListener('change', (e) => {
+        const kelas = e.target.value;
+        mapelSelect.disabled = false;
+        mapelSelect.innerHTML = '<option value="">-- Pilih Mata Pelajaran --</option>';
+
+        const isPaketB = ['VII', 'VIII', 'IX'].includes(kelas);
+        const mapelList = isPaketB ? mapelPaketB : mapelPaketC;
+        
+        mapelList.forEach(mapel => {
+          mapelSelect.innerHTML += `<option value="${mapel}">${mapel}</option>`;
+        });
+      });
+
+      loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        const nama = namaInput.value;
+        if (nama.toLowerCase() === 'pkbm.tarnasy') {
+          currentView = 'admin';
+          render();
+          return;
+        }
+
+        const kelas = kelasSelect.value;
+        const isPaketB = ['VII', 'VIII', 'IX'].includes(kelas);
+        
+        studentData = {
+          nama: nama,
+          kelas: kelas,
+          paket: isPaketB ? 'B' : 'C',
+          mapel: mapelSelect.value
+        };
+
+        currentSoalPG = shuffleArray(bankSoal[studentData.mapel].pg);
+        currentSoalEssay = shuffleArray(bankSoal[studentData.mapel].essay);
+
+        answers = {
+          pg: Array(25).fill(null),
+          essay: Array(5).fill('')
+        };
+
+        startTime = new Date();
+        currentView = 'exam';
+        render();
+      });
+    }
+
+    function renderExam(config, baseSize) {
+      const app = document.getElementById('app');
+      app.innerHTML = `
+        <div class="min-h-full p-4">
+          <div class="max-w-4xl mx-auto fade-in">
+            <div class="rounded-xl shadow-lg p-6 mb-6" style="background-color: ${config.surface_color || defaultConfig.surface_color};">
+              <div class="flex justify-between items-start mb-4">
+                <div>
+                  <h2 class="font-bold mb-1" style="font-size: ${baseSize * 1.5}px; color: ${config.text_color || defaultConfig.text_color};">
+                    ${studentData.mapel}
+                  </h2>
+                  <p style="font-size: ${baseSize}px; color: ${config.secondary_action_color || defaultConfig.secondary_action_color};">
+                    ${studentData.nama} - Kelas ${studentData.kelas} (Paket ${studentData.paket})
+                  </p>
+                </div>
+                <div class="text-right">
+                  <div class="font-semibold" style="font-size: ${baseSize * 1.2}px; color: ${config.primary_action_color || defaultConfig.primary_action_color};">
+                    <span id="timer">00:00</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="border-t pt-4" style="border-color: ${config.secondary_action_color || defaultConfig.secondary_action_color};">
+                <p class="font-semibold mb-2" style="font-size: ${baseSize}px; color: ${config.text_color || defaultConfig.text_color};">
+                  Instruksi Ujian:
+                </p>
+                <ul class="space-y-1" style="font-size: ${baseSize * 0.9}px; color: ${config.text_color || defaultConfig.text_color};">
+                  <li>• ${config.instruksi_1 || defaultConfig.instruksi_1}</li>
+                  <li>• ${config.instruksi_2 || defaultConfig.instruksi_2}</li>
+                  <li>• ${config.instruksi_3 || defaultConfig.instruksi_3}</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="rounded-xl shadow-lg p-6 mb-6" style="background-color: ${config.surface_color || defaultConfig.surface_color};">
+              <h3 class="font-bold mb-6" style="font-size: ${baseSize * 1.3}px; color: ${config.text_color || defaultConfig.text_color};">
+                Bagian A: Pilihan Ganda (25 Soal)
+              </h3>
+              <div id="soalPGContainer" class="space-y-6"></div>
+            </div>
+
+            <div class="rounded-xl shadow-lg p-6 mb-6" style="background-color: ${config.surface_color || defaultConfig.surface_color};">
+              <h3 class="font-bold mb-6" style="font-size: ${baseSize * 1.3}px; color: ${config.text_color || defaultConfig.text_color};">
+                Bagian B: Essay (5 Soal)
+              </h3>
+              <div id="soalEssayContainer" class="space-y-6"></div>
+            </div>
+
+            <div class="text-center mb-8">
+              <button 
+                id="submitBtn"
+                class="px-12 py-4 rounded-lg font-semibold text-white transition-all hover:opacity-90"
+                style="font-size: ${baseSize * 1.1}px; background-color: ${config.primary_action_color || defaultConfig.primary_action_color};"
+              >
+                Selesai & Kirim Jawaban
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+
+      renderSoalPG(config, baseSize);
+      renderSoalEssay(config, baseSize);
+      startTimer();
+      setupSubmit();
+    }
+
+    function renderSoalPG(config, baseSize) {
+      const container = document.getElementById('soalPGContainer');
+
+      currentSoalPG.forEach((soal, index) => {
+        const soalDiv = document.createElement('div');
+        soalDiv.className = 'border-b pb-6';
+        soalDiv.style.borderColor = config.secondary_action_color || defaultConfig.secondary_action_color;
+
+        soalDiv.innerHTML = `
+          <p class="font-semibold mb-4" style="font-size: ${baseSize}px; color: ${config.text_color || defaultConfig.text_color};">
+            ${index + 1}. ${soal.soal}
+          </p>
+          <div class="space-y-2">
+            ${soal.pilihan.map((pilihan, pIndex) => `
+              <div class="option-card p-3 rounded-lg border-2 cursor-pointer ${answers.pg[index] === pIndex ? 'selected' : ''}" 
+                   data-soal="${index}" 
+                   data-pilihan="${pIndex}"
+                   style="border-color: ${answers.pg[index] === pIndex ? (config.primary_action_color || defaultConfig.primary_action_color) : (config.secondary_action_color || defaultConfig.secondary_action_color)}; background-color: ${answers.pg[index] === pIndex ? (config.background_color || defaultConfig.background_color) : 'transparent'};">
+                <label class="flex items-center cursor-pointer">
+                  <input type="radio" name="soal_${index}" value="${pIndex}" class="mr-3" ${answers.pg[index] === pIndex ? 'checked' : ''}>
+                  <span style="font-size: ${baseSize * 0.95}px; color: ${config.text_color || defaultConfig.text_color};">
+                    ${String.fromCharCode(65 + pIndex)}. ${pilihan}
+                  </span>
+                </label>
+              </div>
+            `).join('')}
+          </div>
+        `;
+
+        container.appendChild(soalDiv);
+      });
+
+      document.querySelectorAll('.option-card').forEach(card => {
+        card.addEventListener('click', function() {
+          const soalIndex = parseInt(this.dataset.soal);
+          const pilihanIndex = parseInt(this.dataset.pilihan);
+          answers.pg[soalIndex] = pilihanIndex;
+
+          document.querySelectorAll(`[data-soal="${soalIndex}"]`).forEach(c => {
+            c.classList.remove('selected');
+            c.style.borderColor = config.secondary_action_color || defaultConfig.secondary_action_color;
+            c.style.backgroundColor = 'transparent';
+          });
+          this.classList.add('selected');
+          this.style.borderColor = config.primary_action_color || defaultConfig.primary_action_color;
+          this.style.backgroundColor = config.background_color || defaultConfig.background_color;
+
+          this.querySelector('input[type="radio"]').checked = true;
+        });
+      });
+    }
+
+    function renderSoalEssay(config, baseSize) {
+      const container = document.getElementById('soalEssayContainer');
+
+      currentSoalEssay.forEach((soal, index) => {
+        const soalDiv = document.createElement('div');
+        soalDiv.className = 'border-b pb-6';
+        soalDiv.style.borderColor = config.secondary_action_color || defaultConfig.secondary_action_color;
+
+        soalDiv.innerHTML = `
+          <p class="font-semibold mb-4" style="font-size: ${baseSize}px; color: ${config.text_color || defaultConfig.text_color};">
+            ${index + 1}. ${soal.soal}
+          </p>
+          <textarea 
+            id="essay_${index}"
+            rows="5"
+            class="w-full px-4 py-3 rounded-lg border-2 focus:outline-none"
+            style="font-size: ${baseSize * 0.95}px; border-color: ${config.secondary_action_color || defaultConfig.secondary_action_color};"
+            placeholder="Tulis jawaban Anda di sini..."
+          >${answers.essay[index]}</textarea>
+        `;
+
+        container.appendChild(soalDiv);
+      });
+
+      currentSoalEssay.forEach((soal, index) => {
+        document.getElementById(`essay_${index}`).addEventListener('input', function(e) {
+          answers.essay[index] = e.target.value;
+        });
+      });
+    }
+
+    function startTimer() {
+      setInterval(() => {
+        const now = new Date();
+        const diff = Math.floor((now - startTime) / 1000);
+        const minutes = Math.floor(diff / 60);
+        const seconds = diff % 60;
+        const timerEl = document.getElementById('timer');
+        if (timerEl) {
+          timerEl.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+      }, 1000);
+    }
+
+    function calculateScorePG() {
+      let correct = 0;
+      answers.pg.forEach((answer, index) => {
+        if (answer === currentSoalPG[index].kunci) {
+          correct++;
+        }
+      });
+      return Math.round((correct / 25) * 100);
+    }
+
+    function calculateScoreEssay() {
+      let totalScore = 0;
+      answers.essay.forEach((answer, index) => {
+        const score = scoreEssay(answer, currentSoalEssay[index].kunci);
+        totalScore += score;
+      });
+      return Math.round(totalScore / 5);
+    }
+
+    function setupSubmit() {
+      const submitBtn = document.getElementById('submitBtn');
+      submitBtn.addEventListener('click', async () => {
+        const unansweredPG = answers.pg.filter(a => a === null).length;
+        const unansweredEssay = answers.essay.filter(a => a.trim() === '').length;
+
+        if (unansweredPG > 0 || unansweredEssay > 0) {
+          const message = document.createElement('div');
+          message.className = 'fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50';
+          message.style.backgroundColor = '#ef4444';
+          message.style.color = 'white';
+          message.textContent = `Masih ada ${unansweredPG} soal PG dan ${unansweredEssay} soal essay yang belum dijawab!`;
+          document.body.appendChild(message);
+          setTimeout(() => message.remove(), 3000);
+          return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Mengirim...';
+        submitBtn.style.opacity = '0.6';
+
+        const endTime = new Date();
+        const durasiMenit = Math.floor((endTime - startTime) / 60000);
+        const nilaiPG = calculateScorePG();
+        const nilaiEssay = calculateScoreEssay();
+        const nilaiTotal = Math.round((nilaiPG + nilaiEssay) / 2);
+
+        const result = await window.dataSdk.create({
+          data_type: 'exam',
+          nama: studentData.nama,
+          kelas: studentData.kelas,
+          mapel: studentData.mapel,
+          paket: studentData.paket,
+          waktu_mulai: startTime.toISOString(),
+          waktu_selesai: endTime.toISOString(),
+          durasi_menit: durasiMenit,
+          jawaban_pg: JSON.stringify(answers.pg),
+          jawaban_essay: JSON.stringify(answers.essay),
+          nilai_pg: nilaiPG,
+          nilai_essay: nilaiEssay,
+          nilai_total: nilaiTotal
+        });
+
+        if (result.isOk) {
+          currentView = 'success';
+          render();
+        } else {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Selesai & Kirim Jawaban';
+          submitBtn.style.opacity = '1';
+
+          const message = document.createElement('div');
+          message.className = 'fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50';
+          message.style.backgroundColor = '#ef4444';
+          message.style.color = 'white';
+          message.textContent = 'Gagal mengirim jawaban. Silakan coba lagi.';
+          document.body.appendChild(message);
+          setTimeout(() => message.remove(), 3000);
+        }
+      });
+    }
+
+    function renderSuccess(config, baseSize) {
+      const app = document.getElementById('app');
+      const nilaiPG = calculateScorePG();
+      const nilaiEssay = calculateScoreEssay();
+      const nilaiTotal = Math.round((nilaiPG + nilaiEssay) / 2);
+      
+      app.innerHTML = `
+        <div class="min-h-full flex items-center justify-center p-4">
+          <div class="w-full max-w-md fade-in">
+            <div class="rounded-xl shadow-lg p-8 text-center" style="background-color: ${config.surface_color || defaultConfig.surface_color};">
+              <div class="mb-6">
+                <div class="w-20 h-20 rounded-full mx-auto flex items-center justify-center" style="background-color: ${config.primary_action_color || defaultConfig.primary_action_color};">
+                  <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                  </svg>
+                </div>
+              </div>
+
+              <h2 class="font-bold mb-4" style="font-size: ${baseSize * 1.8}px; color: ${config.text_color || defaultConfig.text_color};">
+                Ujian Selesai!
+              </h2>
+
+              <p class="mb-6" style="font-size: ${baseSize}px; color: ${config.secondary_action_color || defaultConfig.secondary_action_color};">
+                Terima kasih ${studentData.nama}, jawaban Anda telah berhasil tersimpan.
+              </p>
+
+              <div class="space-y-4 mb-6">
+                <div class="rounded-lg p-4" style="background-color: ${config.background_color || defaultConfig.background_color};">
+                  <p class="font-semibold mb-2" style="font-size: ${baseSize * 0.9}px; color: ${config.text_color || defaultConfig.text_color};">
+                    Nilai Pilihan Ganda
+                  </p>
+                  <p class="font-bold" style="font-size: ${baseSize * 1.5}px; color: ${config.primary_action_color || defaultConfig.primary_action_color};">
+                    ${nilaiPG}
+                  </p>
+                </div>
+
+                <div class="rounded-lg p-4" style="background-color: ${config.background_color || defaultConfig.background_color};">
+                  <p class="font-semibold mb-2" style="font-size: ${baseSize * 0.9}px; color: ${config.text_color || defaultConfig.text_color};">
+                    Nilai Essay
+                  </p>
+                  <p class="font-bold" style="font-size: ${baseSize * 1.5}px; color: ${config.primary_action_color || defaultConfig.primary_action_color};">
+                    ${nilaiEssay}
+                  </p>
+                </div>
+
+                <div class="rounded-lg p-4" style="background-color: ${config.primary_action_color || defaultConfig.primary_action_color};">
+                  <p class="font-semibold mb-2 text-white" style="font-size: ${baseSize}px;">
+                    Nilai Total
+                  </p>
+                  <p class="font-bold text-white" style="font-size: ${baseSize * 2}px;">
+                    ${nilaiTotal}
+                  </p>
+                </div>
+              </div>
+
+              <button 
+                onclick="location.reload()"
+                class="px-8 py-3 rounded-lg font-semibold text-white transition-all hover:opacity-90"
+                style="font-size: ${baseSize}px; background-color: ${config.secondary_action_color || defaultConfig.secondary_action_color};"
+              >
+                Kembali ke Halaman Login
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderAdmin(config, baseSize) {
+      const app = document.getElementById('app');
+      
+      app.innerHTML = `
+        <div class="min-h-full p-4">
+          <div class="max-w-7xl mx-auto fade-in">
+            <div class="rounded-xl shadow-lg p-6 mb-6" style="background-color: ${config.surface_color || defaultConfig.surface_color};">
+              <div class="flex justify-between items-center">
+                <h1 class="font-bold" style="font-size: ${baseSize * 1.8}px; color: ${config.text_color || defaultConfig.text_color};">
+                  Dashboard Admin
+                </h1>
+                <button 
+                  onclick="location.reload()"
+                  class="px-6 py-2 rounded-lg font-semibold text-white transition-all hover:opacity-90"
+                  style="font-size: ${baseSize * 0.9}px; background-color: ${config.secondary_action_color || defaultConfig.secondary_action_color};"
+                >
+                  Logout
+                </button>
+              </div>
+            </div>
+
+            <div class="rounded-xl shadow-lg mb-6" style="background-color: ${config.surface_color || defaultConfig.surface_color};">
+              <div class="flex flex-wrap border-b" style="border-color: ${config.secondary_action_color || defaultConfig.secondary_action_color};">
+                <button 
+                  id="tabSoal"
+                  class="tab-button px-6 py-4 font-semibold transition-all ${adminTab === 'soal' ? 'active' : ''}"
+                  style="font-size: ${baseSize}px; color: ${adminTab === 'soal' ? (config.primary_action_color || defaultConfig.primary_action_color) : (config.secondary_action_color || defaultConfig.secondary_action_color)}; border-color: ${config.primary_action_color || defaultConfig.primary_action_color};"
+                >
+                  📚 Bank Soal
+                </button>
+                <button 
+                  id="tabLeger"
+                  class="tab-button px-6 py-4 font-semibold transition-all ${adminTab === 'leger' ? 'active' : ''}"
+                  style="font-size: ${baseSize}px; color: ${adminTab === 'leger' ? (config.primary_action_color || defaultConfig.primary_action_color) : (config.secondary_action_color || defaultConfig.secondary_action_color)}; border-color: ${config.primary_action_color || defaultConfig.primary_action_color};"
+                >
+                  📊 Leger Nilai
+                </button>
+                <button 
+                  id="tabSiswa"
+                  class="tab-button px-6 py-4 font-semibold transition-all ${adminTab === 'siswa' ? 'active' : ''}"
+                  style="font-size: ${baseSize}px; color: ${adminTab === 'siswa' ? (config.primary_action_color || defaultConfig.primary_action_color) : (config.secondary_action_color || defaultConfig.secondary_action_color)}; border-color: ${config.primary_action_color || defaultConfig.primary_action_color};"
+                >
+                  👥 Daftar Siswa
+                </button>
+              </div>
+
+              <div id="tabContent" class="p-6"></div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      renderAdminTab(config, baseSize);
+      setupAdminTabListeners();
+    }
+
+    function setupAdminTabListeners() {
+      document.getElementById('tabSoal')?.addEventListener('click', () => {
+        adminTab = 'soal';
+        render();
+      });
+      document.getElementById('tabLeger')?.addEventListener('click', () => {
+        adminTab = 'leger';
+        render();
+      });
+      document.getElementById('tabSiswa')?.addEventListener('click', () => {
+        adminTab = 'siswa';
+        render();
+      });
+    }
+
+    window.switchAdminTab = function(tab) {
+      adminTab = tab;
+      const config = window.elementSdk?.config || defaultConfig;
+      const baseSize = config.font_size || defaultConfig.font_size;
+      renderAdminTab(config, baseSize);
+    };
+
+    function renderAdminTab(config, baseSize) {
+      const content = document.getElementById('tabContent');
+      
+      if (adminTab === 'soal') {
+        renderBankSoal(content, config, baseSize);
+      } else if (adminTab === 'leger') {
+        renderLegerNilai(content, config, baseSize);
+      } else if (adminTab === 'siswa') {
+        renderDaftarSiswa(content, config, baseSize);
+      }
+    }
+
+    function renderBankSoal(container, config, baseSize) {
+      const allMapel = [...new Set([...mapelPaketB, ...mapelPaketC])];
+      
+      let html = `
+        <div class="mb-4">
+          <label class="block mb-2 font-semibold" style="font-size: ${baseSize}px; color: ${config.text_color || defaultConfig.text_color};">
+            Pilih Mata Pelajaran:
+          </label>
+          <select id="mapelSelect" class="px-4 py-2 rounded-lg border-2" style="font-size: ${baseSize}px; border-color: ${config.secondary_action_color || defaultConfig.secondary_action_color};">
+            ${allMapel.map(m => `<option value="${m}">${m}</option>`).join('')}
+          </select>
+        </div>
+        <div id="soalContent"></div>
+      `;
+      
+      container.innerHTML = html;
+      
+      const mapelSelect = document.getElementById('mapelSelect');
+      const soalContent = document.getElementById('soalContent');
+      
+      function displaySoal(mapel) {
+        const soal = bankSoal[mapel];
+        let html = `
+          <div class="space-y-6">
+            <div>
+              <h3 class="font-bold mb-4" style="font-size: ${baseSize * 1.2}px; color: ${config.text_color || defaultConfig.text_color};">
+                Soal Pilihan Ganda (${soal.pg.length} soal)
+              </h3>
+              <div class="space-y-4">
+                ${soal.pg.map((s, i) => `
+                  <div class="p-4 rounded-lg" style="background-color: ${config.background_color || defaultConfig.background_color};">
+                    <p class="font-semibold mb-2" style="font-size: ${baseSize * 0.95}px; color: ${config.text_color || defaultConfig.text_color};">
+                      ${i + 1}. ${s.soal}
+                    </p>
+                    <div class="ml-4 space-y-1">
+                      ${s.pilihan.map((p, pi) => `
+                        <p style="font-size: ${baseSize * 0.9}px; color: ${pi === s.kunci ? (config.primary_action_color || defaultConfig.primary_action_color) : (config.text_color || defaultConfig.text_color)};">
+                          ${String.fromCharCode(65 + pi)}. ${p} ${pi === s.kunci ? '✓' : ''}
+                        </p>
+                      `).join('')}
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+
+            <div>
+              <h3 class="font-bold mb-4" style="font-size: ${baseSize * 1.2}px; color: ${config.text_color || defaultConfig.text_color};">
+                Soal Essay (${soal.essay.length} soal)
+              </h3>
+              <div class="space-y-4">
+                ${soal.essay.map((s, i) => `
+                  <div class="p-4 rounded-lg" style="background-color: ${config.background_color || defaultConfig.background_color};">
+                    <p class="font-semibold mb-2" style="font-size: ${baseSize * 0.95}px; color: ${config.text_color || defaultConfig.text_color};">
+                      ${i + 1}. ${s.soal}
+                    </p>
+                    <p class="ml-4 text-sm" style="font-size: ${baseSize * 0.85}px; color: ${config.secondary_action_color || defaultConfig.secondary_action_color};">
+                      Kata kunci: ${s.kunci.join(', ')}
+                    </p>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        `;
+        soalContent.innerHTML = html;
+      }
+      
+      mapelSelect.addEventListener('change', (e) => displaySoal(e.target.value));
+      displaySoal(allMapel[0]);
+    }
+
+    function renderLegerNilai(container, config, baseSize) {
+      const grouped = {};
+      allData.forEach(d => {
+        const key = `${d.kelas}-${d.mapel}`;
+        if (!grouped[key]) grouped[key] = [];
+        grouped[key].push(d);
+      });
+
+      let html = `
+        <div class="mb-4 flex justify-end">
+          <button 
+            id="downloadExcelBtn"
+            class="px-6 py-3 rounded-lg font-semibold text-white transition-all hover:opacity-90 flex items-center gap-2"
+            style="font-size: ${baseSize}px; background-color: ${config.primary_action_color || defaultConfig.primary_action_color};"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+            Download Excel
+          </button>
+        </div>
+        <div class="overflow-x-auto">
+          ${Object.keys(grouped).length === 0 ? `
+            <p style="font-size: ${baseSize}px; color: ${config.secondary_action_color || defaultConfig.secondary_action_color};">
+              Belum ada data nilai
+            </p>
+          ` : Object.keys(grouped).map(key => {
+            const [kelas, mapel] = key.split('-');
+            const data = grouped[key];
+            return `
+              <div class="mb-8">
+                <h3 class="font-bold mb-4" style="font-size: ${baseSize * 1.2}px; color: ${config.text_color || defaultConfig.text_color};">
+                  ${mapel} - Kelas ${kelas}
+                </h3>
+                <table class="w-full border-collapse">
+                  <thead>
+                    <tr style="background-color: ${config.primary_action_color || defaultConfig.primary_action_color};">
+                      <th class="border p-3 text-white text-left" style="font-size: ${baseSize * 0.9}px;">No</th>
+                      <th class="border p-3 text-white text-left" style="font-size: ${baseSize * 0.9}px;">Nama</th>
+                      <th class="border p-3 text-white text-center" style="font-size: ${baseSize * 0.9}px;">Nilai PG</th>
+                      <th class="border p-3 text-white text-center" style="font-size: ${baseSize * 0.9}px;">Nilai Essay</th>
+                      <th class="border p-3 text-white text-center" style="font-size: ${baseSize * 0.9}px;">Nilai Total</th>
+                      <th class="border p-3 text-white text-center" style="font-size: ${baseSize * 0.9}px;">Durasi</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${data.map((d, i) => `
+                      <tr style="background-color: ${i % 2 === 0 ? config.surface_color : config.background_color};">
+                        <td class="border p-3" style="font-size: ${baseSize * 0.9}px; color: ${config.text_color || defaultConfig.text_color};">${i + 1}</td>
+                        <td class="border p-3" style="font-size: ${baseSize * 0.9}px; color: ${config.text_color || defaultConfig.text_color};">${d.nama}</td>
+                        <td class="border p-3 text-center font-semibold" style="font-size: ${baseSize * 0.9}px; color: ${config.text_color || defaultConfig.text_color};">${d.nilai_pg}</td>
+                        <td class="border p-3 text-center font-semibold" style="font-size: ${baseSize * 0.9}px; color: ${config.text_color || defaultConfig.text_color};">${d.nilai_essay}</td>
+                        <td class="border p-3 text-center font-bold" style="font-size: ${baseSize}px; color: ${config.primary_action_color || defaultConfig.primary_action_color};">${d.nilai_total}</td>
+                        <td class="border p-3 text-center" style="font-size: ${baseSize * 0.85}px; color: ${config.secondary_action_color || defaultConfig.secondary_action_color};">${d.durasi_menit} menit</td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+      
+      container.innerHTML = html;
+      
+      const downloadBtn = document.getElementById('downloadExcelBtn');
+      if (downloadBtn) {
+        downloadBtn.addEventListener('click', () => downloadExcel());
+      }
+    }
+
+    function downloadExcel() {
+      const dataByKelas = {};
+      allData.forEach(d => {
+        if (!dataByKelas[d.kelas]) {
+          dataByKelas[d.kelas] = [];
+        }
+        dataByKelas[d.kelas].push(d);
+      });
+
+      const sortedKelas = Object.keys(dataByKelas).sort((a, b) => {
+        const order = ['VII', 'VIII', 'IX', 'X', 'XI', 'XII'];
+        return order.indexOf(a) - order.indexOf(b);
+      });
+
+      const wb = XLSX.utils.book_new();
+
+      sortedKelas.forEach(kelas => {
+        const siswaData = dataByKelas[kelas];
+        
+        const siswaMap = {};
+        siswaData.forEach(d => {
+          if (!siswaMap[d.nama]) {
+            siswaMap[d.nama] = {
+              nama: d.nama,
+              kelas: d.kelas,
+              paket: d.paket,
+              mapel: {}
+            };
+          }
+          siswaMap[d.nama].mapel[d.mapel] = {
+            pg: d.nilai_pg,
+            essay: d.nilai_essay,
+            total: d.nilai_total
+          };
+        });
+
+        const allMapel = [...new Set(siswaData.map(d => d.mapel))].sort();
+
+        const wsData = [];
+        
+        wsData.push([`LEGER NILAI KELAS ${kelas} (PAKET ${siswaData[0].paket})`]);
+        wsData.push([lembagaData?.nama_lembaga || 'PKBM TARNASY']);
+        wsData.push([]);
+
+        const headerRow = ['No', 'Nama Siswa', 'Kelas'];
+        allMapel.forEach(mapel => {
+          headerRow.push(`${mapel} (PG)`, `${mapel} (Essay)`, `${mapel} (Total)`);
+        });
+        headerRow.push('Rata-rata');
+        wsData.push(headerRow);
+
+        Object.values(siswaMap).forEach((siswa, index) => {
+          const row = [index + 1, siswa.nama, siswa.kelas];
+          
+          let totalNilai = 0;
+          let jumlahMapel = 0;
+          
+          allMapel.forEach(mapel => {
+            if (siswa.mapel[mapel]) {
+              row.push(siswa.mapel[mapel].pg, siswa.mapel[mapel].essay, siswa.mapel[mapel].total);
+              totalNilai += siswa.mapel[mapel].total;
+              jumlahMapel++;
+            } else {
+              row.push('-', '-', '-');
+            }
+          });
+          
+          const rataRata = jumlahMapel > 0 ? Math.round(totalNilai / jumlahMapel) : 0;
+          row.push(rataRata);
+          
+          wsData.push(row);
+        });
+
+        const ws = XLSX.utils.aoa_to_sheet(wsData);
+        
+        const colWidths = [
+          { wch: 5 },
+          { wch: 25 },
+          { wch: 10 }
+        ];
+        allMapel.forEach(() => {
+          colWidths.push({ wch: 12 }, { wch: 12 }, { wch: 12 });
+        });
+        colWidths.push({ wch: 12 });
+        ws['!cols'] = colWidths;
+
+        XLSX.utils.book_append_sheet(wb, ws, `Kelas ${kelas}`);
+      });
+
+      const now = new Date();
+      const filename = `Leger_Nilai_${lembagaData?.nama_lembaga || 'PKBM_Tarnasy'}_${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}.xlsx`;
+      
+      XLSX.writeFile(wb, filename);
+    }
+
+    function renderDaftarSiswa(container, config, baseSize) {
+      const sorted = [...allData].sort((a, b) => new Date(b.waktu_selesai) - new Date(a.waktu_selesai));
+
+      let html = `
+        <div class="overflow-x-auto">
+          ${sorted.length === 0 ? `
+            <p style="font-size: ${baseSize}px; color: ${config.secondary_action_color || defaultConfig.secondary_action_color};">
+              Belum ada siswa yang mengerjakan ujian
+            </p>
+          ` : `
+            <table class="w-full border-collapse">
+              <thead>
+                <tr style="background-color: ${config.primary_action_color || defaultConfig.primary_action_color};">
+                  <th class="border p-3 text-white text-left" style="font-size: ${baseSize * 0.9}px;">No</th>
+                  <th class="border p-3 text-white text-left" style="font-size: ${baseSize * 0.9}px;">Nama</th>
+                  <th class="border p-3 text-white text-center" style="font-size: ${baseSize * 0.9}px;">Kelas</th>
+                  <th class="border p-3 text-white text-left" style="font-size: ${baseSize * 0.9}px;">Mata Pelajaran</th>
+                  <th class="border p-3 text-white text-center" style="font-size: ${baseSize * 0.9}px;">Waktu Selesai</th>
+                  <th class="border p-3 text-white text-center" style="font-size: ${baseSize * 0.9}px;">Nilai Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${sorted.map((d, i) => {
+                  const waktu = new Date(d.waktu_selesai);
+                  const waktuStr = waktu.toLocaleString('id-ID', { 
+                    day: '2-digit', 
+                    month: '2-digit', 
+                    year: 'numeric',
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                  });
+                  return `
+                    <tr style="background-color: ${i % 2 === 0 ? config.surface_color : config.background_color};">
+                      <td class="border p-3" style="font-size: ${baseSize * 0.9}px; color: ${config.text_color || defaultConfig.text_color};">${i + 1}</td>
+                      <td class="border p-3" style="font-size: ${baseSize * 0.9}px; color: ${config.text_color || defaultConfig.text_color};">${d.nama}</td>
+                      <td class="border p-3 text-center" style="font-size: ${baseSize * 0.9}px; color: ${config.text_color || defaultConfig.text_color};">${d.kelas}</td>
+                      <td class="border p-3" style="font-size: ${baseSize * 0.9}px; color: ${config.text_color || defaultConfig.text_color};">${d.mapel}</td>
+                      <td class="border p-3 text-center" style="font-size: ${baseSize * 0.85}px; color: ${config.secondary_action_color || defaultConfig.secondary_action_color};">${waktuStr}</td>
+                      <td class="border p-3 text-center font-bold" style="font-size: ${baseSize}px; color: ${config.primary_action_color || defaultConfig.primary_action_color};">${d.nilai_total}</td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+          `}
+        </div>
+      `;
+      
+      container.innerHTML = html;
+    }
+
+
+
+    async function onConfigChange(config) {
+      render();
+    }
+
+    function mapToCapabilities(config) {
+      return {
+        recolorables: [
+          {
+            get: () => config.background_color || defaultConfig.background_color,
+            set: (value) => {
+              if (window.elementSdk) {
+                window.elementSdk.setConfig({ background_color: value });
+              }
+            }
+          },
+          {
+            get: () => config.surface_color || defaultConfig.surface_color,
+            set: (value) => {
+              if (window.elementSdk) {
+                window.elementSdk.setConfig({ surface_color: value });
+              }
+            }
+          },
+          {
+            get: () => config.text_color || defaultConfig.text_color,
+            set: (value) => {
+              if (window.elementSdk) {
+                window.elementSdk.setConfig({ text_color: value });
+              }
+            }
+          },
+          {
+            get: () => config.primary_action_color || defaultConfig.primary_action_color,
+            set: (value) => {
+              if (window.elementSdk) {
+                window.elementSdk.setConfig({ primary_action_color: value });
+              }
+            }
+          },
+          {
+            get: () => config.secondary_action_color || defaultConfig.secondary_action_color,
+            set: (value) => {
+              if (window.elementSdk) {
+                window.elementSdk.setConfig({ secondary_action_color: value });
+              }
+            }
+          }
+        ],
+        borderables: [],
+        fontEditable: {
+          get: () => config.font_family || defaultConfig.font_family,
+          set: (value) => {
+            if (window.elementSdk) {
+              window.elementSdk.setConfig({ font_family: value });
+            }
+          }
+        },
+        fontSizeable: {
+          get: () => config.font_size || defaultConfig.font_size,
+          set: (value) => {
+            if (window.elementSdk) {
+              window.elementSdk.setConfig({ font_size: value });
+            }
+          }
+        }
+      };
+    }
+
+    function mapToEditPanelValues(config) {
+      return new Map([
+        ['judul_website', config.judul_website || defaultConfig.judul_website],
+        ['subjudul', config.subjudul || defaultConfig.subjudul],
+        ['instruksi_1', config.instruksi_1 || defaultConfig.instruksi_1],
+        ['instruksi_2', config.instruksi_2 || defaultConfig.instruksi_2],
+        ['instruksi_3', config.instruksi_3 || defaultConfig.instruksi_3]
+      ]);
+    }
+
+    initApp();
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'99c9ecd332c2afdd',t:'MTc2MjgyMzU4Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

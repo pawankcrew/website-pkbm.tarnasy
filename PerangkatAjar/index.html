@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generator Perangkat Ajar - PKBM Tarbiyatunnasyiin</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- LAYAR 1: FORMULIR IDENTITAS -->
+        <div id="layar-identitas">
+            <header>
+                <img src="logo.png" alt="Logo PKBM" class="logo"> <!-- Pastikan ada file logo.png -->
+                <h1>Generator Perangkat Ajar</h1>
+                <p>PKBM Tarbiyatunnasyiin, Paculgowang, Diwek, Jombang</p>
+            </header>
+            
+            <form id="form-identitas">
+                <!-- Data Identitas (Nama, Lembaga, Kepsek, dll) -->
+                <div class="form-group">
+                    <label for="nama_tutor">Nama Lengkap Tutor:</label>
+                    <input type="text" id="nama_tutor" value="Muhammad Khoiruddin, S.Kom." required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="nama_lembaga">Asal Lembaga:</label>
+                    <input type="text" id="nama_lembaga" value="PKBM Tarbiyatunnasyiin" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="alamat_lembaga">Alamat Lembaga:</label>
+                    <input type="text" id="alamat_lembaga" value="Jl. KH. Manshur No 09 Paculgowang, Diwek, Jombang" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="nama_kepala_sekolah">Nama Kepala Sekolah:</label>
+                    <input type="text" id="nama_kepala_sekolah" value="Ahmad Husen Ma'ruf, S.Pd." required>
+                </div>
+                
+                <div class="grup-inline">
+                    <div class="form-group">
+                        <label for="jenjang">Jenjang:</label>
+                        <select id="jenjang" required>
+                            <option value="Paket A">Paket A (Setara SD)</option>
+                            <option value="Paket B" selected>Paket B (Setara SMP)</option>
+                            <option value="Paket C">Paket C (Setara SMA)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="fase">Fase:</label>
+                        <select id="fase" required>
+                            <!-- Pilihan Fase akan muncul di sini secara dinamis -->
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grup-inline">
+                    <div class="form-group">
+                        <label for="tahun_ajaran">Tahun Ajaran:</label>
+                        <input type="text" id="tahun_ajaran" value="2026/2027" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="mata_pelajaran">Mata Pelajaran:</label>
+                        <select id="mata_pelajaran" required>
+                            <!-- Pilihan Mapel akan muncul di sini secara dinamis -->
+                        </select>
+                    </div>
+                </div>
+                
+                <button type="button" class="tombol-generate" id="btn_generate_menu">
+                    Generate
+                </button>
+            </form>
+        </div>
+
+        <!-- LAYAR 2: PILIHAN DOKUMEN (Sudah di-update) -->
+        <div id="layar-pilihan" class="tersembunyi">
+            <h2 id="judul-pilihan">Pilih Dokumen</h2>
+            <p id="subjudul-pilihan"></p>
+            
+            <div class="pilihan-dokumen">
+                <button class="tombol-pilihan" id="btn_prota">
+                    Buat Program Tahunan (PROTA)
+                </button>
+                <button class="tombol-pilihan" id="btn_prosem">
+                    Buat Program Semester (PROSEM)
+                </button>
+                <button class="tombol-pilihan" id="btn_silabus">
+                    Buat Silabus / ATP
+                </button>
+                <button class="tombol-pilihan" id="btn_modul_ajar">
+                    Buat Modul Ajar (MA) / RPP
+                </button>
+            </div>
+            
+            <button id="btn_kembali" class="tombol-sekunder">Kembali ke Identitas</button>
+        </div>
+    </div>
+    
+    <script src="app.js"></script>
+</body>
+</html>

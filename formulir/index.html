@@ -1,0 +1,819 @@
+<!doctype html>
+<html lang="id">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Formulir PPDB PKBM</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+    html {
+      height: 100%;
+    }
+    .form-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .glass-effect {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 25px 45px rgba(0, 0, 0, 0.1);
+    }
+    .input-modern {
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 2px solid #e2e8f0;
+      background: rgba(255, 255, 255, 0.9);
+      position: relative;
+    }
+    .input-modern:focus {
+      border-color: #4f46e5;
+      box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15), 0 8px 25px rgba(79, 70, 229, 0.1);
+      transform: translateY(-2px) scale(1.02);
+      background: rgba(255, 255, 255, 1);
+    }
+    .input-modern:hover {
+      border-color: #a78bfa;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    .input-group {
+      position: relative;
+      margin-bottom: 1.5rem;
+    }
+    .input-label {
+      position: absolute;
+      left: 16px;
+      top: 12px;
+      background: white;
+      padding: 0 8px;
+      color: #6b7280;
+      transition: all 0.3s ease;
+      pointer-events: none;
+      border-radius: 4px;
+    }
+    .input-modern:focus + .input-label,
+    .input-modern:not(:placeholder-shown) + .input-label {
+      top: -8px;
+      left: 12px;
+      font-size: 12px;
+      color: #4f46e5;
+      font-weight: 600;
+    }
+    .floating-input {
+      padding-top: 20px;
+      padding-bottom: 8px;
+    }
+    .section-card {
+      background: linear-gradient(145deg, #f8fafc, #e2e8f0);
+      border-left: 4px solid #4f46e5;
+      transition: all 0.3s ease;
+    }
+    .section-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+    @media print {
+      @page {
+        size: 210mm 330mm; /* F4 size */
+        margin: 15mm;
+      }
+      body { 
+        margin: 0; 
+        font-size: 11px !important; 
+        background: white !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .no-print { display: none !important; }
+      .print-only { display: block !important; }
+      .print-document {
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: white !important;
+      }
+    }
+    .print-only { display: none; }
+    .btn-modern {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      transition: all 0.3s ease;
+      transform: translateY(0);
+    }
+    .btn-modern:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="bg-gray-50 p-6">
+  <div class="form-container"><!-- Form Section -->
+   <div class="glass-effect rounded-2xl p-10 no-print">
+    <div class="text-center mb-8">
+     <div class="inline-flex items-center justify-center mb-4"><img src="https://i.imgur.com/D061ewy.png" alt="Logo PKBM Tarbiyatunnasyiin Paculgowang" class="w-24 h-24 object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+      <div class="w-24 h-24 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full hidden items-center justify-center">
+       <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+       </svg>
+      </div>
+     </div>
+     <h3 class="text-xl font-bold text-gray-800 mb-1">PKBM TARBIYATUNNASYIIN PACULGOWANG</h3>
+     <h2 id="judul-form" class="text-3xl font-bold mb-2 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Formulir Pendaftaran Siswa Baru</h2>
+     <p class="text-gray-600">Silakan lengkapi data berikut dengan benar dan teliti</p>
+    </div>
+    <form id="registration-form" class="space-y-6">
+     <div class="grid grid-cols-1 md:grid-cols-3 gap-6"><!-- Tahun Ajaran -->
+      <div><label for="tahun-ajaran" class="block text-sm font-semibold text-gray-700 mb-3">Tahun Ajaran</label> <input type="text" id="tahun-ajaran" name="tahun_ajaran" placeholder="Contoh: 2024/2025" required class="input-modern w-full px-4 py-3 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+      </div><!-- Lembaga Pilihan -->
+      <div><label for="lembaga-pilihan" class="block text-sm font-semibold text-gray-700 mb-3">Lembaga Pilihan</label> <select id="lembaga-pilihan" name="lembaga_pilihan" required class="input-modern w-full px-4 py-3 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"> <option value="">Pilih Lembaga</option> <option value="Paket B">Paket B</option> <option value="Paket C">Paket C</option> </select>
+      </div><!-- No. Pendaftaran -->
+      <div><label for="no-pendaftaran" class="block text-sm font-semibold text-gray-700 mb-3">No. Pendaftaran</label> <input type="text" id="no-pendaftaran" name="no_pendaftaran" placeholder="Contoh: 001/PPDB/2024" required class="input-modern w-full px-4 py-3 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+      </div>
+     </div><!-- Data Siswa Section -->
+     <div class="section-card p-8 rounded-2xl mt-8">
+      <div class="flex items-center mb-6">
+       <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center mr-4">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+        </svg>
+       </div>
+       <h3 class="text-xl font-bold text-gray-800">Data Siswa</h3>
+      </div><!-- NISN -->
+      <div class="input-group"><input type="text" id="nisn" name="nisn" placeholder=" " required class="input-modern floating-input w-full px-4 py-3 rounded-xl"> <label for="nisn" class="input-label">NISN</label>
+      </div><!-- NIK -->
+      <div class="input-group"><input type="text" id="nik" name="nik" placeholder=" " required class="input-modern floating-input w-full px-4 py-3 rounded-xl"> <label for="nik" class="input-label">NIK</label>
+      </div><!-- Nama Lengkap -->
+      <div class="input-group"><input type="text" id="nama-lengkap" name="nama_lengkap" placeholder=" " required class="input-modern floating-input w-full px-4 py-3 rounded-xl"> <label for="nama-lengkap" class="input-label">Nama Lengkap (sesuai ijazah)</label>
+      </div><!-- Jenis Kelamin -->
+      <div class="mb-4"><label class="block text-sm font-semibold text-gray-700 mb-2">Jenis Kelamin</label>
+       <div class="flex gap-6"><label class="flex items-center"> <input type="radio" name="jenis_kelamin" value="Laki-laki" required class="mr-2"> <span class="text-gray-700">Laki-laki</span> </label> <label class="flex items-center"> <input type="radio" name="jenis_kelamin" value="Perempuan" required class="mr-2"> <span class="text-gray-700">Perempuan</span> </label>
+       </div>
+      </div><!-- TTL -->
+      <div class="grid grid-cols-2 gap-4 mb-4">
+       <div><label for="tempat-lahir" class="block text-sm font-semibold text-gray-700 mb-2">Tempat Lahir</label> <input type="text" id="tempat-lahir" name="tempat_lahir" placeholder="Kota/Kabupaten" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+       </div>
+       <div><label for="tanggal-lahir" class="block text-sm font-semibold text-gray-700 mb-2">Tanggal Lahir</label> <input type="date" id="tanggal-lahir" name="tanggal_lahir" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+       </div>
+      </div><!-- Urutan dalam Keluarga -->
+      <div class="mb-4"><label for="urutan-keluarga" class="block text-sm font-semibold text-gray-700 mb-2">Urutan dalam Keluarga (Anak ke-)</label> <input type="number" id="urutan-keluarga" name="urutan_keluarga" placeholder="Contoh: 1, 2, 3" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+      </div><!-- Status dalam Keluarga -->
+      <div class="mb-4"><label for="status-keluarga" class="block text-sm font-semibold text-gray-700 mb-2">Status dalam Keluarga</label> <select id="status-keluarga" name="status_keluarga" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"> <option value="">Pilih Status</option> <option value="Kandung">Kandung</option> <option value="Angkat">Angkat</option> <option value="Tiri">Tiri</option> </select>
+      </div><!-- Alamat Siswa -->
+      <div class="mb-4"><label for="alamat-siswa" class="block text-sm font-semibold text-gray-700 mb-2">Alamat Siswa</label> <textarea id="alamat-siswa" name="alamat_siswa" rows="2" placeholder="Alamat lengkap siswa" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+      </div><!-- RT/RW -->
+      <div class="grid grid-cols-2 gap-4 mb-4">
+       <div><label for="rt" class="block text-sm font-semibold text-gray-700 mb-2">RT</label> <input type="text" id="rt" name="rt" placeholder="Contoh: 001" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+       </div>
+       <div><label for="rw" class="block text-sm font-semibold text-gray-700 mb-2">RW</label> <input type="text" id="rw" name="rw" placeholder="Contoh: 002" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+       </div>
+      </div><!-- Desa/Kelurahan -->
+      <div class="mb-4"><label for="desa-kelurahan" class="block text-sm font-semibold text-gray-700 mb-2">Desa/Kelurahan</label> <input type="text" id="desa-kelurahan" name="desa_kelurahan" placeholder="Nama desa/kelurahan" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+      </div><!-- Kecamatan -->
+      <div class="mb-4"><label for="kecamatan" class="block text-sm font-semibold text-gray-700 mb-2">Kecamatan</label> <input type="text" id="kecamatan" name="kecamatan" placeholder="Nama kecamatan" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+      </div><!-- Kabupaten -->
+      <div class="mb-4"><label for="kabupaten" class="block text-sm font-semibold text-gray-700 mb-2">Kabupaten</label> <input type="text" id="kabupaten" name="kabupaten" placeholder="Nama kabupaten" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+      </div><!-- Provinsi -->
+      <div class="mb-4"><label for="provinsi" class="block text-sm font-semibold text-gray-700 mb-2">Provinsi</label> <input type="text" id="provinsi" name="provinsi" placeholder="Nama provinsi" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+      </div><!-- Nomor WA -->
+      <div class="mb-4"><label for="nomor-wa" class="block text-sm font-semibold text-gray-700 mb-2">Nomor WhatsApp</label> <input type="tel" id="nomor-wa" name="nomor_wa" placeholder="08xxxxxxxxxx" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+      </div><!-- Upload Foto -->
+      <div class="mb-4"><label for="foto-siswa" class="block text-sm font-semibold text-gray-700 mb-2">Upload Foto Siswa (3x4)</label> <input type="file" id="foto-siswa" name="foto_siswa" accept="image/*" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+       <p class="text-xs text-gray-500 mt-1">Format: JPG, PNG. Ukuran maksimal 2MB</p>
+       <div id="foto-preview" class="mt-2 hidden"><img id="preview-image" src="" alt="Preview foto" class="w-24 h-32 object-cover border border-gray-300 rounded">
+       </div>
+      </div>
+     </div><!-- Data Sekolah Asal Section -->
+     <div class="bg-gray-50 p-6 rounded-lg">
+      <h3 class="text-lg font-bold text-blue-900 mb-4">Data Sekolah Asal</h3><!-- Sekolah Asal -->
+      <div class="mb-4"><label for="sekolah-asal" class="block text-sm font-semibold text-gray-700 mb-2">Sekolah Asal</label> <select id="sekolah-asal" name="sekolah_asal" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"> <option value="">Pilih Jenjang</option> <option value="SD/MI">SD/MI</option> <option value="SMP/MTs">SMP/MTs</option> <option value="SMA/MA/SMK">SMA/MA/SMK</option> </select>
+      </div><!-- Nama Sekolah -->
+      <div class="mb-4"><label for="nama-sekolah" class="block text-sm font-semibold text-gray-700 mb-2">Nama Sekolah</label> <input type="text" id="nama-sekolah" name="nama_sekolah" placeholder="Nama sekolah asal" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+      </div><!-- Alamat Sekolah -->
+      <div class="mb-4"><label for="alamat-sekolah" class="block text-sm font-semibold text-gray-700 mb-2">Alamat Sekolah</label> <textarea id="alamat-sekolah" name="alamat_sekolah" rows="2" placeholder="Alamat sekolah asal" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+      </div><!-- Tahun -->
+      <div class="mb-4"><label for="tahun-sekolah" class="block text-sm font-semibold text-gray-700 mb-2">Tahun Lulus</label> <input type="number" id="tahun-sekolah" name="tahun_sekolah" placeholder="Contoh: 2023" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+      </div><!-- Diterima di Kelas -->
+      <div class="mb-4"><label for="diterima-kelas" class="block text-sm font-semibold text-gray-700 mb-2">Diterima di Kelas</label> <input type="text" id="diterima-kelas" name="diterima_kelas" placeholder="Contoh: VII, X" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+      </div>
+     </div><!-- Data Orang Tua/Wali Section -->
+     <div class="bg-gray-50 p-6 rounded-lg">
+      <h3 class="text-lg font-bold text-blue-900 mb-4">Data Orang Tua/Wali</h3><!-- Nama Ayah -->
+      <div class="mb-4"><label for="nama-ayah" class="block text-sm font-semibold text-gray-700 mb-2">Nama Ayah</label> <input type="text" id="nama-ayah" name="nama_ayah" placeholder="Nama lengkap ayah" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+      </div><!-- Nama Ibu -->
+      <div class="mb-4"><label for="nama-ibu" class="block text-sm font-semibold text-gray-700 mb-2">Nama Ibu</label> <input type="text" id="nama-ibu" name="nama_ibu" placeholder="Nama lengkap ibu" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+      </div><!-- Nomor yang bisa dihubungi -->
+      <div class="mb-4"><label for="nomor-orangtua" class="block text-sm font-semibold text-gray-700 mb-2">Nomor yang bisa dihubungi</label> <input type="tel" id="nomor-orangtua" name="nomor_orangtua" placeholder="08xxxxxxxxxx" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+      </div>
+     </div><!-- Kelengkapan Dokumen Section -->
+     <div class="section-card p-8 rounded-2xl mt-8">
+      <div class="flex items-center mb-6">
+       <div class="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-500 rounded-lg flex items-center justify-center mr-4">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+       </div>
+       <h3 class="text-xl font-bold text-gray-800">Kelengkapan Dokumen</h3>
+      </div>
+      <p class="text-sm text-gray-600 mb-4 italic">Centang dokumen yang sudah Anda siapkan:</p>
+      <div class="space-y-3"><!-- Ijazah --> <label class="flex items-start p-4 bg-white rounded-lg border-2 border-gray-200 hover:border-blue-400 cursor-pointer transition-all duration-200"> <input type="checkbox" name="dok_ijazah" value="true" class="mt-1 w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"> <span class="ml-3 text-gray-700">Foto copy Ijazah Terakhir yang telah dilegalisir</span> </label> <!-- KTP --> <label class="flex items-start p-4 bg-white rounded-lg border-2 border-gray-200 hover:border-blue-400 cursor-pointer transition-all duration-200"> <input type="checkbox" name="dok_ktp" value="true" class="mt-1 w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"> <span class="ml-3 text-gray-700">Foto Copy KTP (Jika sudah mempunyai)</span> </label> <!-- Pas Foto --> <label class="flex items-start p-4 bg-white rounded-lg border-2 border-gray-200 hover:border-blue-400 cursor-pointer transition-all duration-200"> <input type="checkbox" name="dok_pasfoto" value="true" class="mt-1 w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"> <span class="ml-3 text-gray-700">Pas Foto hitam putih ukuran 3 x 4 sebanyak 3 lembar</span> </label> <!-- NISN --> <label class="flex items-start p-4 bg-white rounded-lg border-2 border-gray-200 hover:border-blue-400 cursor-pointer transition-all duration-200"> <input type="checkbox" name="dok_nisn" value="true" class="mt-1 w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"> <span class="ml-3 text-gray-700">Foto copy NISN</span> </label> <!-- Kartu Keluarga --> <label class="flex items-start p-4 bg-white rounded-lg border-2 border-gray-200 hover:border-blue-400 cursor-pointer transition-all duration-200"> <input type="checkbox" name="dok_kk" value="true" class="mt-1 w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"> <span class="ml-3 text-gray-700">Foto copy Kartu Keluarga</span> </label> <!-- Sertifikat Prestasi --> <label class="flex items-start p-4 bg-white rounded-lg border-2 border-gray-200 hover:border-blue-400 cursor-pointer transition-all duration-200"> <input type="checkbox" name="dok_sertifikat" value="true" class="mt-1 w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"> <span class="ml-3 text-gray-700">Sertifikat Prestasi (Jika memiliki)</span> </label>
+      </div>
+     </div><!-- Submit Button -->
+     <div class="pt-8 space-y-3"><button type="submit" id="submit-btn" class="btn-modern w-full text-white font-bold py-4 px-8 rounded-2xl transition duration-300 text-lg shadow-lg"> 🚀 Buat Formulir &amp; Preview </button>
+     </div>
+    </form><!-- Success Message -->
+    <div id="success-message" class="hidden mt-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
+     <div class="flex items-center justify-between">
+      <p class="font-semibold">✓ Formulir berhasil dibuat! Lihat preview di bawah.</p>
+      <div class="space-x-3"><button id="preview-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition duration-200"> 👁️ Preview </button> <button id="print-btn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition duration-200"> 🖨️ Cetak Sekarang </button>
+      </div>
+     </div>
+    </div>
+   </div><!-- Preview Modal -->
+   <div id="preview-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl">
+     <div class="flex items-center justify-between p-6 border-b bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+      <h3 class="text-xl font-bold">📋 Preview Formulir PPDB</h3>
+      <div class="flex space-x-3"><button id="print-from-modal" class="bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-lg transition duration-200"> 🖨️ Cetak </button> <button id="close-modal" class="bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-lg transition duration-200"> ✕ Tutup </button>
+      </div>
+     </div>
+     <div id="modal-content" class="p-6 overflow-y-auto max-h-[calc(90vh-120px)]"><!-- Preview content will be inserted here -->
+     </div>
+    </div>
+   </div><!-- Print Document -->
+   <div id="print-document" class="hidden print-only bg-white"><!-- Content will be generated here -->
+   </div>
+  </div>
+  <script>
+    const defaultConfig = {
+      nama_lembaga: "PKBM TARBIYATUNNASYIIN PACULGOWANG",
+      judul_form: "Formulir Pendaftaran Siswa Baru",
+      primary_color: "#1e40af",
+      secondary_color: "#ffffff",
+      text_color: "#1e293b",
+      button_color: "#2563eb",
+      font_family: "system-ui",
+      font_size: 16
+    };
+
+    let uploadedPhoto = null;
+
+    async function onConfigChange(config) {
+      const customFont = config.font_family || defaultConfig.font_family;
+      const baseFontStack = 'system-ui, -apple-system, sans-serif';
+      const baseSize = config.font_size || defaultConfig.font_size;
+      
+      document.body.style.fontFamily = `${customFont}, ${baseFontStack}`;
+      document.body.style.fontSize = `${baseSize}px`;
+      
+      const judulForm = document.getElementById('judul-form');
+      if (judulForm) {
+        judulForm.textContent = config.judul_form || defaultConfig.judul_form;
+        judulForm.style.color = config.text_color || defaultConfig.text_color;
+        judulForm.style.fontSize = `${baseSize * 1.5}px`;
+      }
+
+      const submitBtn = document.getElementById('submit-btn');
+      if (submitBtn) {
+        submitBtn.style.backgroundColor = config.button_color || defaultConfig.button_color;
+      }
+    }
+
+    // Handle photo upload
+    document.getElementById('foto-siswa').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        if (file.size > 2 * 1024 * 1024) {
+          const message = document.createElement('div');
+          message.className = 'mt-2 p-2 bg-red-100 border border-red-400 text-red-700 rounded text-sm';
+          message.textContent = 'Ukuran file terlalu besar. Maksimal 2MB.';
+          e.target.parentNode.appendChild(message);
+          setTimeout(() => message.remove(), 3000);
+          e.target.value = '';
+          return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          uploadedPhoto = e.target.result;
+          document.getElementById('preview-image').src = e.target.result;
+          document.getElementById('foto-preview').classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    let currentFormData = null;
+
+    document.getElementById('registration-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const formData = new FormData(e.target);
+      currentFormData = {
+        no_pendaftaran: formData.get('no_pendaftaran'),
+        tahun_ajaran: formData.get('tahun_ajaran'),
+        lembaga_pilihan: formData.get('lembaga_pilihan'),
+        nisn: formData.get('nisn'),
+        nik: formData.get('nik'),
+        nama_lengkap: formData.get('nama_lengkap'),
+        jenis_kelamin: formData.get('jenis_kelamin'),
+        tempat_lahir: formData.get('tempat_lahir'),
+        tanggal_lahir: formData.get('tanggal_lahir'),
+        urutan_keluarga: formData.get('urutan_keluarga'),
+        status_keluarga: formData.get('status_keluarga'),
+        alamat_siswa: formData.get('alamat_siswa'),
+        rt: formData.get('rt'),
+        rw: formData.get('rw'),
+        desa_kelurahan: formData.get('desa_kelurahan'),
+        kecamatan: formData.get('kecamatan'),
+        kabupaten: formData.get('kabupaten'),
+        provinsi: formData.get('provinsi'),
+        nomor_wa: formData.get('nomor_wa'),
+        sekolah_asal: formData.get('sekolah_asal'),
+        nama_sekolah: formData.get('nama_sekolah'),
+        alamat_sekolah: formData.get('alamat_sekolah'),
+        tahun_sekolah: formData.get('tahun_sekolah'),
+        diterima_kelas: formData.get('diterima_kelas'),
+        nama_ayah: formData.get('nama_ayah'),
+        nama_ibu: formData.get('nama_ibu'),
+        nomor_orangtua: formData.get('nomor_orangtua'),
+        foto_siswa: uploadedPhoto,
+        dok_ijazah: formData.get('dok_ijazah') === 'true',
+        dok_ktp: formData.get('dok_ktp') === 'true',
+        dok_pasfoto: formData.get('dok_pasfoto') === 'true',
+        dok_nisn: formData.get('dok_nisn') === 'true',
+        dok_kk: formData.get('dok_kk') === 'true',
+        dok_sertifikat: formData.get('dok_sertifikat') === 'true'
+      };
+
+      generatePrintDocument(currentFormData);
+      
+      // Show success message with animation
+      const successMsg = document.getElementById('success-message');
+      successMsg.classList.remove('hidden');
+      successMsg.style.opacity = '0';
+      successMsg.style.transform = 'translateY(20px)';
+      
+      setTimeout(() => {
+        successMsg.style.transition = 'all 0.5s ease';
+        successMsg.style.opacity = '1';
+        successMsg.style.transform = 'translateY(0)';
+      }, 100);
+      
+      // Auto show preview after 1 second
+      setTimeout(() => {
+        showPreview();
+      }, 1000);
+    });
+
+    // Preview button handler
+    document.getElementById('preview-btn').addEventListener('click', showPreview);
+    
+    // Print button handler
+    document.getElementById('print-btn').addEventListener('click', function() {
+      window.print();
+    });
+
+    // Print from modal handler
+    document.getElementById('print-from-modal').addEventListener('click', function() {
+      document.getElementById('preview-modal').classList.add('hidden');
+      setTimeout(() => {
+        window.print();
+      }, 300);
+    });
+
+    // Close modal handler
+    document.getElementById('close-modal').addEventListener('click', function() {
+      document.getElementById('preview-modal').classList.add('hidden');
+    });
+
+    // Close modal when clicking outside
+    document.getElementById('preview-modal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        this.classList.add('hidden');
+      }
+    });
+
+    function showPreview() {
+      if (!currentFormData) return;
+      
+      const modalContent = document.getElementById('modal-content');
+      modalContent.innerHTML = generatePreviewContent(currentFormData);
+      
+      const modal = document.getElementById('preview-modal');
+      modal.classList.remove('hidden');
+      
+      // Add entrance animation
+      modal.style.opacity = '0';
+      setTimeout(() => {
+        modal.style.transition = 'opacity 0.3s ease';
+        modal.style.opacity = '1';
+      }, 10);
+    }
+
+    function generatePrintDocument(data) {
+      const printDocument = document.getElementById('print-document');
+      
+      printDocument.innerHTML = `
+        <div style="font-family: 'Times New Roman', serif; font-size: 13px; line-height: 1.5; padding: 0; margin: 0; width: 100%; background: white;">
+          <!-- Header/Kop Surat -->
+          <div style="text-align: center; border-bottom: 4px double #000; padding-bottom: 20px; margin-bottom: 25px; background: linear-gradient(to bottom, #f8f9fa, #ffffff);">
+            <table style="width: 100%; border-collapse: collapse;">
+              <tr>
+                <td style="width: 100px; vertical-align: middle; text-align: center;">
+                  <img src="https://i.imgur.com/D061ewy.png" alt="Logo PKBM" style="width: 90px; height: 90px; object-fit: contain;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                  <div style="width: 90px; height: 90px; border: 2px solid #000; display: none; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; background: #f8f9fa; border-radius: 8px;">
+                    LOGO<br>PKBM
+                  </div>
+                </td>
+                <td style="text-align: center; vertical-align: middle; padding: 0 20px;">
+                  <h1 style="margin: 0; font-size: 15px; font-weight: bold; color: #1a365d; letter-spacing: 0.5px;">DINAS PENDIDIKAN DAN KEBUDAYAAN</h1>
+                  <h2 style="margin: 6px 0; font-size: 13px; font-weight: bold; color: #2d3748;">PANITIA PENERIMAAN PESERTA DIDIK BARU (PPDB)</h2>
+                  <h2 style="margin: 6px 0; font-size: 13px; font-weight: bold; color: #2d3748;">PKBM TARBIYATUNNASYIIN PACULGOWANG</h2>
+                  <p style="margin: 8px 0; font-size: 13px; color: #4a5568; font-style: italic;">Tahun Ajaran ${data.tahun_ajaran}</p>
+                </td>
+                <td style="width: 100px; vertical-align: middle; text-align: center;">
+                  <div style="border: 2px solid #000; padding: 8px; font-size: 11px; background: #fff3cd; border-radius: 8px;">
+                    <strong style="color: #856404;">No. Pendaftaran</strong><br>
+                    <span style="font-size: 12px; font-weight: bold; color: #1a365d;">${data.no_pendaftaran}</span>
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </div>
+
+
+
+          <!-- Data Siswa -->
+          <div style="margin-bottom: 25px; position: relative;">
+            <h4 style="background: linear-gradient(135deg, #4f46e5, #7c3aed); color: white; padding: 12px 20px; margin: 0 0 15px 0; font-size: 15px; font-weight: bold; border-radius: 8px; text-align: center; letter-spacing: 0.5px;">📋 DATA SISWA</h4>
+            
+            <table style="width: 100%; border-collapse: collapse; border: 2px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
+              <tr style="background: #f8fafc;">
+                <td style="width: 20%; padding: 8px 12px; vertical-align: top; font-weight: bold; border-bottom: 1px solid #e2e8f0;">NISN</td>
+                <td style="width: 2%; padding: 8px 5px; border-bottom: 1px solid #e2e8f0;">:</td>
+                <td style="width: 28%; padding: 8px 12px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">${data.nisn}</td>
+                <td style="width: 20%; padding: 8px 12px; vertical-align: top; font-weight: bold; border-bottom: 1px solid #e2e8f0;">NIK</td>
+                <td style="width: 2%; padding: 8px 5px; border-bottom: 1px solid #e2e8f0;">:</td>
+                <td style="width: 28%; padding: 8px 12px; border-bottom: 1px solid #e2e8f0;">${data.nik}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 12px; vertical-align: top; font-weight: bold; border-bottom: 1px solid #e2e8f0; background: #f8fafc;">Nama Lengkap</td>
+                <td style="padding: 8px 5px; border-bottom: 1px solid #e2e8f0;">:</td>
+                <td colspan="4" style="padding: 8px 12px; font-weight: bold; font-size: 14px; color: #1a365d; border-bottom: 1px solid #e2e8f0;">${data.nama_lengkap}</td>
+              </tr>
+              <tr style="background: #f8fafc;">
+                <td style="padding: 8px 12px; vertical-align: top; font-weight: bold; border-bottom: 1px solid #e2e8f0;">Jenis Kelamin</td>
+                <td style="padding: 8px 5px; border-bottom: 1px solid #e2e8f0;">:</td>
+                <td style="padding: 8px 12px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">${data.jenis_kelamin}</td>
+                <td style="padding: 8px 12px; vertical-align: top; font-weight: bold; border-bottom: 1px solid #e2e8f0;">Tempat, Tgl Lahir</td>
+                <td style="padding: 8px 5px; border-bottom: 1px solid #e2e8f0;">:</td>
+                <td style="padding: 8px 12px; border-bottom: 1px solid #e2e8f0;">${data.tempat_lahir}, ${data.tanggal_lahir}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 12px; vertical-align: top; font-weight: bold; border-bottom: 1px solid #e2e8f0; background: #f8fafc;">Anak ke-</td>
+                <td style="padding: 8px 5px; border-bottom: 1px solid #e2e8f0;">:</td>
+                <td style="padding: 8px 12px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">${data.urutan_keluarga}</td>
+                <td style="padding: 8px 12px; vertical-align: top; font-weight: bold; border-bottom: 1px solid #e2e8f0; background: #f8fafc;">Status dalam Keluarga</td>
+                <td style="padding: 8px 5px; border-bottom: 1px solid #e2e8f0;">:</td>
+                <td style="padding: 8px 12px; border-bottom: 1px solid #e2e8f0;">${data.status_keluarga}</td>
+              </tr>
+              <tr style="background: #f8fafc;">
+                <td style="padding: 8px 12px; vertical-align: top; font-weight: bold; border-bottom: 1px solid #e2e8f0;">Alamat</td>
+                <td style="padding: 8px 5px; border-bottom: 1px solid #e2e8f0;">:</td>
+                <td colspan="4" style="padding: 8px 12px; border-bottom: 1px solid #e2e8f0;">${data.alamat_siswa}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 12px; vertical-align: top; font-weight: bold; border-bottom: 1px solid #e2e8f0; background: #f8fafc;">RT/RW</td>
+                <td style="padding: 8px 5px; border-bottom: 1px solid #e2e8f0;">:</td>
+                <td style="padding: 8px 12px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">${data.rt}/${data.rw}</td>
+                <td style="padding: 8px 12px; vertical-align: top; font-weight: bold; border-bottom: 1px solid #e2e8f0; background: #f8fafc;">Desa/Kelurahan</td>
+                <td style="padding: 8px 5px; border-bottom: 1px solid #e2e8f0;">:</td>
+                <td style="padding: 8px 12px; border-bottom: 1px solid #e2e8f0;">${data.desa_kelurahan}</td>
+              </tr>
+              <tr style="background: #f8fafc;">
+                <td style="padding: 8px 12px; vertical-align: top; font-weight: bold; border-bottom: 1px solid #e2e8f0;">Kecamatan</td>
+                <td style="padding: 8px 5px; border-bottom: 1px solid #e2e8f0;">:</td>
+                <td style="padding: 8px 12px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">${data.kecamatan}</td>
+                <td style="padding: 8px 12px; vertical-align: top; font-weight: bold; border-bottom: 1px solid #e2e8f0;">Kabupaten</td>
+                <td style="padding: 8px 5px; border-bottom: 1px solid #e2e8f0;">:</td>
+                <td style="padding: 8px 12px; border-bottom: 1px solid #e2e8f0;">${data.kabupaten}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 12px; vertical-align: top; font-weight: bold; background: #f8fafc;">Provinsi</td>
+                <td style="padding: 8px 5px;">:</td>
+                <td style="padding: 8px 12px; border-right: 1px solid #e2e8f0;">${data.provinsi}</td>
+                <td style="padding: 8px 12px; vertical-align: top; font-weight: bold; background: #f8fafc;">No. WhatsApp</td>
+                <td style="padding: 8px 5px;">:</td>
+                <td style="padding: 8px 12px;">${data.nomor_wa}</td>
+              </tr>
+            </table>
+          </div>
+
+          <!-- Data Sekolah Asal -->
+          <div style="margin-bottom: 20px; clear: both;">
+            <h4 style="background: #f0f0f0; padding: 8px; margin: 0 0 10px 0; font-size: 14px; font-weight: bold;">DATA SEKOLAH ASAL</h4>
+            
+            <table style="width: 100%; border-collapse: collapse;">
+              <tr>
+                <td style="width: 25%; padding: 4px 0; vertical-align: top;">Sekolah Asal</td>
+                <td style="width: 2%; padding: 4px 0;">:</td>
+                <td style="width: 23%; padding: 4px 0;">${data.sekolah_asal}</td>
+                <td style="width: 25%; padding: 4px 0; vertical-align: top;">Tahun Lulus</td>
+                <td style="width: 2%; padding: 4px 0;">:</td>
+                <td style="width: 23%; padding: 4px 0;">${data.tahun_sekolah}</td>
+              </tr>
+              <tr>
+                <td style="padding: 4px 0; vertical-align: top;">Nama Sekolah</td>
+                <td style="padding: 4px 0;">:</td>
+                <td colspan="4" style="padding: 4px 0;">${data.nama_sekolah}</td>
+              </tr>
+              <tr>
+                <td style="padding: 4px 0; vertical-align: top;">Alamat Sekolah</td>
+                <td style="padding: 4px 0;">:</td>
+                <td colspan="4" style="padding: 4px 0;">${data.alamat_sekolah}</td>
+              </tr>
+              <tr>
+                <td style="padding: 4px 0; vertical-align: top;">Diterima di Kelas</td>
+                <td style="padding: 4px 0;">:</td>
+                <td style="padding: 4px 0;">${data.diterima_kelas}</td>
+                <td style="padding: 4px 0; vertical-align: top;">Lembaga Pilihan</td>
+                <td style="padding: 4px 0;">:</td>
+                <td style="padding: 4px 0;">${data.lembaga_pilihan}</td>
+              </tr>
+            </table>
+          </div>
+
+          <!-- Data Orang Tua -->
+          <div style="margin-bottom: 20px;">
+            <h4 style="background: #f0f0f0; padding: 8px; margin: 0 0 10px 0; font-size: 14px; font-weight: bold;">DATA ORANG TUA/WALI</h4>
+            
+            <table style="width: 100%; border-collapse: collapse;">
+              <tr>
+                <td style="width: 25%; padding: 4px 0; vertical-align: top;">Nama Ayah</td>
+                <td style="width: 2%; padding: 4px 0;">:</td>
+                <td style="width: 23%; padding: 4px 0;">${data.nama_ayah}</td>
+                <td style="width: 25%; padding: 4px 0; vertical-align: top;">Nama Ibu</td>
+                <td style="width: 2%; padding: 4px 0;">:</td>
+                <td style="width: 23%; padding: 4px 0;">${data.nama_ibu}</td>
+              </tr>
+              <tr>
+                <td style="padding: 4px 0; vertical-align: top;">No. yang bisa dihubungi</td>
+                <td style="padding: 4px 0;">:</td>
+                <td colspan="4" style="padding: 4px 0;">${data.nomor_orangtua}</td>
+              </tr>
+            </table>
+          </div>
+
+          <!-- Dokumen yang Diserahkan -->
+          <div style="margin-bottom: 20px;">
+            <h4 style="background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 12px 20px; margin: 0 0 15px 0; font-size: 15px; font-weight: bold; border-radius: 8px; text-align: center; letter-spacing: 0.5px;">📎 KELENGKAPAN DOKUMEN</h4>
+            <div style="background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 8px; padding: 15px;">
+              <p style="margin: 0 0 12px 0; font-size: 13px; color: #64748b; font-style: italic;">Status kelengkapan dokumen:</p>
+              <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                  <td style="width: 35px; padding: 6px 0; vertical-align: top; text-align: center;">
+                    <div style="width: 18px; height: 18px; border: 2px solid #000; display: inline-flex; align-items: center; justify-content: center; background: white; font-size: 14px; font-weight: bold;">${data.dok_ijazah ? '✓' : ''}</div>
+                  </td>
+                  <td style="padding: 6px 0; font-size: 13px;">Foto copy Ijazah Terakhir yang telah dilegalisir</td>
+                </tr>
+                <tr>
+                  <td style="width: 35px; padding: 6px 0; vertical-align: top; text-align: center;">
+                    <div style="width: 18px; height: 18px; border: 2px solid #000; display: inline-flex; align-items: center; justify-content: center; background: white; font-size: 14px; font-weight: bold;">${data.dok_ktp ? '✓' : ''}</div>
+                  </td>
+                  <td style="padding: 6px 0; font-size: 13px;">Foto Copy KTP (Jika sudah mempunyai)</td>
+                </tr>
+                <tr>
+                  <td style="width: 35px; padding: 6px 0; vertical-align: top; text-align: center;">
+                    <div style="width: 18px; height: 18px; border: 2px solid #000; display: inline-flex; align-items: center; justify-content: center; background: white; font-size: 14px; font-weight: bold;">${data.dok_pasfoto ? '✓' : ''}</div>
+                  </td>
+                  <td style="padding: 6px 0; font-size: 13px;">Pas Foto hitam putih ukuran 3 x 4 sebanyak 3 lembar</td>
+                </tr>
+                <tr>
+                  <td style="width: 35px; padding: 6px 0; vertical-align: top; text-align: center;">
+                    <div style="width: 18px; height: 18px; border: 2px solid #000; display: inline-flex; align-items: center; justify-content: center; background: white; font-size: 14px; font-weight: bold;">${data.dok_nisn ? '✓' : ''}</div>
+                  </td>
+                  <td style="padding: 6px 0; font-size: 13px;">Foto copy NISN</td>
+                </tr>
+                <tr>
+                  <td style="width: 35px; padding: 6px 0; vertical-align: top; text-align: center;">
+                    <div style="width: 18px; height: 18px; border: 2px solid #000; display: inline-flex; align-items: center; justify-content: center; background: white; font-size: 14px; font-weight: bold;">${data.dok_kk ? '✓' : ''}</div>
+                  </td>
+                  <td style="padding: 6px 0; font-size: 13px;">Foto copy Kartu Keluarga</td>
+                </tr>
+                <tr>
+                  <td style="width: 35px; padding: 6px 0; vertical-align: top; text-align: center;">
+                    <div style="width: 18px; height: 18px; border: 2px solid #000; display: inline-flex; align-items: center; justify-content: center; background: white; font-size: 14px; font-weight: bold;">${data.dok_sertifikat ? '✓' : ''}</div>
+                  </td>
+                  <td style="padding: 6px 0; font-size: 13px;">Sertifikat Prestasi (Jika memiliki)</td>
+                </tr>
+              </table>
+              <p style="margin: 12px 0 0 0; font-size: 12px; color: #64748b; font-style: italic; padding-top: 10px; border-top: 1px dashed #cbd5e1;">
+                <strong>Catatan:</strong> Tanda centang (✓) menunjukkan dokumen yang sudah disiapkan oleh calon siswa
+              </p>
+            </div>
+          </div>
+
+          <!-- Tanda Tangan -->
+          <div style="margin-top: 40px;">
+            <table style="width: 100%; border-collapse: collapse;">
+              <tr>
+                <td style="width: 50%; text-align: center; vertical-align: top;">
+                  <p style="margin: 0 0 60px 0; font-weight: bold;">Orang Tua/Wali</p>
+                  <div style="border-top: 1px solid #000; padding-top: 5px; margin: 0 50px;">
+                    <p style="margin: 0; font-size: 10px;">Tanda tangan & nama lengkap</p>
+                  </div>
+                </td>
+                <td style="width: 50%; text-align: center; vertical-align: top;">
+                  <p style="margin: 0 0 60px 0; font-weight: bold;">Calon Siswa</p>
+                  <div style="border-top: 1px solid #000; padding-top: 5px; margin: 0 50px;">
+                    <p style="margin: 0; font-size: 10px;">Tanda tangan & nama lengkap</p>
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </div>
+
+          <!-- Foto Siswa (3 buah) -->
+          <div style="margin-top: 30px; text-align: center;">
+            <h4 style="background: #f0f0f0; padding: 8px; margin: 0 0 15px 0; font-size: 14px; font-weight: bold;">FOTO SISWA (3x4)</h4>
+            <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
+              ${data.foto_siswa ? 
+                `<img src="${data.foto_siswa}" style="width: 80px; height: 100px; border: 2px solid #000; object-fit: cover;">
+                 <img src="${data.foto_siswa}" style="width: 80px; height: 100px; border: 2px solid #000; object-fit: cover;">
+                 <img src="${data.foto_siswa}" style="width: 80px; height: 100px; border: 2px solid #000; object-fit: cover;">` :
+                `<div style="width: 80px; height: 100px; border: 2px solid #000; display: flex; align-items: center; justify-content: center; font-size: 10px; text-align: center; background: #f9f9f9;">FOTO<br>3x4<br>(1)</div>
+                 <div style="width: 80px; height: 100px; border: 2px solid #000; display: flex; align-items: center; justify-content: center; font-size: 10px; text-align: center; background: #f9f9f9;">FOTO<br>3x4<br>(2)</div>
+                 <div style="width: 80px; height: 100px; border: 2px solid #000; display: flex; align-items: center; justify-content: center; font-size: 10px; text-align: center; background: #f9f9f9;">FOTO<br>3x4<br>(3)</div>`
+              }
+            </div>
+            <p style="margin: 10px 0 0 0; font-size: 11px; color: #666; font-style: italic;">Tempelkan 3 lembar pas foto ukuran 3x4 di tempat yang telah disediakan</p>
+          </div>
+
+          <!-- Print Button -->
+          <div class="no-print" style="text-align: center; margin-top: 30px; padding: 20px; border-top: 2px solid #ddd;">
+            <button onclick="window.print()" style="background: #2563eb; color: white; padding: 12px 24px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer;">
+              🖨️ Cetak Formulir
+            </button>
+            <p style="margin-top: 10px; color: #666; font-size: 14px;">Klik tombol di atas untuk mencetak formulir ini</p>
+          </div>
+        </div>
+      `;
+      
+      printDocument.classList.remove('hidden');
+      printDocument.classList.add('print-only');
+    }
+
+    function generatePreviewContent(data) {
+      return `
+        <div style="font-family: 'Times New Roman', serif; font-size: 13px; line-height: 1.5; background: white; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
+          <!-- Header/Kop Surat -->
+          <div style="text-align: center; border-bottom: 4px double #000; padding: 20px; margin-bottom: 25px; background: linear-gradient(to bottom, #f8f9fa, #ffffff);">
+            <table style="width: 100%; border-collapse: collapse;">
+              <tr>
+                <td style="width: 100px; vertical-align: middle; text-align: center;">
+                  <img src="https://i.imgur.com/D061ewy.png" alt="Logo PKBM" style="width: 90px; height: 90px; object-fit: contain; margin: 0 auto;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                  <div style="width: 90px; height: 90px; border: 2px solid #000; display: none; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; background: #f8f9fa; border-radius: 8px; margin: 0 auto;">
+                    LOGO<br>PKBM
+                  </div>
+                </td>
+                <td style="text-align: center; vertical-align: middle; padding: 0 20px;">
+                  <h1 style="margin: 0; font-size: 15px; font-weight: bold; color: #1a365d; letter-spacing: 0.5px;">DINAS PENDIDIKAN DAN KEBUDAYAAN</h1>
+                  <h2 style="margin: 6px 0; font-size: 13px; font-weight: bold; color: #2d3748;">PANITIA PENERIMAAN PESERTA DIDIK BARU (PPDB)</h2>
+                  <h2 style="margin: 6px 0; font-size: 13px; font-weight: bold; color: #2d3748;">PKBM TARBIYATUNNASYIIN PACULGOWANG</h2>
+                  <p style="margin: 8px 0; font-size: 13px; color: #4a5568; font-style: italic;">Tahun Ajaran ${data.tahun_ajaran}</p>
+                </td>
+                <td style="width: 100px; vertical-align: middle; text-align: center;">
+                  <div style="border: 2px solid #000; padding: 8px; font-size: 11px; background: #fff3cd; border-radius: 8px;">
+                    <strong style="color: #856404;">No. Pendaftaran</strong><br>
+                    <span style="font-size: 12px; font-weight: bold; color: #1a365d;">${data.no_pendaftaran}</span>
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </div>
+
+
+
+          <!-- Data Siswa -->
+          <div style="margin: 0 20px 25px 20px; position: relative;">
+            <h4 style="background: linear-gradient(135deg, #4f46e5, #7c3aed); color: white; padding: 12px 20px; margin: 0 0 15px 0; font-size: 15px; font-weight: bold; border-radius: 8px; text-align: center; letter-spacing: 0.5px;">📋 DATA SISWA</h4>
+            
+            <table style="width: 100%; border-collapse: collapse; border: 2px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
+              <tr style="background: #f8fafc;">
+                <td style="width: 20%; padding: 8px 12px; vertical-align: top; font-weight: bold; border-bottom: 1px solid #e2e8f0;">NISN</td>
+                <td style="width: 2%; padding: 8px 5px; border-bottom: 1px solid #e2e8f0;">:</td>
+                <td style="width: 28%; padding: 8px 12px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">${data.nisn}</td>
+                <td style="width: 20%; padding: 8px 12px; vertical-align: top; font-weight: bold; border-bottom: 1px solid #e2e8f0;">NIK</td>
+                <td style="width: 2%; padding: 8px 5px; border-bottom: 1px solid #e2e8f0;">:</td>
+                <td style="width: 28%; padding: 8px 12px; border-bottom: 1px solid #e2e8f0;">${data.nik}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 12px; vertical-align: top; font-weight: bold; border-bottom: 1px solid #e2e8f0; background: #f8fafc;">Nama Lengkap</td>
+                <td style="padding: 8px 5px; border-bottom: 1px solid #e2e8f0;">:</td>
+                <td colspan="4" style="padding: 8px 12px; font-weight: bold; font-size: 14px; color: #1a365d; border-bottom: 1px solid #e2e8f0;">${data.nama_lengkap}</td>
+              </tr>
+              <tr style="background: #f8fafc;">
+                <td style="padding: 8px 12px; vertical-align: top; font-weight: bold; border-bottom: 1px solid #e2e8f0;">Jenis Kelamin</td>
+                <td style="padding: 8px 5px; border-bottom: 1px solid #e2e8f0;">:</td>
+                <td style="padding: 8px 12px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">${data.jenis_kelamin}</td>
+                <td style="padding: 8px 12px; vertical-align: top; font-weight: bold; border-bottom: 1px solid #e2e8f0;">Tempat, Tgl Lahir</td>
+                <td style="padding: 8px 5px; border-bottom: 1px solid #e2e8f0;">:</td>
+                <td style="padding: 8px 12px; border-bottom: 1px solid #e2e8f0;">${data.tempat_lahir}, ${data.tanggal_lahir}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 12px; vertical-align: top; font-weight: bold; border-bottom: 1px solid #e2e8f0; background: #f8fafc;">Alamat</td>
+                <td style="padding: 8px 5px; border-bottom: 1px solid #e2e8f0;">:</td>
+                <td colspan="4" style="padding: 8px 12px; border-bottom: 1px solid #e2e8f0;">${data.alamat_siswa}</td>
+              </tr>
+              <tr style="background: #f8fafc;">
+                <td style="padding: 8px 12px; vertical-align: top; font-weight: bold;">RT/RW</td>
+                <td style="padding: 8px 5px;">:</td>
+                <td style="padding: 8px 12px; border-right: 1px solid #e2e8f0;">${data.rt}/${data.rw}</td>
+                <td style="padding: 8px 12px; vertical-align: top; font-weight: bold;">Desa/Kelurahan</td>
+                <td style="padding: 8px 5px;">:</td>
+                <td style="padding: 8px 12px;">${data.desa_kelurahan}</td>
+              </tr>
+            </table>
+          </div>
+
+          <div style="text-align: center; margin: 30px 0; padding: 20px; background: #f0f9ff; border-radius: 12px; border: 2px dashed #3b82f6;">
+            <p style="margin: 0; color: #1e40af; font-weight: bold; font-size: 16px;">✨ Preview Mode - Siap untuk Dicetak! ✨</p>
+            <p style="margin: 5px 0 0 0; color: #64748b; font-size: 14px;">Klik tombol "Cetak" untuk mencetak formulir dengan ukuran F4</p>
+          </div>
+        </div>
+      `;
+    }
+
+    async function init() {
+      if (window.elementSdk) {
+        window.elementSdk.init({
+          defaultConfig,
+          onConfigChange,
+          mapToCapabilities: (config) => ({
+            recolorables: [
+              {
+                get: () => config.primary_color || defaultConfig.primary_color,
+                set: (value) => {
+                  config.primary_color = value;
+                  window.elementSdk.setConfig({ primary_color: value });
+                }
+              },
+              {
+                get: () => config.secondary_color || defaultConfig.secondary_color,
+                set: (value) => {
+                  config.secondary_color = value;
+                  window.elementSdk.setConfig({ secondary_color: value });
+                }
+              },
+              {
+                get: () => config.text_color || defaultConfig.text_color,
+                set: (value) => {
+                  config.text_color = value;
+                  window.elementSdk.setConfig({ text_color: value });
+                }
+              },
+              {
+                get: () => config.button_color || defaultConfig.button_color,
+                set: (value) => {
+                  config.button_color = value;
+                  window.elementSdk.setConfig({ button_color: value });
+                }
+              }
+            ],
+            borderables: [],
+            fontEditable: {
+              get: () => config.font_family || defaultConfig.font_family,
+              set: (value) => {
+                config.font_family = value;
+                window.elementSdk.setConfig({ font_family: value });
+              }
+            },
+            fontSizeable: {
+              get: () => config.font_size || defaultConfig.font_size,
+              set: (value) => {
+                config.font_size = value;
+                window.elementSdk.setConfig({ font_size: value });
+              }
+            }
+          }),
+          mapToEditPanelValues: (config) => new Map([
+            ["nama_lembaga", config.nama_lembaga || defaultConfig.nama_lembaga],
+            ["judul_form", config.judul_form || defaultConfig.judul_form]
+          ])
+        });
+      }
+    }
+
+    init();
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'99c1d1b656e5ef6a',t:'MTc2MjczODU4OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
