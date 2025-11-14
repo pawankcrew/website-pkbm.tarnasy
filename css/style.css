@@ -418,7 +418,7 @@ p {
     
     /* Atur kontainer navigasi */
     .navbar {
-        padding: 0.7rem 15px; /* Tambahkan padding agar tidak terlalu rapat di pinggir */
+        padding: 0.7rem 15px; 
     }
     
     /* A. Tampilkan tombol toggle hanya di HP */
@@ -426,14 +426,14 @@ p {
         display: block; 
     }
     
-    /* B. Sembunyikan menu horizontal di HP secara default */
+    /* B. Sembunyikan menu horizontal di HP secara default (overlay) */
     .nav-menu {
         display: none; 
         position: absolute;
-        top: 66px; /* Jarak dari header */
+        top: 66px; /* Jarak dari header. Sesuaikan jika logo Anda lebih besar */
         left: 0;
         width: 100%;
-        background-color: var(--card-bg-color); /* Background menu sama dengan header */
+        background-color: var(--card-bg-color); 
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         flex-direction: column;
         padding: 10px 0;
@@ -446,10 +446,10 @@ p {
     }
 
     .navbar .nav-menu li {
-        margin: 0; /* Hapus margin horizontal */
+        margin: 0; 
         width: 100%;
         text-align: center;
-        border-bottom: 1px solid var(--bg-color); /* Garis pemisah antar menu */
+        border-bottom: 1px solid var(--bg-color); 
     }
 
     .navbar .nav-menu li:last-child {
@@ -460,7 +460,7 @@ p {
         padding: 12px 20px;
         display: block;
         width: 100%;
-        color: var(--text-color); /* Pastikan warna teks terlihat */
+        color: var(--text-color); 
     }
     
     /* Nonaktifkan efek garis bawah untuk mobile */
@@ -469,14 +469,13 @@ p {
     }
 
     .btn-nav {
-        /* Sesuaikan gaya tombol formulir di mobile agar terlihat seperti menu item biasa */
+        /* Sesuaikan gaya tombol formulir di mobile */
         margin: 10px auto !important;
         padding: 10px 30px !important;
         background-color: var(--accent-color) !important;
         color: #ffffff !important;
         border-radius: 5px !important; 
         display: inline-block;
-        /* Hapus transformasi hover yang mungkin ada di desktop */
         transform: none !important; 
     }
     

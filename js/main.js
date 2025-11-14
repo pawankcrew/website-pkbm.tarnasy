@@ -10,8 +10,9 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 
 // --- Kode Tambahan untuk Fungsionalitas Menu Hamburger ---
 document.addEventListener('DOMContentLoaded', function() {
+    // Memilih elemen berdasarkan class dan ID dari index.html
     const menuToggle = document.querySelector('.menu-toggle');
-    const navMenu = document.getElementById('navMenu');
+    const navMenu = document.getElementById('navMenu'); 
     
     if (menuToggle && navMenu) {
         menuToggle.addEventListener('click', function() {
@@ -29,11 +30,11 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
-        // Tutup menu saat link diklik (agar pengalaman mobile lebih baik)
+        // LOGIKA AUTO-HIDE: Tutup menu saat link diklik
         const navLinks = navMenu.querySelectorAll('a');
         navLinks.forEach(link => {
             link.addEventListener('click', () => {
-                // Hanya tutup jika berada di tampilan mobile
+                // Hanya tutup jika berada di tampilan mobile (<= 992px)
                 if (window.innerWidth <= 992) { 
                     navMenu.classList.remove('active');
                     // Reset ikon ke hamburger
