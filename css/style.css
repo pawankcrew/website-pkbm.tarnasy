@@ -399,3 +399,89 @@ p {
     padding: 2rem 0;
     margin-top: 40px;
 }
+/* --- Menu Hamburger (Mobile) --- */
+
+/* 1. ATURAN DESKTOP (DEFAULT) */
+/* Pastikan menu-toggle SELALU tersembunyi secara default (layar besar) */
+.menu-toggle {
+    display: none; 
+    background: none;
+    border: none;
+    color: var(--text-color); /* Menggunakan warna teks dari root */
+    font-size: 1.8rem;
+    cursor: pointer;
+    padding: 0;
+}
+
+/* 2. ATURAN MOBILE (DI BAWAH 992px) */
+@media (max-width: 992px) {
+    
+    /* Atur kontainer navigasi */
+    .navbar {
+        padding: 0.7rem 15px; /* Tambahkan padding agar tidak terlalu rapat di pinggir */
+    }
+    
+    /* A. Tampilkan tombol toggle hanya di HP */
+    .menu-toggle {
+        display: block; 
+    }
+    
+    /* B. Sembunyikan menu horizontal di HP secara default */
+    .nav-menu {
+        display: none; 
+        position: absolute;
+        top: 66px; /* Jarak dari header */
+        left: 0;
+        width: 100%;
+        background-color: var(--card-bg-color); /* Background menu sama dengan header */
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        flex-direction: column;
+        padding: 10px 0;
+        z-index: 999;
+    }
+    
+    /* C. Kelas 'active' untuk menampilkan menu */
+    .nav-menu.active {
+        display: flex;
+    }
+
+    .navbar .nav-menu li {
+        margin: 0; /* Hapus margin horizontal */
+        width: 100%;
+        text-align: center;
+        border-bottom: 1px solid var(--bg-color); /* Garis pemisah antar menu */
+    }
+
+    .navbar .nav-menu li:last-child {
+        border-bottom: none;
+    }
+    
+    .navbar .nav-menu a {
+        padding: 12px 20px;
+        display: block;
+        width: 100%;
+        color: var(--text-color); /* Pastikan warna teks terlihat */
+    }
+    
+    /* Nonaktifkan efek garis bawah untuk mobile */
+    .navbar .nav-menu a::after {
+        content: none;
+    }
+
+    .btn-nav {
+        /* Sesuaikan gaya tombol formulir di mobile agar terlihat seperti menu item biasa */
+        margin: 10px auto !important;
+        padding: 10px 30px !important;
+        background-color: var(--accent-color) !important;
+        color: #ffffff !important;
+        border-radius: 5px !important; 
+        display: inline-block;
+        /* Hapus transformasi hover yang mungkin ada di desktop */
+        transform: none !important; 
+    }
+    
+    /* Penyesuaian padding container untuk mobile */
+    .container {
+        padding: 0 15px;
+    }
+}
