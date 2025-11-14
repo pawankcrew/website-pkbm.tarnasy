@@ -8,18 +8,20 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
-// --- Kode Tambahan untuk Fungsionalitas Menu Hamburger ---
+// --- KODE MENU HAMBURGER DAN AUTO-HIDE ---
 document.addEventListener('DOMContentLoaded', function() {
-    // Memilih elemen berdasarkan class dan ID dari index.html
+    // Memilih tombol toggle dan menu berdasarkan ID dan Class
     const menuToggle = document.querySelector('.menu-toggle');
     const navMenu = document.getElementById('navMenu'); 
     
+    // Pastikan kedua elemen ditemukan di HTML
     if (menuToggle && navMenu) {
+        // Logika saat tombol hamburger diklik
         menuToggle.addEventListener('click', function() {
-            // Toggle kelas 'active' pada menu
+            // 1. Toggle kelas 'active' pada menu
             navMenu.classList.toggle('active');
             
-            // Mengubah ikon dari hamburger (fa-bars) menjadi close (fa-times)
+            // 2. Mengubah ikon dari hamburger (fa-bars) menjadi close (fa-times)
             const icon = menuToggle.querySelector('i');
             if (navMenu.classList.contains('active')) {
                 icon.classList.remove('fa-bars');
@@ -30,7 +32,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
-        // LOGIKA AUTO-HIDE: Tutup menu saat link diklik
+        // >> LOGIKA AUTO-HIDE: Tutup menu saat link diklik (SOLUSI MASALAH ANDA) <<
         const navLinks = navMenu.querySelectorAll('a');
         navLinks.forEach(link => {
             link.addEventListener('click', () => {
