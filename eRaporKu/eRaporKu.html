@@ -132,7 +132,7 @@
      <h2 id="login-title" class="mt-6 text-center text-3xl font-extrabold text-gray-900">e-RaporKu</h2>
      <p class="mt-2 text-center text-sm text-gray-600">Sistem Rapor Pendidikan Kesetaraan</p>
     </div>
-    <form id="login-form" class="mt-8 space-y-6">
+    <form id="login-form" class="mt-8 space-y-6" method="POST">
      <div class="rounded-md shadow-sm -space-y-px">
       <div><label for="username" class="sr-only">Username</label> <input id="username" name="username" type="text" required class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" placeholder="Username">
       </div>
@@ -1102,7 +1102,7 @@
         };
 
         // Configuration object
-        let config = { ...defaultConfig };
+        let currentConfig = { ...defaultConfig };
 
         // Initialize Element SDK
         if (window.elementSdk) {
