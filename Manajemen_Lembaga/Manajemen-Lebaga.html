@@ -2530,7 +2530,10 @@ Arsip</textarea>
 
       const settings = getSettings();
       const tutors = getTutors();
-      const waliKelas = tutors.find(t => t.kelas === printClass && t.jabatan === 'Wali Kelas');
+      const waliKelas = tutors.find(t => 
+          t.kelas === printClass && 
+          (t.jabatan && t.jabatan.toLowerCase().includes('wali kelas'))
+      );
 
       const [year, month] = printMonth.split('-');
       const monthName = new Date(year, month - 1).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
