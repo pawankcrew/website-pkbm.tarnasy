@@ -1,18 +1,19 @@
 // element_sdk.js
+// SDK yang menangani interaksi pengguna dan menghubungkannya ke data_sdk.js
 
-// 1. Impor fungsi dari data_sdk.js
-// Kita impor fungsi yang dibutuhkan: init (untuk koneksi) dan insertStudent
-import { init as initSupabase, getSiswa, insertStudent } from './data_sdk.js';
+// Asumsi: Berkas data_sdk.js mengekspor semua fungsi melalui window.dataSdk
+// Kita akan menggunakan alias agar kode lebih rapi.
 
+const dataSdk = window.dataSdk;
 
-// 2. Fungsi untuk menampilkan data siswa ke tabel (Konsep)
+// 1. Fungsi untuk menampilkan data siswa ke tabel (Asumsi ID tabel body = 'siswa-table-body')
 function renderStudentTable(students) {
     const tableBody = document.getElementById('siswa-table-body');
     if (!tableBody) return;
 
     tableBody.innerHTML = ''; // Kosongkan tabel lama
 
-    if (students.length === 0) {
+    if (!students || students.length === 0) {
         tableBody.innerHTML = '<tr><td colspan="9" style="text-align: center;">Tidak ada data siswa.</td></tr>';
         return;
     }
@@ -23,84 +24,122 @@ function renderStudentTable(students) {
         row.insertCell().textContent = siswa.nisn || '';
         row.insertCell().textContent = siswa.nipd || '';
         row.insertCell().textContent = siswa.nama_lengkap || '';
-        row.insertCell().textContent = siswa.rombel || '';
+        row.insertCell().textContent = siswa.kelas || ''; // Menggunakan kolom 'kelas'
         row.insertCell().textContent = siswa.jk || '';
-        row.insertCell().textContent = siswa.status_naik || '';
-        
-        // Tombol Aksi (Edit/Hapus)
+        // Tambahkan kolom lain sesuai struktur tabel Anda
+
+        // Tombol Aksi
         const actionCell = row.insertCell();
         actionCell.innerHTML = `<a href="#" onclick="handleEdit('${siswa.nisn}')">Edit</a> | <a href="#" onclick="handleDelete('${siswa.nisn}')">Hapus</a>`;
     });
 }
 
 
-// 3. Fungsi untuk memuat dan menampilkan data saat halaman dimuat
+// 2. Fungsi untuk memuat dan menampilkan data saat halaman dimuat
 async function loadSiswaData() {
+    if (!dataSdk || !dataSdk.getSiswa) {
+        console.error('Data SDK belum terinisialisasi atau getSiswa tidak ditemukan.');
+        return;
+    }
+    
     console.log('Memuat data siswa dari Supabase...');
-    const { data: siswaData, error } = await getSiswa();
+    // Memanggil fungsi getSiswa dari data_sdk.js
+    const { data: siswaData, error } = await dataSdk.getSiswa(); 
 
     if (error) {
         console.error('Gagal memuat data siswa:', error.message);
-        // Tampilkan pesan error di halaman
         alert('Gagal memuat data: ' + error.message);
         return;
     }
 
-    // Panggil fungsi untuk merender data
     renderStudentTable(siswaData);
     console.log(`Berhasil memuat ${siswaData.length} siswa.`);
 }
 
 
-// 4. Fungsi untuk menangani penambahan siswa dari formulir
+// 3. Fungsi untuk menangani penambahan siswa dari formulir (Sesuai dengan HTML Anda)
 async function handleTambahSiswa(event) {
     event.preventDefault(); // Mencegah reload halaman default
 
-    // (A) Ambil data dari elemen formulir
+    if (!dataSdk || !dataSdk.insertStudent) {
+        console.error('Fungsi insertStudent tidak ditemukan di Data SDK.');
+        alert('Fitur tambah data belum siap. Cek Data SDK.');
+        return;
+    }
+
+    // Ambil data dari elemen formulir menggunakan event.target
     const form = event.target;
+    
+    // Objek data yang akan dikirim ke Supabase
     const studentData = {
-        nisn: form.nisn.value,
-        nipd: form.nipd.value,
-        nama_lengkap: form.nama_lengkap.value,
-        rombel: form.rombel.value,
+        // Nama kolom DB : Nilai dari form HTML
+        nisn: form.nisn.value || null, // Diizinkan NULL
+        nipd: form.nipd.value || null, // Diizinkan NULL
+        
+        // PERBAIKAN: Form menggunakan name="nama", DB menggunakan nama_lengkap
+        nama_lengkap: form.nama.value, 
+        
         jk: form.jk.value,
-        status_naik: form.status_naik.value,
-        // Pastikan semua field formulir terdaftar di sini!
+        agama: form.agama.value,
+        tempat_lahir: form.tempat_lahir.value,
+        tanggal_lahir: form.tanggal_lahir.value,
+        nik: form.nik.value || null,
+        
+        // PERBAIKAN: Form menggunakan name="kelas", DB menggunakan kelas
+        kelas: form.kelas.value, 
     };
 
     console.log('Mencoba memasukkan data siswa:', studentData);
 
-    // (B) Panggil fungsi INSERT dari data_sdk.js
-    const result = await insertStudent(studentData);
+    // Panggil fungsi INSERT dari data_sdk.js (menggunakan insertStudent)
+    const result = await dataSdk.insertStudent(studentData);
 
     if (result.success) {
         alert('✅ Siswa berhasil ditambahkan dan disimpan ke Supabase!');
         form.reset(); // Kosongkan formulir
+        // Sembunyikan modal setelah submit berhasil
+        const modal = document.getElementById('modal-siswa');
+        if (modal) modal.classList.add('hidden'); 
+        
         loadSiswaData(); // Muat ulang data siswa di tabel
     } else {
-        // Ini adalah tempat munculnya error RLS (izin) jika Supabase memblokirnya
-        alert(`❌ Gagal menambahkan siswa! Pastikan RLS Policy (izin INSERT) di Supabase sudah diatur dengan benar. Error: ${result.error}`);
+        // Pesan error dari Supabase (kemungkinan RLS, NOT NULL, atau Tipe Data)
+        alert(`❌ Gagal menambahkan siswa! Error: ${result.error}. Pastikan RLS dan NOT NULL sudah diatur.`);
     }
 }
 
 
-// 5. Inisialisasi utama (Dipanggil saat seluruh elemen halaman dimuat)
+// 4. Inisialisasi utama (Dipanggil saat seluruh elemen halaman dimuat)
 window.onload = async () => {
-    // 5.1 Inisialisasi Supabase
-    const initResult = await initSupabase();
-    if (!initResult.isOk) {
-        console.error('Inisialisasi Supabase gagal!');
-        return;
+    // 4.1 Inisialisasi Supabase
+    if (dataSdk && dataSdk.init) {
+        const initResult = await dataSdk.init();
+        if (!initResult.isOk) {
+            console.error('Inisialisasi Supabase gagal!');
+            // Tampilkan pesan error di UI jika perlu
+        } else {
+            console.log('Supabase client siap.');
+        }
     }
 
-    // 5.2 Hubungkan event listener ke formulir
-    const form = document.getElementById('formTambahSiswa'); 
+    // 4.2 Hubungkan event listener ke formulir 'Tambah Siswa'
+    // ID form di HTML Anda adalah 'form-siswa'
+    const form = document.getElementById('form-siswa'); 
     if (form) {
         form.addEventListener('submit', handleTambahSiswa);
     } else {
-        console.warn('Elemen formTambahSiswa tidak ditemukan. Fitur tambah siswa tidak aktif.');
+        console.warn('Elemen form-siswa tidak ditemukan. Fitur tambah siswa tidak aktif.');
     }
 
-    // 5.3 Muat data siswa
+    // 4.3 Tambahkan Event Listener untuk tombol buka modal (Jika ada)
+    const btnTambahSiswa = document.getElementById('btnTambahSiswa');
+    if (btnTambahSiswa) {
+        btnTambahSiswa.addEventListener('click', () => {
+            const modal = document.getElementById('modal-siswa');
+            if (modal) modal.classList.remove('hidden');
+        });
+    }
+
+    // 4.4 Muat data siswa
     loadSiswaData();
 };
