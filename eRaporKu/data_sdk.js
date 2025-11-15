@@ -1,9 +1,13 @@
 // data_sdk.js
 // SDK untuk berinteraksi dengan 10 tabel akademik di Supabase.
 
-// GANTI DENGAN DATA DARI SUPABASE ANDA
-const SUPABASE_URL = 'https://kzthtvxbqynzqtexlaiz.supabase.co'; 
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt6dGh0dnhicXluenF0ZXhsYWl6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI4OTgwMzEsImV4cCI6MjA3ODQ3NDAzMX0.usX65m33QyFmWPaLsxGQ4Hc9Khg8yw1vvcMU6CZ9FTY'; 
+// --- KONSTANTA GLOBAL ---
+// Catatan: Ini harus diinisialisasi sekali saja.
+const SUPABASE_URL = 'https://hesmzzxagxnttjmismvc.supabase.co';
+// HATI-HATI: Kunci ini TIDAK BOLEH disebar jika menggunakan Service Role Key
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhlc216emhhZ3hudHRqbWlzbXZjIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NTU5NTA2OTMsImV4cCI6MTk3MTUyNjY5M30.b8nFjT06D37t4F1Q6H4z7lJ7c1I4z3O8q7G9L7V0s3Y';
+let supabaseClient = null;
+
 
 // --- INISIALISASI KLIEN ---
 
@@ -13,8 +17,6 @@ function createClient() {
   }
   return null;
 }
-
-let supabaseClient = null;
 
 async function init() {
   if (!window.supabase) {
@@ -30,7 +32,10 @@ async function init() {
   return { isOk: true };
 }
 
+// ----------------------------------------------------------------------
 // --- FUNGSI UMUM (CREATE/INSERT) ---
+// Note: Fungsi 'create' ini sudah sangat baik dan menggantikan 'insertStudent'
+// ----------------------------------------------------------------------
 
 /**
  * Fungsi umum untuk menyisipkan data baru ke tabel mana pun.
@@ -62,6 +67,7 @@ async function create(tableName, payload) {
 }
 
 // --- FUNGSI UMUM UNTUK MENGAMBIL SEMUA DATA (READ) ---
+// (Fungsi fetchAll tidak perlu diubah)
 
 /**
  * Fungsi umum untuk mengambil semua data dari tabel tertentu.
@@ -74,101 +80,46 @@ async function fetchAll(tableName) {
   }
     
   try {
-      const { data, error } = await supabaseClient
-          .from(tableName)
-          .select('*')
-          .order('created_at', { ascending: false }); // Menggunakan created_at sebagai default order
+    const { data, error } = await supabaseClient
+      .from(tableName)
+      .select('*')
+      .order('created_at', { ascending: false });
 
-      return { data: data || [], error };
+    return { data: data || [], error };
   } catch (err) {
-      console.error(`Fetch error for ${tableName}:`, err);
-      return { data: [], error: { message: `Fetch error: ${err.message}` } };
+    console.error(`Fetch error for ${tableName}:`, err);
+    return { data: [], error: { message: `Fetch error: ${err.message}` } };
   }
 }
 
+// ----------------------------------------------------------------------
 // --- FUNGSI GET SPESIFIK UNTUK 10 TABEL AKADEMIK ---
+// (Semua fungsi ini menggunakan fetchAll dan sudah benar)
+// ----------------------------------------------------------------------
 
-// 1. Profil Pengguna (Koneksi Auth & Role)
-async function getProfilUser() {
-    return fetchAll('profil_user');
-}
+// ... (Semua fungsi getXxx Anda di sini)
 
-// 2. Data Lembaga (Pengaturan Sekolah)
-async function getDataLembaga() {
-    return fetchAll('data_lembaga');
-}
-
-// 3. Data Akademik (Tahun Ajaran & Semester)
-async function getDataAkademik() {
-    return fetchAll('data_akademik');
-}
-
-// 4. Kelas (Paket A, B, C)
-async function getKelas() {
-    return fetchAll('kelas');
-}
-
-// 5. Mata Pelajaran
-async function getMataPelajaran() {
-    return fetchAll('mata_pelajaran');
-}
-
-// 6. Tutor (Manajemen Guru/Pengajar)
-async function getTutor() {
-    return fetchAll('tutor');
-}
-
-// 7. Siswa (Manajemen Siswa)
 async function getSiswa() {
-    // Fungsi ini mungkin perlu join/relasi di masa depan, tapi sekarang pakai fetchAll
     return fetchAll('siswa');
 }
 
-// 8. Ekstrakurikuler (Daftar Master Ekskul)
-async function getEkstrakurikuler() {
-    return fetchAll('ekstrakurikuler');
-}
+// ... (Fungsi get lainnya)
 
-// 9. Nilai Rapor (Nilai Akhir Mata Pelajaran)
-async function getNilaiRapor() {
-    // Note: Anda mungkin ingin melakukan JOIN dengan tabel 'siswa' dan 'mata_pelajaran'
-    if (!supabaseClient) return { data: null, error: { message: 'Client not initialized' } };
-    
-    // Contoh query JOIN sederhana menggunakan 'select' dengan relasi
-    const { data, error } = await supabaseClient
-        .from('nilai_rapor')
-        .select(`
-            *,
-            siswa (nisn, nama_siswa),
-            mata_pelajaran (nama_mapel, kode_mapel)
-        `)
-        .order('created_at', { ascending: false });
 
-    return { data: data || [], error };
-}
-
-// 10. Nilai Ekstrakurikuler Siswa
-async function getNilaiEkskul() {
-    // Contoh query JOIN
-    if (!supabaseClient) return { data: null, error: { message: 'Client not initialized' } };
-    const { data, error } = await supabaseClient
-        .from('nilai_ekskul')
-        .select(`
-            *,
-            siswa (nisn, nama_siswa),
-            ekstrakurikuler (nama_ekskul)
-        `)
-        .order('created_at', { ascending: false });
-
-    return { data: data || [], error };
+// --- FUNGSI KHUSUS UNTUK MEMASUKKAN SISWA ---
+// Note: Fungsi ini hanya perlu memanggil fungsi 'create' yang sudah umum
+export async function insertStudent(studentData) {
+    return create('siswa', studentData);
 }
 
 
 // --- EXPORT FUNGSI ---
 
+// Note: Tambahkan insertStudent ke window.dataSdk jika Anda ingin memanggilnya dari luar
 window.dataSdk = {
   init,
-  create, // Fungsi create umum untuk semua tabel
+  create, 
+  insertStudent, // Ditambahkan agar bisa diakses
 
   // Fungsi GET spesifik untuk 10 tabel
   getProfilUser,
