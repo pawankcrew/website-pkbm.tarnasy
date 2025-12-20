@@ -1,135 +1,123 @@
-// data_sdk.js
-// SDK untuk berinteraksi dengan 10 tabel akademik di Supabase.
+// data_sdk.js  
+// SDK untuk berinteraksi dengan tabel Supabase (seperti siswa, dsb)  
 
-// --- KONSTANTA GLOBAL ---
-// Catatan: Ini harus diinisialisasi sekali saja.
-const SUPABASE_URL = 'https://hesmzzxagxnttjmismvc.supabase.co';
-// HATI-HATI: Kunci ini TIDAK BOLEH disebar jika menggunakan Service Role Key
+// -----------------------------  
+// KONFIGURASI SUPABASE  
+// -----------------------------  
+const SUPABASE_URL = 'https://hesmzzxagxnttjmismvc.supabase.co';  
+// Pastikan ini adalah anon key, bukan service role
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhlc216emhhZ3hudHRqbWlzbXZjIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NTU5NTA2OTMsImV4cCI6MTk3MTUyNjY5M30.b8nFjT06D37t4F1Q6H4z7lJ7c1I4z3O8q7G9L7V0s3Y';
+
+// Supabase client global
 let supabaseClient = null;
 
-
-// --- INISIALISASI KLIEN ---
-
-function createClient() {
-  if (window.supabase) {
-    return window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  }
-  return null;
-}
-
+/**
+ * Inisialisasi Supabase JS SDK dengan menunggu script dimuat
+ * Harus dipanggil sekali sebelum fungsi create / fetchAll
+ */
 async function init() {
-  if (!window.supabase) {
+  return new Promise((resolve, reject) => {
+    // Jika sudah ada supabase di window, cukup buat client
+    if (window.supabase) {
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      return resolve({ isOk: true });
+    }
+
+    // Jika belum ada, load skrip secara dinamis
     const script = document.createElement('script');
     script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js';
     script.onload = () => {
-      supabaseClient = createClient();
+      // Setelah script Supabase dimuat, buat client
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      console.log('Supabase SDK dimuat dan client siap');
+      resolve({ isOk: true });
+    };
+    script.onerror = (err) => {
+      console.error('Gagal memuat Supabase SDK:', err);
+      reject({ isOk: false, message: 'Failed to load Supabase SDK' });
     };
     document.head.appendChild(script);
-  } else {
-    supabaseClient = createClient();
-  }
-  return { isOk: true };
+  });
 }
 
-// ----------------------------------------------------------------------
-// --- FUNGSI UMUM (CREATE/INSERT) ---
-// Note: Fungsi 'create' ini sudah sangat baik dan menggantikan 'insertStudent'
-// ----------------------------------------------------------------------
-
 /**
- * Fungsi umum untuk menyisipkan data baru ke tabel mana pun.
- * @param {string} tableName - Nama tabel Supabase yang dituju.
- * @param {object} payload - Objek data yang akan disisipkan.
- * @returns {Promise<object>} Objek hasil { isOk, data, message }.
+ * Fungsi umum untuk menyisipkan data ke tabel Supabase
+ * @param {string} tableName - nama tabel di Supabase
+ * @param {object} payload - objek data untuk disimpan
  */
-async function create(tableName, payload) {
+async function createRecord(tableName, payload) {
   if (!supabaseClient) {
-    return { isOk: false, message: 'Supabase client not initialized' };
+    console.error('Supabase client belum diinisialisasi');
+    return { isOk: false, message: 'Client not initialized' };
   }
 
   try {
+    console.log(`Mencoba insert ke tabel "${tableName}" dengan payload:`, payload);
     const { data, error } = await supabaseClient
       .from(tableName)
       .insert([payload])
-      .select(); 
+      .select();  // memakai select() untuk mendapatkan row yang baru
 
     if (error) {
-      console.error(`Error creating data for ${tableName}:`, error);
-      return { isOk: false, message: error.message };
+      console.error(`Error inserting ke tabel ${tableName}:`, error);
+      return { isOk: false, message: error.message, error };
     }
 
+    console.log(`Insert ke ${tableName} berhasil, row:`, data);
     return { isOk: true, data: data[0] };
   } catch (err) {
-    console.error('Create error:', err);
-    return { isOk: false, message: 'An unknown error occurred during creation' };
+    console.error('Kesalahan tak terduga saat createRecord:', err);
+    return { isOk: false, message: 'Unknown error', error: err };
   }
 }
 
-// --- FUNGSI UMUM UNTUK MENGAMBIL SEMUA DATA (READ) ---
-// (Fungsi fetchAll tidak perlu diubah)
-
 /**
- * Fungsi umum untuk mengambil semua data dari tabel tertentu.
- * @param {string} tableName - Nama tabel Supabase.
- * @returns {Promise<object>} Objek hasil { data, error }.
+ * Fungsi umum mengambil semua data dari tabel tertentu
+ * @param {string} tableName
  */
 async function fetchAll(tableName) {
   if (!supabaseClient) {
-    return { data: null, error: { message: 'Supabase client not initialized' } };
+    console.error('Supabase client belum diinisialisasi (fetchAll)');
+    return { data: null, error: { message: 'Client not initialized' } };
   }
-    
+
   try {
     const { data, error } = await supabaseClient
       .from(tableName)
       .select('*')
       .order('created_at', { ascending: false });
 
-    return { data: data || [], error };
+    if (error) {
+      console.error(`Error fetchAll dari ${tableName}:`, error);
+      return { data: null, error };
+    }
+
+    return { data: data, error: null };
   } catch (err) {
-    console.error(`Fetch error for ${tableName}:`, err);
-    return { data: [], error: { message: `Fetch error: ${err.message}` } };
+    console.error('Kesalahan tak terduga saat fetchAll:', err);
+    return { data: null, error: { message: err.message } };
   }
 }
 
-// ----------------------------------------------------------------------
-// --- FUNGSI GET SPESIFIK UNTUK 10 TABEL AKADEMIK ---
-// (Semua fungsi ini menggunakan fetchAll dan sudah benar)
-// ----------------------------------------------------------------------
-
-// ... (Semua fungsi getXxx Anda di sini)
+// Contoh fungsi khusus (siswa), bisa ditambah untuk tabel lain
+async function insertStudent(studentData) {
+  return await createRecord('siswa', studentData);
+}
 
 async function getSiswa() {
-    return fetchAll('siswa');
+  return await fetchAll('siswa');
 }
 
-// ... (Fungsi get lainnya)
-
-
-// --- FUNGSI KHUSUS UNTUK MEMASUKKAN SISWA ---
-// Note: Fungsi ini hanya perlu memanggil fungsi 'create' yang sudah umum
-export async function insertStudent(studentData) {
-    return create('siswa', studentData);
-}
-
-
-// --- EXPORT FUNGSI ---
-
-// Note: Tambahkan insertStudent ke window.dataSdk jika Anda ingin memanggilnya dari luar
+// Export fungsi ke global (window.dataSdk) agar bisa dipakai dari element_sdk atau skrip lain
 window.dataSdk = {
   init,
-  create, 
-  insertStudent, // Ditambahkan agar bisa diakses
-
-  // Fungsi GET spesifik untuk 10 tabel
-  getProfilUser,
-  getDataLembaga,
-  getDataAkademik,
-  getKelas,
-  getMataPelajaran,
-  getTutor,
+  createRecord,
+  insertStudent,
+  fetchAll,
   getSiswa,
-  getEkstrakurikuler,
-  getNilaiRapor,
-  getNilaiEkskul,
+  // Tambahkan fungsi lain sesuai kebutuhan:
+  // getProfilUser,
+  // getDataLembaga,
+  // getKelas,
+  // dsb.
 };
