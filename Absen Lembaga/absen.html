@@ -1,0 +1,1759 @@
+<!doctype html>
+<html lang="id" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daftar Hadir Lembaga</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+  <script src="/_sdk/data_sdk.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+        body {
+            box-sizing: border-box;
+        }
+        .loading-spinner {
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+  <style>@view-transition { navigation: auto; }</style>
+ </head>
+ <body class="h-full bg-gradient-to-br from-blue-50 to-indigo-100 font-sans">
+  <main class="min-h-full flex items-center justify-center p-4">
+   <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-8"><!-- Logo dan Header -->
+    <div class="text-center mb-8">
+     <div class="w-20 h-20 mx-auto mb-4 flex items-center justify-center"><img src="https://i.imgur.com/D061ewy.png" alt="Logo PKBM TARBIYATUNNASYIIN" class="w-20 h-20 object-contain rounded-lg shadow-md" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+      <div class="w-20 h-20 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-full flex items-center justify-center hidden">
+       <svg class="w-10 h-10 text-white" fill="currentColor" viewbox="0 0 20 20"><path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z" />
+       </svg>
+      </div>
+     </div>
+     <h1 id="nama-lembaga" class="text-2xl font-bold text-gray-800 mb-2">PKBM TARBIYATUNNASYIIN PACULGOWANG</h1>
+     <p id="alamat-lembaga" class="text-gray-600 text-sm">Jl KH Manshur No. 9 Paculgowang</p>
+    </div><!-- Menu Utama -->
+    <div id="menu-utama" class="space-y-4"><button id="btn-guru" class="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg">
+      <div class="flex items-center justify-center space-x-3">
+       <svg class="w-6 h-6" fill="currentColor" viewbox="0 0 20 20"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z" />
+       </svg><span id="text-tombol-guru">Daftar Hadir Guru</span>
+      </div></button> <button id="btn-tamu" class="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg">
+      <div class="flex items-center justify-center space-x-3">
+       <svg class="w-6 h-6" fill="currentColor" viewbox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+       </svg><span id="text-tombol-tamu">Tamu Lembaga</span>
+      </div></button>
+    </div><!-- Form Registrasi Guru -->
+    <div id="form-registrasi-guru" class="hidden">
+     <div class="text-center mb-6">
+      <h2 class="text-xl font-bold text-gray-800 mb-2">Registrasi Guru</h2>
+      <p class="text-gray-600 text-sm">Silakan daftarkan diri Anda terlebih dahulu</p>
+     </div>
+     <form id="form-data-registrasi" class="space-y-4">
+      <div><label for="nama-guru" class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap</label> <input type="text" id="nama-guru" name="nama" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Masukkan nama lengkap">
+      </div>
+      <div><label for="nip-guru" class="block text-sm font-medium text-gray-700 mb-2">NIP/NIK</label> <input type="text" id="nip-guru" name="nip" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Masukkan NIP atau NIK">
+      </div>
+      <div><label for="mapel-guru" class="block text-sm font-medium text-gray-700 mb-2">Mata Pelajaran/Jabatan</label> <input type="text" id="mapel-guru" name="mapel" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Contoh: Matematika, Kepala Sekolah, TU">
+      </div><button type="submit" id="btn-registrasi" class="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-200 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
+       <div id="btn-registrasi-content" class="flex items-center justify-center space-x-3">
+        <svg class="w-6 h-6" fill="currentColor" viewbox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+        </svg><span>Daftar Sebagai Guru</span>
+       </div>
+       <div id="btn-registrasi-loading" class="hidden flex items-center justify-center space-x-3">
+        <div class="loading-spinner"></div><span>Mendaftar...</span>
+       </div></button>
+     </form><button id="btn-kembali-registrasi" class="w-full mt-4 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-xl transition-colors"> Kembali ke Menu </button>
+    </div><!-- Form Daftar Hadir Guru -->
+    <div id="form-guru" class="hidden">
+     <div class="text-center mb-6">
+      <h2 class="text-xl font-bold text-gray-800 mb-2">Daftar Hadir Guru</h2>
+      <div id="info-guru" class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+       <div class="flex items-center space-x-3">
+        <svg class="w-8 h-8 text-blue-600" fill="currentColor" viewbox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 016 0zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+        </svg>
+        <div class="text-left">
+         <p class="font-semibold text-blue-800" id="nama-guru-display">-</p>
+         <p class="text-sm text-blue-600" id="mapel-guru-display">-</p>
+         <p class="text-xs text-blue-500" id="nip-guru-display">-</p>
+        </div>
+       </div>
+      </div>
+      <p class="text-gray-600 text-sm">Klik tombol di bawah untuk mencatat kehadiran Anda</p>
+     </div><button id="btn-hadir-guru" class="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-200 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
+      <div id="btn-hadir-content" class="flex items-center justify-center space-x-3">
+       <svg class="w-6 h-6" fill="currentColor" viewbox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+       </svg><span>Saya Hadir</span>
+      </div>
+      <div id="btn-hadir-loading" class="hidden flex items-center justify-center space-x-3">
+       <div class="loading-spinner"></div><span>Menyimpan...</span>
+      </div></button>
+     <div id="success-guru" class="hidden mt-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg text-center">
+      <svg class="w-6 h-6 mx-auto mb-2" fill="currentColor" viewbox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+      </svg>
+      <p class="font-semibold">Kehadiran berhasil dicatat!</p>
+     </div>
+     <div class="flex space-x-3 mt-4"><button id="btn-ganti-guru" class="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 px-4 rounded-xl transition-colors"> Ganti Akun </button> <button id="btn-kembali-guru" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-4 rounded-xl transition-colors"> Kembali ke Menu </button>
+     </div>
+    </div><!-- Form Tamu -->
+    <div id="form-tamu" class="hidden">
+     <div class="text-center mb-6">
+      <h2 class="text-xl font-bold text-gray-800 mb-2">Daftar Tamu Lembaga</h2>
+      <p class="text-gray-600 text-sm">Silakan isi data kunjungan Anda</p>
+     </div>
+     <form id="form-data-tamu" class="space-y-4" novalidate>
+      <div><label for="nama-tamu" class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap</label> <input type="text" id="nama-tamu" name="nama" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Masukkan nama lengkap">
+      </div>
+      <div><label for="asal-lembaga" class="block text-sm font-medium text-gray-700 mb-2">Asal Lembaga/Instansi</label> <input type="text" id="asal-lembaga" name="asal_lembaga" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Contoh: Dinas Pendidikan, SD Negeri 1, Wali Murid">
+      </div>
+      <div><label for="keperluan" class="block text-sm font-medium text-gray-700 mb-2">Keperluan Kunjungan</label> <textarea id="keperluan" name="keperluan" required rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none" placeholder="Jelaskan keperluan kunjungan Anda"></textarea>
+      </div><button type="submit" id="btn-submit-tamu" class="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-200 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
+       <div id="btn-submit-content" class="flex items-center justify-center space-x-3">
+        <svg class="w-6 h-6" fill="currentColor" viewbox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+        </svg><span>Daftar Sekarang</span>
+       </div>
+       <div id="btn-submit-loading" class="hidden flex items-center justify-center space-x-3">
+        <div class="loading-spinner"></div><span>Menyimpan...</span>
+       </div></button>
+     </form>
+     <div id="success-tamu" class="hidden mt-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg text-center">
+      <svg class="w-6 h-6 mx-auto mb-2" fill="currentColor" viewbox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+      </svg>
+      <p class="font-semibold">Pendaftaran berhasil!</p>
+      <p class="text-sm mt-1">Terima kasih atas kunjungan Anda</p>
+     </div><button id="btn-kembali-tamu" class="w-full mt-4 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-xl transition-colors"> Kembali ke Menu </button>
+    </div><!-- Tombol Admin Tersembunyi -->
+    <div id="admin-trigger" class="fixed bottom-4 right-4 w-12 h-12 bg-gray-800 hover:bg-gray-900 rounded-full flex items-center justify-center cursor-pointer opacity-20 hover:opacity-100 transition-all duration-300 z-40" title="Panel Admin">
+     <svg class="w-6 h-6 text-white" fill="currentColor" viewbox="0 0 20 20"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
+     </svg>
+    </div><!-- Panel Admin -->
+    <div id="admin-panel" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+     <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90%] overflow-hidden"><!-- Header Admin -->
+      <div class="bg-gradient-to-r from-purple-600 to-purple-700 text-white p-6">
+       <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+         <svg class="w-8 h-8" fill="currentColor" viewbox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clip-rule="evenodd" />
+         </svg>
+         <h2 class="text-2xl font-bold">Panel Admin</h2>
+        </div><button id="close-admin" class="text-white hover:text-gray-300 transition-colors">
+         <svg class="w-6 h-6" fill="currentColor" viewbox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+         </svg></button>
+       </div>
+      </div><!-- Login Admin -->
+      <div id="admin-login" class="p-8">
+       <div class="text-center mb-8">
+        <h3 class="text-xl font-bold text-gray-800 mb-2">Login Administrator</h3>
+        <p class="text-gray-600">Masukkan password untuk mengakses panel admin</p>
+       </div>
+       <form id="admin-login-form" class="max-w-md mx-auto">
+        <div class="mb-6"><label for="admin-password" class="block text-sm font-medium text-gray-700 mb-2">Password Admin</label> <input type="password" id="admin-password" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Masukkan password admin">
+        </div><button type="submit" class="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200"> Login Admin </button>
+        <div id="login-error" class="hidden mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-center text-sm">
+         Password salah! Silakan coba lagi.
+        </div>
+       </form>
+      </div><!-- Dashboard Admin -->
+      <div id="admin-dashboard" class="hidden"><!-- Tab Navigation -->
+       <div class="border-b border-gray-200">
+        <nav class="flex space-x-8 px-6"><button class="admin-tab active py-4 px-2 border-b-2 border-purple-500 font-medium text-purple-600" data-tab="agenda"> 📅 Kelola Agenda </button> <button class="admin-tab py-4 px-2 border-b-2 border-transparent font-medium text-gray-500 hover:text-gray-700" data-tab="attendance"> 📊 Data Kehadiran </button> <button class="admin-tab py-4 px-2 border-b-2 border-transparent font-medium text-gray-500 hover:text-gray-700" data-tab="wifi"> 📶 Kelola WiFi </button>
+        </nav>
+       </div><!-- Tab Content -->
+       <div class="p-6 overflow-y-auto" style="max-height: 500px;"><!-- Tab Agenda -->
+        <div id="tab-agenda" class="tab-content">
+         <div class="flex justify-between items-center mb-6">
+          <h3 class="text-lg font-bold text-gray-800">Kelola Agenda &amp; Notes</h3><button id="add-agenda-btn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium"> + Tambah Agenda </button>
+         </div><!-- Form Tambah/Edit Agenda -->
+         <div id="agenda-form" class="hidden bg-gray-50 rounded-lg p-6 mb-6">
+          <h4 id="agenda-form-title" class="text-lg font-semibold mb-4">Tambah Agenda Baru</h4>
+          <form id="agenda-data-form"><input type="hidden" id="agenda-id" value="">
+           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div><label class="block text-sm font-medium text-gray-700 mb-2">Judul Agenda</label> <input type="text" id="agenda-title" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500" placeholder="Masukkan judul agenda">
+            </div>
+            <div><label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Expire</label> <input type="date" id="agenda-expire" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+            </div>
+           </div>
+           <div class="mb-4"><label class="block text-sm font-medium text-gray-700 mb-2">Prioritas</label> <select id="agenda-priority" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"> <option value="high">🔴 Tinggi</option> <option value="medium">��� Sedang</option> <option value="low">🟢 Rendah</option> </select>
+           </div>
+           <div class="mb-4"><label class="block text-sm font-medium text-gray-700 mb-2">Isi Agenda</label> <textarea id="agenda-content" required rows="6" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 resize-none" placeholder="Masukkan detail agenda..."></textarea>
+           </div>
+           <div class="flex space-x-3"><button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg font-medium"> Simpan Agenda </button> <button type="button" id="cancel-agenda" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg font-medium"> Batal </button>
+           </div>
+          </form>
+         </div><!-- Daftar Agenda -->
+         <div id="agenda-list" class="space-y-4"><!-- Agenda items akan dimuat di sini -->
+         </div>
+        </div><!-- Tab Data Kehadiran -->
+        <div id="tab-attendance" class="tab-content hidden">
+         <div class="mb-6">
+          <div class="flex justify-between items-center mb-4">
+           <h3 class="text-lg font-bold text-gray-800">Data Kehadiran</h3>
+           <div class="flex space-x-2"><button id="download-excel" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center space-x-2">
+             <svg class="w-4 h-4" fill="currentColor" viewbox="0 0 20 20"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+             </svg><span>Download Excel</span> </button> <button id="filter-guru" class="attendance-filter active bg-blue-600 text-white px-4 py-2 rounded-lg text-sm" data-type="guru"> 👨‍🏫 Guru </button> <button id="filter-tamu" class="attendance-filter bg-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm" data-type="tamu"> 👥 Tamu </button> <button id="filter-all" class="attendance-filter bg-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm" data-type="all"> 📋 Semua </button>
+           </div>
+          </div>
+          <div class="flex items-center space-x-3 bg-gray-50 p-3 rounded-lg mb-4"><label for="month-filter" class="text-sm font-medium text-gray-700">Filter Bulan:</label> <input type="month" id="month-filter" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 text-sm"> <button id="reset-month-filter" class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg text-sm"> Reset Filter </button>
+          </div>
+         </div>
+         <div id="attendance-stats" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+           <div class="text-2xl font-bold text-blue-600" id="total-guru">
+            0
+           </div>
+           <div class="text-sm text-blue-600">
+            Total Guru Hadir
+           </div>
+          </div>
+          <div class="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
+           <div class="text-2xl font-bold text-green-600" id="total-tamu">
+            0
+           </div>
+           <div class="text-sm text-green-600">
+            Total Tamu
+           </div>
+          </div>
+          <div class="bg-purple-50 border border-purple-200 rounded-lg p-4 text-center">
+           <div class="text-2xl font-bold text-purple-600" id="total-all">
+            0
+           </div>
+           <div class="text-sm text-purple-600">
+            Total Keseluruhan
+           </div>
+          </div>
+         </div><!-- Tabel Data Kehadiran -->
+         <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
+          <div class="overflow-x-auto">
+           <table class="w-full text-sm">
+            <thead class="bg-gray-100 border-b border-gray-200">
+             <tr>
+              <th class="px-4 py-3 text-left font-semibold text-gray-700">No</th>
+              <th class="px-4 py-3 text-left font-semibold text-gray-700">Tanggal</th>
+              <th class="px-4 py-3 text-left font-semibold text-gray-700">Waktu</th>
+              <th class="px-4 py-3 text-left font-semibold text-gray-700">Nama</th>
+              <th class="px-4 py-3 text-left font-semibold text-gray-700">Tipe</th>
+              <th class="px-4 py-3 text-left font-semibold text-gray-700">NIP/NIK</th>
+              <th class="px-4 py-3 text-left font-semibold text-gray-700">Jabatan/Mapel</th>
+              <th class="px-4 py-3 text-left font-semibold text-gray-700">Asal Lembaga</th>
+              <th class="px-4 py-3 text-left font-semibold text-gray-700">Keperluan</th>
+              <th class="px-4 py-3 text-center font-semibold text-gray-700">Aksi</th>
+             </tr>
+            </thead>
+            <tbody id="attendance-list"><!-- Data akan dimuat di sini -->
+            </tbody>
+           </table>
+          </div>
+          <div id="no-data-message" class="hidden p-8 text-center text-gray-500">
+           Belum ada data kehadiran
+          </div>
+         </div>
+        </div><!-- Tab WiFi -->
+        <div id="tab-wifi" class="tab-content hidden">
+         <h3 class="text-lg font-bold text-gray-800 mb-6">Kelola Informasi WiFi</h3>
+         <form id="wifi-form" class="bg-gray-50 rounded-lg p-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+           <div><label class="block text-sm font-medium text-gray-700 mb-2">Nama WiFi (SSID)</label> <input type="text" id="wifi-ssid" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500" placeholder="Nama jaringan WiFi">
+           </div>
+           <div><label class="block text-sm font-medium text-gray-700 mb-2">Password WiFi</label> <input type="text" id="wifi-password" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500" placeholder="Password WiFi">
+           </div>
+          </div>
+          <div class="mb-4"><label class="block text-sm font-medium text-gray-700 mb-2">Keterangan</label> <textarea id="wifi-info" required rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 resize-none" placeholder="Informasi tambahan tentang WiFi..."></textarea>
+          </div><button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg font-medium"> Update Info WiFi </button>
+         </form>
+         <div id="wifi-success" class="hidden mt-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
+          ✅ Informasi WiFi berhasil diperbarui!
+         </div>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+  </main>
+  <script>
+        // Konfigurasi default
+        const defaultConfig = {
+            nama_lembaga: "PKBM TARBIYATUNNASYIIN PACULGOWANG",
+            alamat_lembaga: "Jl KH Manshur No. 9 Paculgowang",
+            tombol_guru: "Daftar Hadir Guru",
+            tombol_tamu: "Tamu Lembaga",
+            primary_color: "#2563eb",
+            secondary_color: "#16a34a",
+            background_color: "#f8fafc",
+            text_color: "#1f2937",
+            surface_color: "#ffffff"
+        };
+
+        // Variabel global
+        let currentRecordCount = 0;
+        let registeredTeacher = null;
+
+        // Password admin
+        const ADMIN_PASSWORD = "pkbmtarnasy";
+        let isAdminLoggedIn = false;
+        let currentAttendanceData = [];
+        let currentAgendaFilter = 'all';
+        let currentMonthFilter = '';
+
+        // Data notes/agenda yang akan ditampilkan
+        const agendaData = [
+            {
+                id: 1,
+                title: "Family Gathering di Batu Malang",
+                content: "📅 Tanggal: 22 November 2024\n📍 Lokasi: Batu Malang, Jawa Timur\n⏰ Waktu: 08:00 - 17:00 WIB\n\n📋 Yang perlu dibawa:\n• Pakaian ganti\n• Obat-obatan pribadi\n• Kamera untuk dokumentasi\n\n🚌 Keberangkatan dari sekolah pukul 06:30 WIB",
+                expireDate: "2024-11-23",
+                priority: "high"
+            },
+            {
+                id: 2,
+                title: "Rapat Koordinasi Semester",
+                content: "📅 Tanggal: 25 November 2024\n📍 Lokasi: Ruang Guru\n⏰ Waktu: 13:00 - 15:00 WIB\n\n📋 Agenda:\n• Evaluasi pembelajaran semester 1\n• Persiapan ujian akhir semester\n• Pembagian tugas piket\n\n📝 Harap membawa laptop dan dokumen penilaian",
+                expireDate: "2024-11-26",
+                priority: "medium"
+            },
+            {
+                id: 3,
+                title: "Pelatihan Digital Teaching",
+                content: "📅 Tanggal: 28 November 2024\n📍 Lokasi: Lab Komputer\n⏰ Waktu: 09:00 - 12:00 WIB\n\n📋 Materi:\n• Penggunaan platform e-learning\n• Membuat konten digital interaktif\n• Tips mengajar online yang efektif\n\n💻 Harap membawa laptop pribadi",
+                expireDate: "2024-11-29",
+                priority: "medium"
+            }
+        ];
+
+        // Data WiFi lembaga
+        const wifiData = {
+            ssid: "PKBM TARBIYATUNNASYIIN",
+            password: "pkbmtarnasy",
+            info: "Gunakan WiFi ini untuk keperluan kunjungan Anda. Harap gunakan dengan bijak dan sesuai keperluan."
+        };
+
+        // Handler untuk Data SDK
+        const dataHandler = {
+            onDataChanged(data) {
+                currentRecordCount = data.length;
+                currentAttendanceData = data;
+                
+                // Update admin panel jika sedang terbuka
+                if (isAdminLoggedIn) {
+                    updateAttendanceStats();
+                    renderAttendanceList();
+                }
+            }
+        };
+
+        // Variabel untuk mode fallback
+        let useFallbackStorage = false;
+
+        // Fungsi untuk download Excel dalam format XLSX asli menggunakan SheetJS
+        function downloadExcel() {
+            try {
+                console.log('📥 Memulai proses download XLSX...');
+                
+                const namaLembaga = (window.elementSdk?.config?.nama_lembaga) || defaultConfig.nama_lembaga;
+                const tanggalDownload = new Date().toLocaleDateString('id-ID', { 
+                    day: 'numeric', 
+                    month: 'long', 
+                    year: 'numeric' 
+                });
+                
+                // Filter data sesuai dengan filter yang aktif
+                let dataToExport = [...currentAttendanceData];
+                
+                if (currentAgendaFilter !== 'all') {
+                    dataToExport = dataToExport.filter(item => item.type === currentAgendaFilter);
+                }
+                
+                if (currentMonthFilter) {
+                    dataToExport = dataToExport.filter(item => {
+                        const parts = item.tanggal.split('/');
+                        if (parts.length === 3) {
+                            const itemDate = new Date(parts[2], parts[1] - 1, parts[0]);
+                            const filterDate = new Date(currentMonthFilter);
+                            return itemDate.getMonth() === filterDate.getMonth() && 
+                                   itemDate.getFullYear() === filterDate.getFullYear();
+                        }
+                        return false;
+                    });
+                }
+
+                if (dataToExport.length === 0) {
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded-lg z-50';
+                    errorDiv.textContent = '❌ Tidak ada data untuk di-download';
+                    document.body.appendChild(errorDiv);
+                    setTimeout(() => errorDiv.remove(), 3000);
+                    return;
+                }
+
+                // Tentukan periode untuk judul
+                let periodText = '';
+                if (currentMonthFilter) {
+                    const filterDate = new Date(currentMonthFilter);
+                    const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 
+                                       'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+                    periodText = `${monthNames[filterDate.getMonth()]} ${filterDate.getFullYear()}`;
+                } else {
+                    periodText = 'Semua Data';
+                }
+
+                // Sort data
+                const sortedData = dataToExport.sort((a, b) => {
+                    const parseDate = (dateStr, timeStr) => {
+                        const parts = dateStr.split('/');
+                        if (parts.length === 3) {
+                            return new Date(parts[2], parts[1] - 1, parts[0], ...timeStr.split(':'));
+                        }
+                        return new Date();
+                    };
+                    const dateA = parseDate(a.tanggal, a.waktu);
+                    const dateB = parseDate(b.tanggal, b.waktu);
+                    return dateB - dateA;
+                });
+
+                // Buat workbook dan worksheet
+                const wb = XLSX.utils.book_new();
+                
+                // Buat data array untuk worksheet
+                const wsData = [];
+                
+                // Header informasi
+                wsData.push(['REKAP DATA KEHADIRAN']);
+                wsData.push([namaLembaga]);
+                wsData.push(['Jl KH Manshur No. 9 Paculgowang']);
+                wsData.push([`Periode: ${periodText}`]);
+                wsData.push([`Total Data: ${sortedData.length} record`]);
+                wsData.push([`Tanggal Download: ${tanggalDownload}`]);
+                wsData.push([]); // Baris kosong
+                
+                // Header tabel
+                wsData.push(['No', 'Tanggal', 'Waktu', 'Nama', 'Tipe', 'NIP/NIK', 'Mata Pelajaran/Jabatan', 'Asal Lembaga', 'Keperluan']);
+                
+                // Data rows
+                sortedData.forEach((item, index) => {
+                    wsData.push([
+                        index + 1,
+                        item.tanggal,
+                        item.waktu,
+                        item.nama,
+                        item.type === 'guru' ? 'Guru' : 'Tamu',
+                        item.nip || '-',
+                        item.mapel || '-',
+                        item.asal_lembaga || '-',
+                        item.keperluan || '-'
+                    ]);
+                });
+                
+                // Hitung posisi footer (setelah data + beberapa baris kosong)
+                const footerStartRow = wsData.length + 2;
+                
+                // Baris kosong sebelum footer
+                wsData.push([]);
+                wsData.push([]);
+                
+                // Footer di kanan (kolom H dan I - untuk align kanan)
+                wsData.push(['', '', '', '', '', '', '', `Paculgowang, ${tanggalDownload}`]);
+                wsData.push(['', '', '', '', '', '', '', 'Kepala Sekolah']);
+                wsData.push(['', '', '', '', '', '', '', 'PKBM TARBIYATUNNASYIIN']);
+                wsData.push([]);
+                wsData.push([]);
+                wsData.push([]);
+                wsData.push(['', '', '', '', '', '', '', 'Ahmad Husen Ma\'ruf, S.Pd']);
+                
+                // Buat worksheet dari array
+                const ws = XLSX.utils.aoa_to_sheet(wsData);
+                
+                // Set column widths
+                ws['!cols'] = [
+                    { wch: 5 },   // No
+                    { wch: 12 },  // Tanggal
+                    { wch: 10 },  // Waktu
+                    { wch: 25 },  // Nama
+                    { wch: 8 },   // Tipe
+                    { wch: 15 },  // NIP/NIK
+                    { wch: 30 },  // Mata Pelajaran
+                    { wch: 25 },  // Asal Lembaga / Tanggal TTD
+                    { wch: 35 }   // Keperluan
+                ];
+                
+                // Tambahkan worksheet ke workbook
+                XLSX.utils.book_append_sheet(wb, ws, 'Data Kehadiran');
+                
+                // Nama file
+                let fileName = 'Rekap_Kehadiran';
+                const filterType = currentAgendaFilter === 'all' ? 'Semua' : (currentAgendaFilter === 'guru' ? 'Guru' : 'Tamu');
+                fileName += `_${filterType}`;
+                
+                if (currentMonthFilter) {
+                    const filterDate = new Date(currentMonthFilter);
+                    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 
+                                       'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'];
+                    fileName += `_${monthNames[filterDate.getMonth()]}_${filterDate.getFullYear()}`;
+                } else {
+                    const today = new Date();
+                    fileName += `_${today.getDate()}-${today.getMonth()+1}-${today.getFullYear()}`;
+                }
+                fileName += '.xlsx';
+                
+                // Write file dan download
+                XLSX.writeFile(wb, fileName);
+
+                // Success message
+                const successDiv = document.createElement('div');
+                successDiv.className = 'fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded-lg z-50';
+                successDiv.innerHTML = `✅ File ${fileName} berhasil di-download!`;
+                document.body.appendChild(successDiv);
+                setTimeout(() => successDiv.remove(), 3000);
+
+            } catch (error) {
+                console.error('💥 Error dalam downloadExcel:', error);
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded-lg z-50';
+                errorDiv.innerHTML = `<p class="font-semibold">❌ Gagal membuat file Excel</p>`;
+                document.body.appendChild(errorDiv);
+                setTimeout(() => errorDiv.remove(), 5000);
+            }
+        }
+
+        // Fungsi untuk mengelola agenda
+        function renderAgendaList() {
+            const agendaList = document.getElementById('agenda-list');
+            agendaList.innerHTML = '';
+
+            if (agendaData.length === 0) {
+                agendaList.innerHTML = '<div class="text-center text-gray-500 py-8">Belum ada agenda yang dibuat</div>';
+                return;
+            }
+
+            agendaData.forEach((agenda, index) => {
+                const isActive = isAgendaActive(agenda.expireDate);
+                const priorityColors = {
+                    high: 'border-red-500 bg-red-50',
+                    medium: 'border-yellow-500 bg-yellow-50',
+                    low: 'border-green-500 bg-green-50'
+                };
+
+                const agendaCard = document.createElement('div');
+                agendaCard.className = `border-l-4 ${priorityColors[agenda.priority]} p-4 rounded-lg ${!isActive ? 'opacity-50' : ''}`;
+                agendaCard.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-2 mb-2">
+                                <h4 class="font-semibold text-gray-800">${agenda.title}</h4>
+                                <span class="text-xs px-2 py-1 rounded-full ${isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                                    ${isActive ? 'Aktif' : 'Expired'}
+                                </span>
+                            </div>
+                            <p class="text-sm text-gray-600 mb-2">Expire: ${new Date(agenda.expireDate).toLocaleDateString('id-ID')}</p>
+                            <div class="text-sm text-gray-700 whitespace-pre-line max-h-20 overflow-hidden">
+                                ${agenda.content.substring(0, 150)}${agenda.content.length > 150 ? '...' : ''}
+                            </div>
+                        </div>
+                        <div class="flex space-x-2 ml-4">
+                            <button onclick="editAgenda(${index})" class="text-blue-600 hover:text-blue-800 p-1">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
+                                </svg>
+                            </button>
+                            <button onclick="deleteAgenda(${index})" class="text-red-600 hover:text-red-800 p-1">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" clip-rule="evenodd"/>
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 12.586 7.707 11.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                agendaList.appendChild(agendaCard);
+            });
+        }
+
+        function showAgendaForm(editIndex = null) {
+            const form = document.getElementById('agenda-form');
+            const title = document.getElementById('agenda-form-title');
+            
+            if (editIndex !== null) {
+                const agenda = agendaData[editIndex];
+                title.textContent = 'Edit Agenda';
+                document.getElementById('agenda-id').value = editIndex;
+                document.getElementById('agenda-title').value = agenda.title;
+                document.getElementById('agenda-expire').value = agenda.expireDate;
+                document.getElementById('agenda-priority').value = agenda.priority;
+                document.getElementById('agenda-content').value = agenda.content;
+            } else {
+                title.textContent = 'Tambah Agenda Baru';
+                document.getElementById('agenda-data-form').reset();
+                document.getElementById('agenda-id').value = '';
+                // Set default expire date to tomorrow
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                document.getElementById('agenda-expire').value = tomorrow.toISOString().split('T')[0];
+            }
+            
+            form.classList.remove('hidden');
+        }
+
+        function hideAgendaForm() {
+            document.getElementById('agenda-form').classList.add('hidden');
+            document.getElementById('agenda-data-form').reset();
+        }
+
+        function editAgenda(index) {
+            showAgendaForm(index);
+        }
+
+        function deleteAgenda(index) {
+            // Buat konfirmasi inline
+            const agendaCard = document.querySelector(`#agenda-list > div:nth-child(${index + 1})`);
+            const originalContent = agendaCard.innerHTML;
+            
+            agendaCard.innerHTML = `
+                <div class="bg-red-50 border border-red-200 p-4 rounded-lg text-center">
+                    <p class="text-red-800 font-semibold mb-4">Hapus agenda "${agendaData[index].title}"?</p>
+                    <div class="flex space-x-3 justify-center">
+                        <button onclick="confirmDeleteAgenda(${index})" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm">
+                            Ya, Hapus
+                        </button>
+                        <button onclick="cancelDeleteAgenda(${index}, \`${originalContent.replace(/`/g, '\\`')}\`)" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm">
+                            Batal
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function confirmDeleteAgenda(index) {
+            agendaData.splice(index, 1);
+            renderAgendaList();
+            
+            // Show success message
+            const successDiv = document.createElement('div');
+            successDiv.className = 'fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded-lg z-50';
+            successDiv.textContent = '✅ Agenda berhasil dihapus';
+            document.body.appendChild(successDiv);
+            setTimeout(() => successDiv.remove(), 3000);
+        }
+
+        function cancelDeleteAgenda(index, originalContent) {
+            const agendaCard = document.querySelector(`#agenda-list > div:nth-child(${index + 1})`);
+            agendaCard.innerHTML = originalContent;
+        }
+
+        // Fungsi untuk menghapus data kehadiran
+        async function deleteAttendance(item, rowElement) {
+            const originalContent = rowElement.innerHTML;
+            
+            // Tampilkan konfirmasi inline di row
+            rowElement.innerHTML = `
+                <td colspan="10" class="px-4 py-4">
+                    <div class="bg-red-50 border border-red-200 p-4 rounded-lg">
+                        <p class="text-red-800 font-semibold mb-3">Hapus data kehadiran "${item.nama}"?</p>
+                        <p class="text-red-600 text-sm mb-4">Data yang dihapus tidak dapat dikembalikan!</p>
+                        <div class="flex space-x-3">
+                            <button class="btn-confirm-delete flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium">
+                                Ya, Hapus
+                            </button>
+                            <button class="btn-cancel-delete flex-1 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm font-medium">
+                                Batal
+                            </button>
+                        </div>
+                    </div>
+                </td>
+            `;
+            
+            // Event listener untuk tombol konfirmasi
+            const confirmBtn = rowElement.querySelector('.btn-confirm-delete');
+            const cancelBtn = rowElement.querySelector('.btn-cancel-delete');
+            
+            confirmBtn.addEventListener('click', async () => {
+                // Tampilkan loading
+                rowElement.innerHTML = `
+                    <td colspan="10" class="px-4 py-4">
+                        <div class="bg-gray-50 p-4 rounded-lg text-center">
+                            <div class="loading-spinner mx-auto mb-2"></div>
+                            <p class="text-gray-600 text-sm">Menghapus data...</p>
+                        </div>
+                    </td>
+                `;
+                
+                try {
+                    let result;
+                    
+                    if (useFallbackStorage) {
+                        // Hapus dari localStorage
+                        const existingData = JSON.parse(localStorage.getItem('attendanceData') || '[]');
+                        const filteredData = existingData.filter(d => d.id !== item.id);
+                        localStorage.setItem('attendanceData', JSON.stringify(filteredData));
+                        result = { isOk: true };
+                        
+                        // Update currentAttendanceData
+                        currentAttendanceData = filteredData;
+                        updateAttendanceStats();
+                        renderAttendanceList();
+                    } else {
+                        // Hapus menggunakan Data SDK
+                        result = await window.dataSdk.delete(item);
+                        
+                        if (result.isOk) {
+                            // Data akan diupdate otomatis melalui onDataChanged
+                        }
+                    }
+                    
+                    if (result.isOk) {
+                        // Tampilkan pesan sukses
+                        const successDiv = document.createElement('div');
+                        successDiv.className = 'fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded-lg z-50';
+                        successDiv.textContent = '✅ Data berhasil dihapus';
+                        document.body.appendChild(successDiv);
+                        setTimeout(() => successDiv.remove(), 3000);
+                    } else {
+                        throw new Error('Gagal menghapus data');
+                    }
+                } catch (error) {
+                    console.error('Error menghapus data:', error);
+                    
+                    // Tampilkan pesan error
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded-lg z-50';
+                    errorDiv.textContent = '❌ Gagal menghapus data';
+                    document.body.appendChild(errorDiv);
+                    setTimeout(() => errorDiv.remove(), 3000);
+                    
+                    // Kembalikan tampilan asli
+                    rowElement.innerHTML = originalContent;
+                    // Re-attach event listener
+                    const deleteBtn = rowElement.querySelector('.btn-delete-attendance');
+                    if (deleteBtn) {
+                        deleteBtn.addEventListener('click', () => deleteAttendance(item, rowElement));
+                    }
+                }
+            });
+            
+            cancelBtn.addEventListener('click', () => {
+                rowElement.innerHTML = originalContent;
+                // Re-attach event listener untuk tombol hapus
+                const deleteBtn = rowElement.querySelector('.btn-delete-attendance');
+                if (deleteBtn) {
+                    deleteBtn.addEventListener('click', () => deleteAttendance(item, rowElement));
+                }
+            });
+        }
+
+        // Fungsi untuk mengelola data kehadiran
+        function renderAttendanceList() {
+            const attendanceList = document.getElementById('attendance-list');
+            const noDataMessage = document.getElementById('no-data-message');
+            attendanceList.innerHTML = '';
+
+            let filteredData = currentAttendanceData;
+            
+            // Filter berdasarkan tipe
+            if (currentAgendaFilter !== 'all') {
+                filteredData = filteredData.filter(item => item.type === currentAgendaFilter);
+            }
+            
+            // Filter berdasarkan bulan
+            if (currentMonthFilter) {
+                filteredData = filteredData.filter(item => {
+                    const parts = item.tanggal.split('/');
+                    if (parts.length === 3) {
+                        const itemDate = new Date(parts[2], parts[1] - 1, parts[0]);
+                        const filterDate = new Date(currentMonthFilter);
+                        return itemDate.getMonth() === filterDate.getMonth() && 
+                               itemDate.getFullYear() === filterDate.getFullYear();
+                    }
+                    return false;
+                });
+            }
+
+            if (filteredData.length === 0) {
+                attendanceList.innerHTML = '';
+                noDataMessage.classList.remove('hidden');
+                return;
+            }
+
+            noDataMessage.classList.add('hidden');
+
+            // Sort by date and time (newest first)
+            filteredData.sort((a, b) => {
+                const parseDate = (dateStr, timeStr) => {
+                    const parts = dateStr.split('/');
+                    if (parts.length === 3) {
+                        return new Date(parts[2], parts[1] - 1, parts[0], ...timeStr.split(':'));
+                    }
+                    return new Date();
+                };
+                const dateA = parseDate(a.tanggal, a.waktu);
+                const dateB = parseDate(b.tanggal, b.waktu);
+                return dateB - dateA;
+            });
+
+            filteredData.forEach((item, index) => {
+                const row = document.createElement('tr');
+                row.className = 'border-b border-gray-100 hover:bg-gray-50';
+                row.dataset.itemId = item.__backendId || item.id;
+                
+                const typeIcon = item.type === 'guru' ? '👨‍🏫' : '👥';
+                const typeBadge = item.type === 'guru' 
+                    ? '<span class="inline-block px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded">Guru</span>'
+                    : '<span class="inline-block px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded">Tamu</span>';
+                
+                row.innerHTML = `
+                    <td class="px-4 py-3 text-gray-700">${index + 1}</td>
+                    <td class="px-4 py-3 text-gray-700">${item.tanggal}</td>
+                    <td class="px-4 py-3 text-gray-700">${item.waktu}</td>
+                    <td class="px-4 py-3 text-gray-900 font-medium">${typeIcon} ${item.nama}</td>
+                    <td class="px-4 py-3">${typeBadge}</td>
+                    <td class="px-4 py-3 text-gray-700">${item.nip || '-'}</td>
+                    <td class="px-4 py-3 text-gray-700">${item.mapel || '-'}</td>
+                    <td class="px-4 py-3 text-gray-700">${item.asal_lembaga || '-'}</td>
+                    <td class="px-4 py-3 text-gray-700" style="max-width: 200px;">
+                        <div class="truncate" title="${item.keperluan || '-'}">${item.keperluan || '-'}</div>
+                    </td>
+                    <td class="px-4 py-3 text-center">
+                        <button class="btn-delete-attendance text-red-600 hover:text-red-800 hover:bg-red-50 p-2 rounded-lg transition-colors" title="Hapus data">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                            </svg>
+                        </button>
+                    </td>
+                `;
+                
+                // Event listener untuk tombol hapus
+                const deleteBtn = row.querySelector('.btn-delete-attendance');
+                deleteBtn.addEventListener('click', () => deleteAttendance(item, row));
+                
+                attendanceList.appendChild(row);
+            });
+        }
+
+        function updateAttendanceStats() {
+            const guruCount = currentAttendanceData.filter(item => item.type === 'guru').length;
+            const tamuCount = currentAttendanceData.filter(item => item.type === 'tamu').length;
+            const totalCount = currentAttendanceData.length;
+
+            document.getElementById('total-guru').textContent = guruCount;
+            document.getElementById('total-tamu').textContent = tamuCount;
+            document.getElementById('total-all').textContent = totalCount;
+        }
+
+        // Fungsi untuk mendapatkan waktu saat ini
+        function getCurrentDateTime() {
+            const now = new Date();
+            return {
+                waktu: now.toLocaleTimeString('id-ID'),
+                tanggal: now.toLocaleDateString('id-ID')
+            };
+        }
+
+        // Fungsi untuk generate ID unik
+        function generateId() {
+            return Date.now().toString() + Math.random().toString(36).substr(2, 9);
+        }
+
+        // Fungsi untuk menampilkan loading state
+        function showLoading(buttonId, contentId, loadingId) {
+            const button = document.getElementById(buttonId);
+            const content = document.getElementById(contentId);
+            const loading = document.getElementById(loadingId);
+            
+            button.disabled = true;
+            content.classList.add('hidden');
+            loading.classList.remove('hidden');
+        }
+
+        // Fungsi untuk menyembunyikan loading state
+        function hideLoading(buttonId, contentId, loadingId) {
+            const button = document.getElementById(buttonId);
+            const content = document.getElementById(contentId);
+            const loading = document.getElementById(loadingId);
+            
+            button.disabled = false;
+            content.classList.remove('hidden');
+            loading.classList.add('hidden');
+        }
+
+        // Fungsi untuk menampilkan pesan sukses
+        function showSuccess(successId) {
+            const successElement = document.getElementById(successId);
+            successElement.classList.remove('hidden');
+            
+            setTimeout(() => {
+                successElement.classList.add('hidden');
+            }, 3000);
+        }
+
+        // Fungsi untuk mengecek apakah agenda masih aktif
+        function isAgendaActive(expireDate) {
+            const today = new Date();
+            const expire = new Date(expireDate);
+            return today <= expire;
+        }
+
+        // Fungsi untuk mendapatkan agenda yang masih aktif
+        function getActiveAgendas() {
+            return agendaData.filter(agenda => isAgendaActive(agenda.expireDate));
+        }
+
+        // Fungsi untuk membuat modal pop-up
+        function createModal(title, content, type = 'info') {
+            // Hapus modal yang sudah ada
+            const existingModal = document.getElementById('popup-modal');
+            if (existingModal) {
+                existingModal.remove();
+            }
+
+            // Buat modal baru
+            const modal = document.createElement('div');
+            modal.id = 'popup-modal';
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50';
+            
+            const modalContent = document.createElement('div');
+            modalContent.className = 'bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-96 overflow-y-auto';
+            
+            // Header berdasarkan tipe
+            let headerClass = 'bg-blue-600';
+            let headerIcon = '📋';
+            
+            if (type === 'wifi') {
+                headerClass = 'bg-green-600';
+                headerIcon = '📶';
+            } else if (type === 'agenda') {
+                headerClass = 'bg-orange-600';
+                headerIcon = '📅';
+            }
+            
+            modalContent.innerHTML = `
+                <div class="${headerClass} text-white p-6 rounded-t-2xl">
+                    <div class="flex items-center space-x-3">
+                        <span class="text-2xl">${headerIcon}</span>
+                        <h3 class="text-xl font-bold">${title}</h3>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="text-gray-700 whitespace-pre-line leading-relaxed">
+                        ${content}
+                    </div>
+                    <button id="close-modal" class="w-full mt-6 bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-xl transition-colors">
+                        Tutup
+                    </button>
+                </div>
+            `;
+            
+            modal.appendChild(modalContent);
+            document.body.appendChild(modal);
+            
+            // Event listener untuk menutup modal
+            document.getElementById('close-modal').addEventListener('click', () => {
+                modal.remove();
+            });
+            
+            // Tutup modal jika klik di luar area modal
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+        }
+
+        // Fungsi untuk menampilkan pop-up agenda
+        function showAgendaPopup() {
+            console.log('🔍 Mengecek agenda aktif...');
+            const activeAgendas = getActiveAgendas();
+            console.log('📋 Total agenda aktif:', activeAgendas);
+            
+            if (activeAgendas.length === 0) {
+                console.log('❌ Tidak ada agenda aktif untuk ditampilkan');
+                // Tampilkan pesan default jika tidak ada agenda
+                const defaultContent = `📋 Selamat datang!
+
+Saat ini tidak ada agenda khusus yang perlu disampaikan.
+
+✅ Kehadiran Anda telah tercatat dengan baik
+📚 Silakan lanjutkan aktivitas mengajar seperti biasa
+📞 Hubungi admin jika ada pertanyaan
+
+Terima kasih atas dedikasi Anda! 🙏`;
+                
+                createModal('Informasi untuk Guru', defaultContent, 'agenda');
+                return;
+            }
+            
+            // Jika hanya ada 1 agenda, tampilkan langsung secara keseluruhan
+            if (activeAgendas.length === 1) {
+                const agenda = activeAgendas[0];
+                console.log('🎯 Menampilkan 1 agenda:', agenda.title);
+                createModal(`Info Terbaru: ${agenda.title}`, agenda.content, 'agenda');
+                return;
+            }
+            
+            // Jika ada 2 atau lebih, tampilkan dengan navigasi
+            const priorityOrder = { 'high': 3, 'medium': 2, 'low': 1 };
+            const sortedAgendas = activeAgendas.sort((a, b) => {
+                return priorityOrder[b.priority] - priorityOrder[a.priority];
+            });
+            
+            console.log('🎯 Menampilkan multiple agenda dengan navigasi');
+            createAgendaListModal(sortedAgendas);
+        }
+        
+        // Fungsi untuk membuat modal dengan list agenda dan navigasi
+        function createAgendaListModal(agendas) {
+            let currentIndex = 0;
+            
+            // Hapus modal yang sudah ada
+            const existingModal = document.getElementById('popup-modal');
+            if (existingModal) {
+                existingModal.remove();
+            }
+
+            // Buat modal baru
+            const modal = document.createElement('div');
+            modal.id = 'popup-modal';
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50';
+            
+            const modalContent = document.createElement('div');
+            modalContent.className = 'bg-white rounded-2xl shadow-2xl max-w-md w-full';
+            
+            function renderAgendaContent() {
+                const agenda = agendas[currentIndex];
+                const priorityIcons = {
+                    'high': '🔴',
+                    'medium': '🟡',
+                    'low': '🟢'
+                };
+                
+                modalContent.innerHTML = `
+                    <div class="bg-orange-600 text-white p-6 rounded-t-2xl">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <span class="text-2xl">📅</span>
+                                <div>
+                                    <h3 class="text-xl font-bold">Agenda ${currentIndex + 1} dari ${agendas.length}</h3>
+                                    <p class="text-sm text-orange-100">${priorityIcons[agenda.priority]} Prioritas: ${agenda.priority === 'high' ? 'Tinggi' : agenda.priority === 'medium' ? 'Sedang' : 'Rendah'}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-6">
+                        <h4 class="text-lg font-bold text-gray-800 mb-3">${agenda.title}</h4>
+                        <div class="text-sm text-gray-600 mb-4">
+                            Expired: ${new Date(agenda.expireDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+                        </div>
+                        <div class="bg-gray-50 rounded-lg p-4 max-h-64 overflow-y-auto">
+                            <div class="text-gray-700 whitespace-pre-line leading-relaxed text-sm">
+                                ${agenda.content}
+                            </div>
+                        </div>
+                        
+                        <!-- Navigasi -->
+                        <div class="flex items-center justify-between mt-6 space-x-3">
+                            <button id="prev-agenda" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-4 rounded-xl transition-colors flex items-center justify-center space-x-2 ${currentIndex === 0 ? 'opacity-50 cursor-not-allowed' : ''}" ${currentIndex === 0 ? 'disabled' : ''}>
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                <span>Sebelumnya</span>
+                            </button>
+                            
+                            <button id="next-agenda" class="flex-1 bg-orange-600 hover:bg-orange-700 text-white font-semibold py-3 px-4 rounded-xl transition-colors flex items-center justify-center space-x-2 ${currentIndex === agendas.length - 1 ? 'opacity-50 cursor-not-allowed' : ''}" ${currentIndex === agendas.length - 1 ? 'disabled' : ''}>
+                                <span>Selanjutnya</span>
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        <button id="close-modal" class="w-full mt-3 bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-xl transition-colors">
+                            Tutup
+                        </button>
+                    </div>
+                `;
+                
+                // Event listeners untuk navigasi
+                const prevBtn = document.getElementById('prev-agenda');
+                const nextBtn = document.getElementById('next-agenda');
+                const closeBtn = document.getElementById('close-modal');
+                
+                if (prevBtn) {
+                    prevBtn.addEventListener('click', () => {
+                        if (currentIndex > 0) {
+                            currentIndex--;
+                            renderAgendaContent();
+                        }
+                    });
+                }
+                
+                if (nextBtn) {
+                    nextBtn.addEventListener('click', () => {
+                        if (currentIndex < agendas.length - 1) {
+                            currentIndex++;
+                            renderAgendaContent();
+                        }
+                    });
+                }
+                
+                if (closeBtn) {
+                    closeBtn.addEventListener('click', () => {
+                        modal.remove();
+                    });
+                }
+            }
+            
+            renderAgendaContent();
+            modal.appendChild(modalContent);
+            document.body.appendChild(modal);
+            
+            // Tutup modal jika klik di luar area modal
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+        }
+
+        // Fungsi untuk menampilkan pop-up WiFi
+        function showWifiPopup() {
+            const content = `🔐 Informasi WiFi Lembaga
+
+📶 Nama WiFi (SSID):
+${wifiData.ssid}
+
+🔑 Password:
+${wifiData.password}
+
+ℹ️ Keterangan:
+${wifiData.info}
+
+📱 Cara Koneksi:
+1. Buka pengaturan WiFi di perangkat Anda
+2. Pilih jaringan "${wifiData.ssid}"
+3. Masukkan password: ${wifiData.password}
+4. Tunggu hingga terhubung`;
+
+            createModal('Informasi WiFi Lembaga', content, 'wifi');
+        }
+
+        // Fungsi untuk penyimpanan lokal guru
+        function saveTeacherToLocal(teacherData) {
+            localStorage.setItem('registeredTeacher', JSON.stringify(teacherData));
+            registeredTeacher = teacherData;
+        }
+
+        function loadTeacherFromLocal() {
+            const saved = localStorage.getItem('registeredTeacher');
+            if (saved) {
+                registeredTeacher = JSON.parse(saved);
+                return true;
+            }
+            return false;
+        }
+
+        function clearTeacherFromLocal() {
+            localStorage.removeItem('registeredTeacher');
+            registeredTeacher = null;
+        }
+
+        function updateTeacherDisplay() {
+            if (registeredTeacher) {
+                document.getElementById('nama-guru-display').textContent = registeredTeacher.nama;
+                document.getElementById('mapel-guru-display').textContent = registeredTeacher.mapel;
+                document.getElementById('nip-guru-display').textContent = `NIP/NIK: ${registeredTeacher.nip}`;
+            }
+        }
+
+        // Fungsi untuk navigasi
+        function showMenu() {
+            document.getElementById('menu-utama').classList.remove('hidden');
+            document.getElementById('form-registrasi-guru').classList.add('hidden');
+            document.getElementById('form-guru').classList.add('hidden');
+            document.getElementById('form-tamu').classList.add('hidden');
+        }
+
+        function showFormRegistrasiGuru() {
+            document.getElementById('menu-utama').classList.add('hidden');
+            document.getElementById('form-registrasi-guru').classList.remove('hidden');
+            document.getElementById('form-guru').classList.add('hidden');
+            document.getElementById('form-tamu').classList.add('hidden');
+        }
+
+        function showFormGuru() {
+            document.getElementById('menu-utama').classList.add('hidden');
+            document.getElementById('form-registrasi-guru').classList.add('hidden');
+            document.getElementById('form-guru').classList.remove('hidden');
+            document.getElementById('form-tamu').classList.add('hidden');
+            updateTeacherDisplay();
+        }
+
+        function showFormTamu() {
+            document.getElementById('menu-utama').classList.add('hidden');
+            document.getElementById('form-registrasi-guru').classList.add('hidden');
+            document.getElementById('form-guru').classList.add('hidden');
+            document.getElementById('form-tamu').classList.remove('hidden');
+        }
+
+        // Fungsi fallback untuk penyimpanan lokal
+        function saveToLocalStorage(data) {
+            try {
+                const existingData = JSON.parse(localStorage.getItem('attendanceData') || '[]');
+                existingData.push(data);
+                localStorage.setItem('attendanceData', JSON.stringify(existingData));
+                return { isOk: true };
+            } catch (error) {
+                return { isOk: false, error: error };
+            }
+        }
+
+        // Event listeners untuk navigasi
+        document.getElementById('btn-guru').addEventListener('click', function() {
+            // Cek apakah guru sudah terdaftar
+            if (registeredTeacher) {
+                showFormGuru();
+            } else {
+                showFormRegistrasiGuru();
+            }
+        });
+        document.getElementById('btn-tamu').addEventListener('click', showFormTamu);
+        document.getElementById('btn-kembali-registrasi').addEventListener('click', showMenu);
+        document.getElementById('btn-kembali-guru').addEventListener('click', showMenu);
+        document.getElementById('btn-kembali-tamu').addEventListener('click', showMenu);
+        document.getElementById('btn-ganti-guru').addEventListener('click', function() {
+            clearTeacherFromLocal();
+            showFormRegistrasiGuru();
+        });
+
+        // Event listeners untuk admin panel
+        document.getElementById('admin-trigger').addEventListener('click', function() {
+            document.getElementById('admin-panel').classList.remove('hidden');
+        });
+
+        document.getElementById('close-admin').addEventListener('click', function() {
+            document.getElementById('admin-panel').classList.add('hidden');
+            document.getElementById('admin-login').classList.remove('hidden');
+            document.getElementById('admin-dashboard').classList.add('hidden');
+            isAdminLoggedIn = false;
+        });
+
+        // Event listener untuk download Excel
+        document.getElementById('download-excel').addEventListener('click', downloadExcel);
+
+        // Login admin
+        document.getElementById('admin-login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const password = document.getElementById('admin-password').value;
+            
+            if (password === ADMIN_PASSWORD) {
+                isAdminLoggedIn = true;
+                document.getElementById('admin-login').classList.add('hidden');
+                document.getElementById('admin-dashboard').classList.remove('hidden');
+                document.getElementById('login-error').classList.add('hidden');
+                
+                // Load initial data
+                renderAgendaList();
+                loadAttendanceData();
+                loadWifiData();
+            } else {
+                document.getElementById('login-error').classList.remove('hidden');
+                document.getElementById('admin-password').value = '';
+            }
+        });
+
+        // Tab navigation
+        document.querySelectorAll('.admin-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const targetTab = this.dataset.tab;
+                
+                // Update tab appearance
+                document.querySelectorAll('.admin-tab').forEach(t => {
+                    t.classList.remove('active', 'border-purple-500', 'text-purple-600');
+                    t.classList.add('border-transparent', 'text-gray-500');
+                });
+                this.classList.add('active', 'border-purple-500', 'text-purple-600');
+                this.classList.remove('border-transparent', 'text-gray-500');
+                
+                // Show target content
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.add('hidden');
+                });
+                document.getElementById(`tab-${targetTab}`).classList.remove('hidden');
+                
+                // Load data for specific tabs
+                if (targetTab === 'attendance') {
+                    loadAttendanceData();
+                }
+            });
+        });
+
+        // Agenda form handlers
+        document.getElementById('add-agenda-btn').addEventListener('click', () => showAgendaForm());
+        document.getElementById('cancel-agenda').addEventListener('click', hideAgendaForm);
+
+        document.getElementById('agenda-data-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const editIndex = document.getElementById('agenda-id').value;
+            const agendaItem = {
+                id: editIndex ? agendaData[editIndex].id : Date.now(),
+                title: document.getElementById('agenda-title').value,
+                content: document.getElementById('agenda-content').value,
+                expireDate: document.getElementById('agenda-expire').value,
+                priority: document.getElementById('agenda-priority').value
+            };
+            
+            if (editIndex !== '') {
+                agendaData[editIndex] = agendaItem;
+            } else {
+                agendaData.push(agendaItem);
+            }
+            
+            renderAgendaList();
+            hideAgendaForm();
+            
+            // Show success message
+            const successDiv = document.createElement('div');
+            successDiv.className = 'fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded-lg z-50';
+            successDiv.textContent = editIndex !== '' ? '✅ Agenda berhasil diperbarui' : '✅ Agenda berhasil ditambahkan';
+            document.body.appendChild(successDiv);
+            setTimeout(() => successDiv.remove(), 3000);
+        });
+
+        // Attendance filter handlers
+        document.querySelectorAll('.attendance-filter').forEach(filter => {
+            filter.addEventListener('click', function() {
+                currentAgendaFilter = this.dataset.type;
+                
+                // Update filter appearance
+                document.querySelectorAll('.attendance-filter').forEach(f => {
+                    f.classList.remove('active', 'bg-blue-600', 'text-white');
+                    f.classList.add('bg-gray-300', 'text-gray-700');
+                });
+                this.classList.add('active', 'bg-blue-600', 'text-white');
+                this.classList.remove('bg-gray-300', 'text-gray-700');
+                
+                renderAttendanceList();
+            });
+        });
+
+        // Month filter handler
+        document.getElementById('month-filter').addEventListener('change', function() {
+            currentMonthFilter = this.value;
+            renderAttendanceList();
+        });
+
+        // Reset month filter handler
+        document.getElementById('reset-month-filter').addEventListener('click', function() {
+            currentMonthFilter = '';
+            document.getElementById('month-filter').value = '';
+            renderAttendanceList();
+        });
+
+        // WiFi form handler
+        document.getElementById('wifi-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            wifiData.ssid = document.getElementById('wifi-ssid').value;
+            wifiData.password = document.getElementById('wifi-password').value;
+            wifiData.info = document.getElementById('wifi-info').value;
+            
+            document.getElementById('wifi-success').classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('wifi-success').classList.add('hidden');
+            }, 3000);
+        });
+
+        function loadAttendanceData() {
+            if (useFallbackStorage) {
+                // Load from localStorage
+                const data = JSON.parse(localStorage.getItem('attendanceData') || '[]');
+                currentAttendanceData = data;
+            } else {
+                // Data akan dimuat dari onDataChanged callback
+                // currentAttendanceData sudah diupdate di dataHandler
+            }
+            
+            updateAttendanceStats();
+            renderAttendanceList();
+        }
+
+        function loadWifiData() {
+            document.getElementById('wifi-ssid').value = wifiData.ssid;
+            document.getElementById('wifi-password').value = wifiData.password;
+            document.getElementById('wifi-info').value = wifiData.info;
+        }
+
+        // Handler untuk registrasi guru
+        document.getElementById('form-data-registrasi').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            showLoading('btn-registrasi', 'btn-registrasi-content', 'btn-registrasi-loading');
+
+            const formData = new FormData(this);
+            const teacherData = {
+                nama: formData.get('nama'),
+                nip: formData.get('nip'),
+                mapel: formData.get('mapel')
+            };
+
+            // Simpan data guru ke localStorage
+            saveTeacherToLocal(teacherData);
+
+            // Reset form dan pindah ke halaman daftar hadir
+            this.reset();
+            hideLoading('btn-registrasi', 'btn-registrasi-content', 'btn-registrasi-loading');
+            
+            // Tampilkan pesan sukses sebentar
+            const successDiv = document.createElement('div');
+            successDiv.className = 'mt-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg text-center';
+            successDiv.innerHTML = '<p class="font-semibold">Registrasi berhasil! Mengarahkan ke halaman daftar hadir...</p>';
+            this.appendChild(successDiv);
+
+            setTimeout(() => {
+                successDiv.remove();
+                showFormGuru();
+            }, 1500);
+        });
+
+        // Handler untuk daftar hadir guru
+        document.getElementById('btn-hadir-guru').addEventListener('click', async function() {
+            if (!useFallbackStorage && currentRecordCount >= 999) {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg text-center';
+                errorDiv.innerHTML = '<p class="font-semibold">Batas maksimum 999 data tercapai. Silakan hubungi administrator.</p>';
+                this.parentNode.appendChild(errorDiv);
+                setTimeout(() => errorDiv.remove(), 5000);
+                return;
+            }
+
+            if (!registeredTeacher) {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg text-center';
+                errorDiv.innerHTML = '<p class="font-semibold">Data guru tidak ditemukan. Silakan registrasi ulang.</p>';
+                this.parentNode.appendChild(errorDiv);
+                setTimeout(() => errorDiv.remove(), 5000);
+                return;
+            }
+
+            showLoading('btn-hadir-guru', 'btn-hadir-content', 'btn-hadir-loading');
+
+            const { waktu, tanggal } = getCurrentDateTime();
+            const guruData = {
+                id: generateId(),
+                type: 'guru',
+                nama: registeredTeacher.nama,
+                nip: registeredTeacher.nip,
+                mapel: registeredTeacher.mapel,
+                asal_lembaga: (window.elementSdk?.config?.nama_lembaga) || defaultConfig.nama_lembaga,
+                keperluan: 'Daftar hadir guru/staff',
+                waktu: waktu,
+                tanggal: tanggal
+            };
+
+            console.log('Menyimpan data guru:', guruData);
+            console.log('Mode penyimpanan:', useFallbackStorage ? 'localStorage' : 'Data SDK');
+
+            try {
+                let result;
+                
+                if (useFallbackStorage) {
+                    // Gunakan localStorage sebagai fallback
+                    result = saveToLocalStorage(guruData);
+                } else {
+                    // Gunakan Data SDK
+                    result = await window.dataSdk.create(guruData);
+                }
+                
+                console.log('Hasil penyimpanan:', result);
+                
+                if (result.isOk) {
+                    showSuccess('success-guru');
+                    
+                    // Tampilkan pop-up agenda setelah berhasil absen
+                    setTimeout(() => {
+                        console.log('🎯 Menampilkan pop-up agenda untuk guru...');
+                        const activeAgendas = getActiveAgendas();
+                        console.log('�� Agenda aktif ditemukan:', activeAgendas.length);
+                        showAgendaPopup();
+                    }, 1500);
+                } else {
+                    console.error('Error dari penyimpanan:', result.error);
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg text-center';
+                    errorDiv.innerHTML = '<p class="font-semibold">Terjadi kesalahan saat menyimpan. Silakan coba lagi.</p>';
+                    document.getElementById('form-guru').appendChild(errorDiv);
+                    setTimeout(() => errorDiv.remove(), 5000);
+                }
+            } catch (error) {
+                console.error('Error exception:', error);
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg text-center';
+                errorDiv.innerHTML = '<p class="font-semibold">Terjadi kesalahan sistem. Silakan coba lagi.</p>';
+                document.getElementById('form-guru').appendChild(errorDiv);
+                setTimeout(() => errorDiv.remove(), 5000);
+            }
+
+            hideLoading('btn-hadir-guru', 'btn-hadir-content', 'btn-hadir-loading');
+        });
+
+        // Handler untuk form tamu
+        document.getElementById('form-data-tamu').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            if (!useFallbackStorage && currentRecordCount >= 999) {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg text-center';
+                errorDiv.innerHTML = '<p class="font-semibold">Batas maksimum 999 data tercapai. Silakan hubungi administrator.</p>';
+                this.appendChild(errorDiv);
+                setTimeout(() => errorDiv.remove(), 5000);
+                return;
+            }
+
+            showLoading('btn-submit-tamu', 'btn-submit-content', 'btn-submit-loading');
+
+            const formData = new FormData(this);
+            const { waktu, tanggal } = getCurrentDateTime();
+            
+            const tamuData = {
+                id: generateId(),
+                type: 'tamu',
+                nama: formData.get('nama'),
+                nip: '-',
+                mapel: '-',
+                asal_lembaga: formData.get('asal_lembaga'),
+                keperluan: formData.get('keperluan'),
+                waktu: waktu,
+                tanggal: tanggal
+            };
+
+            console.log('Menyimpan data tamu:', tamuData);
+            console.log('Mode penyimpanan:', useFallbackStorage ? 'localStorage' : 'Data SDK');
+
+            try {
+                let result;
+                
+                if (useFallbackStorage) {
+                    // Gunakan localStorage sebagai fallback
+                    result = saveToLocalStorage(tamuData);
+                } else {
+                    // Gunakan Data SDK
+                    result = await window.dataSdk.create(tamuData);
+                }
+                
+                console.log('Hasil penyimpanan tamu:', result);
+                
+                if (result.isOk) {
+                    this.reset();
+                    showSuccess('success-tamu');
+                    
+                    // Tampilkan pop-up WiFi setelah berhasil daftar tamu
+                    setTimeout(() => {
+                        showWifiPopup();
+                    }, 1000);
+                } else {
+                    console.error('Error dari penyimpanan tamu:', result.error);
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg text-center';
+                    errorDiv.innerHTML = '<p class="font-semibold">Terjadi kesalahan saat menyimpan. Silakan coba lagi.</p>';
+                    this.appendChild(errorDiv);
+                    setTimeout(() => errorDiv.remove(), 5000);
+                }
+            } catch (error) {
+                console.error('Error exception tamu:', error);
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg text-center';
+                errorDiv.innerHTML = '<p class="font-semibold">Terjadi kesalahan sistem. Silakan coba lagi.</p>';
+                this.appendChild(errorDiv);
+                setTimeout(() => errorDiv.remove(), 5000);
+            }
+
+            hideLoading('btn-submit-tamu', 'btn-submit-content', 'btn-submit-loading');
+        });
+
+        // Fungsi untuk update UI berdasarkan config
+        async function onConfigChange(config) {
+            const namaLembaga = config.nama_lembaga || defaultConfig.nama_lembaga;
+            const alamatLembaga = config.alamat_lembaga || defaultConfig.alamat_lembaga;
+            const tombolGuru = config.tombol_guru || defaultConfig.tombol_guru;
+            const tombolTamu = config.tombol_tamu || defaultConfig.tombol_tamu;
+            const primaryColor = config.primary_color || defaultConfig.primary_color;
+            const secondaryColor = config.secondary_color || defaultConfig.secondary_color;
+            const backgroundColor = config.background_color || defaultConfig.background_color;
+            const textColor = config.text_color || defaultConfig.text_color;
+            const surfaceColor = config.surface_color || defaultConfig.surface_color;
+
+            // Update teks
+            document.getElementById('nama-lembaga').textContent = namaLembaga;
+            document.getElementById('alamat-lembaga').textContent = alamatLembaga;
+            document.getElementById('text-tombol-guru').textContent = tombolGuru;
+            document.getElementById('text-tombol-tamu').textContent = tombolTamu;
+
+            // Update warna
+            document.body.style.background = `linear-gradient(to bottom right, ${backgroundColor}, #e0e7ff)`;
+            document.querySelector('.bg-white').style.backgroundColor = surfaceColor;
+            document.querySelector('.text-gray-800').style.color = textColor;
+            
+            // Update warna tombol
+            const btnGuru = document.getElementById('btn-guru');
+            btnGuru.style.background = `linear-gradient(to right, ${primaryColor}, ${primaryColor}dd)`;
+            
+            const btnTamu = document.getElementById('btn-tamu');
+            btnTamu.style.background = `linear-gradient(to right, ${secondaryColor}, ${secondaryColor}dd)`;
+        }
+
+        // Capabilities untuk editing
+        function mapToCapabilities(config) {
+            return {
+                recolorables: [
+                    {
+                        get: () => config.primary_color || defaultConfig.primary_color,
+                        set: (value) => {
+                            if (window.elementSdk) {
+                                window.elementSdk.setConfig({ primary_color: value });
+                            }
+                        }
+                    },
+                    {
+                        get: () => config.secondary_color || defaultConfig.secondary_color,
+                        set: (value) => {
+                            if (window.elementSdk) {
+                                window.elementSdk.setConfig({ secondary_color: value });
+                            }
+                        }
+                    },
+                    {
+                        get: () => config.background_color || defaultConfig.background_color,
+                        set: (value) => {
+                            if (window.elementSdk) {
+                                window.elementSdk.setConfig({ background_color: value });
+                            }
+                        }
+                    },
+                    {
+                        get: () => config.text_color || defaultConfig.text_color,
+                        set: (value) => {
+                            if (window.elementSdk) {
+                                window.elementSdk.setConfig({ text_color: value });
+                            }
+                        }
+                    },
+                    {
+                        get: () => config.surface_color || defaultConfig.surface_color,
+                        set: (value) => {
+                            if (window.elementSdk) {
+                                window.elementSdk.setConfig({ surface_color: value });
+                            }
+                        }
+                    }
+                ],
+                borderables: [],
+                fontEditable: undefined,
+                fontSizeable: undefined
+            };
+        }
+
+        // Mapping untuk edit panel
+        function mapToEditPanelValues(config) {
+            return new Map([
+                ["nama_lembaga", config.nama_lembaga || defaultConfig.nama_lembaga],
+                ["alamat_lembaga", config.alamat_lembaga || defaultConfig.alamat_lembaga],
+                ["tombol_guru", config.tombol_guru || defaultConfig.tombol_guru],
+                ["tombol_tamu", config.tombol_tamu || defaultConfig.tombol_tamu]
+            ]);
+        }
+
+        // Inisialisasi aplikasi
+        async function initApp() {
+            try {
+                console.log("🚀 Memulai inisialisasi aplikasi...");
+                
+                // Load data guru yang tersimpan
+                loadTeacherFromLocal();
+                console.log("👤 Data guru lokal:", registeredTeacher);
+
+                // Tunggu sampai SDK benar-benar tersedia
+                let sdkReady = false;
+                let attempts = 0;
+                const maxAttempts = 10;
+
+                while (!sdkReady && attempts < maxAttempts) {
+                    attempts++;
+                    console.log(`🔄 Percobaan ${attempts}: Mengecek ketersediaan Data SDK...`);
+                    
+                    if (window.dataSdk && typeof window.dataSdk.init === 'function') {
+                        try {
+                            console.log("📡 Menginisialisasi Data SDK...");
+                            const dataResult = await window.dataSdk.init(dataHandler);
+                            
+                            if (dataResult && dataResult.isOk) {
+                                console.log("✅ Data SDK berhasil diinisialisasi - Canva Sheet siap!");
+                                useFallbackStorage = false;
+                                sdkReady = true;
+                                
+                                // Tampilkan status sukses
+                                const statusDiv = document.createElement('div');
+                                statusDiv.className = 'fixed top-4 left-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded-lg text-sm z-50';
+                                statusDiv.innerHTML = '✅ Terhubung ke Canva Sheet - Data akan tersimpan permanen';
+                                document.body.appendChild(statusDiv);
+                                setTimeout(() => statusDiv.remove(), 3000);
+                                break;
+                            } else {
+                                console.log(`❌ Data SDK init gagal (attempt ${attempts}):`, dataResult?.error);
+                            }
+                        } catch (error) {
+                            console.log(`❌ Error saat init Data SDK (attempt ${attempts}):`, error.message);
+                        }
+                    } else {
+                        console.log(`⏳ Data SDK belum tersedia (attempt ${attempts})`);
+                    }
+                    
+                    // Tunggu sebentar sebelum mencoba lagi
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+
+                // Jika semua percobaan gagal, gunakan fallback
+                if (!sdkReady) {
+                    console.log("⚠️ Menggunakan localStorage sebagai fallback");
+                    useFallbackStorage = true;
+                    
+                    const statusDiv = document.createElement('div');
+                    statusDiv.className = 'fixed top-4 left-4 right-4 bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-2 rounded-lg text-sm z-50';
+                    statusDiv.innerHTML = '⚠️ Mode Demo: Data disimpan sementara di browser ini saja';
+                    document.body.appendChild(statusDiv);
+                    setTimeout(() => statusDiv.remove(), 5000);
+                }
+
+                // Inisialisasi Element SDK (opsional)
+                if (window.elementSdk && typeof window.elementSdk.init === 'function') {
+                    try {
+                        console.log("🎨 Menginisialisasi Element SDK...");
+                        await window.elementSdk.init({
+                            defaultConfig,
+                            onConfigChange,
+                            mapToCapabilities,
+                            mapToEditPanelValues
+                        });
+                        console.log("✅ Element SDK berhasil diinisialisasi");
+                    } catch (error) {
+                        console.log("⚠️ Element SDK tidak tersedia, menggunakan konfigurasi default:", error.message);
+                    }
+                } else {
+                    console.log("⚠️ Element SDK tidak ditemukan");
+                }
+
+                console.log("🎉 Aplikasi berhasil diinisialisasi!");
+                console.log("💾 Mode penyimpanan:", useFallbackStorage ? "localStorage (Demo)" : "Canva Sheet (Permanen)");
+                
+            } catch (error) {
+                console.error("💥 Error saat inisialisasi:", error);
+                useFallbackStorage = true;
+            }
+        }
+
+        // Jalankan inisialisasi saat halaman dimuat
+        initApp();
+    </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9b0eef34c55ccde6',t:'MTc2NjIzMTU1NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
