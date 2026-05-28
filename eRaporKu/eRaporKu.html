@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="id">
  <head>
   <meta charset="UTF-8">
@@ -6,10 +6,6 @@
   <title>e-RaporKu - Pendidikan Kesetaraan</title>
   <link rel="icon" href="favicon.ico" type="image/x-icon">
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-  <script src="/eRaporKu/data_sdk.js"></script>
-  <script src="/eRaporKu/element_sdk.js"></script>
   <style>
         body {
             box-sizing: border-box;
@@ -113,6 +109,10 @@
             }
             .print-area h3 {
                 font-size: 12px !important;
+            }
+            .page-break {
+                page-break-after: always;
+                break-after: page;
             }
         }
     </style>
@@ -268,40 +268,34 @@
         <h3 class="text-lg font-medium text-gray-900">Selamat Datang di e-RaporKu</h3>
        </div>
        <div class="p-6">
-        <p class="text-gray-600 mb-4">Sistem Rapor Digital untuk Pendidikan Kesetaraan yang mendukung Kurikulum Merdeka dan K-13.</p>
-        <p class="text-gray-600 mb-4">Peraturan Mendikbudristek Nomor 21 Tahun 2022 tentang Standar Penilaian Pendidikan, yang diterapkan baik untuk Kurikulum 2013 maupun Kurikulum Merdeka.</p>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-         <div class="p-4 bg-blue-50 rounded-lg">
+        <p class="text-gray-600 mb-4">Sistem Rapor Digital untuk Pendidikan Kesetaraan berbasis Kurikulum Merdeka.</p>
+        <p class="text-gray-600 mb-4">Peraturan Mendikbudristek Nomor 21 Tahun 2022 tentang Standar Penilaian Pendidikan.</p>
+        <div class="grid grid-cols-1 gap-4 mb-6"><div class="p-4 bg-blue-50 rounded-lg">
           <h4 class="font-medium text-blue-900 mb-2">Kurikulum Merdeka</h4>
           <p class="text-sm text-blue-700">memberikan fleksibilitas kepada sekolah, guru, dan siswa dalam pembelajaran yang berpusat pada kebutuhan, minat, dan bakat siswa</p>
-         </div>
-         <div class="p-4 bg-green-50 rounded-lg">
-          <h4 class="font-medium text-green-900 mb-2">Kurikulum 2013</h4>
-          <p class="text-sm text-green-700">mengembangkan potensi siswa secara holistik dengan fokus pada pengetahuan, keterampilan, sikap, dan karakter.</p>
-         </div>
-        </div><!-- Panduan Akses Multi-User -->
+         </div></div><!-- Panduan Akses Multi-User -->
         <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-         <h4 class="font-medium text-yellow-900 mb-3">🌐 Akses Multi-User &amp; Jaringan</h4>
+         <h4 class="font-medium text-yellow-900 mb-3">ðŸŒ Akses Multi-User &amp; Jaringan</h4>
          <div class="space-y-3 text-sm text-yellow-800">
           <div><strong>Login Administrator:</strong>
            <ul class="ml-4 mt-1 space-y-1">
-            <li>• Username: <code class="bg-yellow-100 px-1 rounded">admin</code></li>
-            <li>• Password: <code class="bg-yellow-100 px-1 rounded">admin123</code></li>
+            <li>â€¢ Username: <code class="bg-yellow-100 px-1 rounded">admin</code></li>
+            <li>â€¢ Password: <code class="bg-yellow-100 px-1 rounded">admin123</code></li>
            </ul>
           </div>
           <div><strong>Login Tutor:</strong>
            <ul class="ml-4 mt-1 space-y-1">
-            <li>• Username: <span class="text-yellow-700">Nama tutor (tanpa spasi, huruf kecil)</span></li>
-            <li>• Password: <span class="text-yellow-700">Nomor HP tutor</span></li>
-            <li>• Contoh: Username <code class="bg-yellow-100 px-1 rounded">budisantoso</code>, Password <code class="bg-yellow-100 px-1 rounded">081234567890</code></li>
+            <li>â€¢ Username: <span class="text-yellow-700">Nama tutor (tanpa spasi, huruf kecil)</span></li>
+            <li>â€¢ Password: <span class="text-yellow-700">Nomor HP tutor</span></li>
+            <li>â€¢ Contoh: Username <code class="bg-yellow-100 px-1 rounded">budisantoso</code>, Password <code class="bg-yellow-100 px-1 rounded">081234567890</code></li>
            </ul>
           </div>
           <div><strong>Akses Jaringan Lokal:</strong>
            <ul class="ml-4 mt-1 space-y-1">
-            <li>• Pastikan semua perangkat terhubung ke WiFi/jaringan yang sama</li>
-            <li>• Buka browser dan akses alamat IP komputer server</li>
-            <li>• Tutor dapat login menggunakan akun masing-masing</li>
-            <li>• Data tersinkronisasi secara real-time</li>
+            <li>â€¢ Pastikan semua perangkat terhubung ke WiFi/jaringan yang sama</li>
+            <li>â€¢ Buka browser dan akses alamat IP komputer server</li>
+            <li>â€¢ Tutor dapat login menggunakan akun masing-masing</li>
+            <li>â€¢ Data tersinkronisasi secara real-time</li>
            </ul>
           </div>
          </div>
@@ -375,10 +369,7 @@
         </div>
        </div>
        <div class="p-6">
-        <div class="mb-4">
-         <div class="flex space-x-4"><button class="kurikulum-tab active px-4 py-2 text-sm font-medium border-b-2 border-blue-500 text-blue-600" data-kurikulum="merdeka"> Kurikulum Merdeka </button> <button class="kurikulum-tab px-4 py-2 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700" data-kurikulum="k13"> Kurikulum 2013 </button>
-         </div>
-        </div>
+        
         <div class="overflow-x-auto">
          <table class="min-w-full divide-y divide-gray-200">
           <thead class="bg-gray-50">
@@ -386,13 +377,12 @@
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kode Mapel</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Mata Pelajaran</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kurikulum</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
            </tr>
           </thead>
           <tbody id="mapel-table-body" class="bg-white divide-y divide-gray-200">
            <tr>
-            <td colspan="5" class="px-6 py-4 text-center text-gray-500">Belum ada mata pelajaran. Klik "Tambah Mapel" untuk menambah mata pelajaran.</td>
+            <td colspan="4" class="px-6 py-4 text-center text-gray-500">Belum ada mata pelajaran. Klik "Tambah Mapel" untuk menambah mata pelajaran.</td>
            </tr>
           </tbody>
          </table>
@@ -406,13 +396,12 @@
         <h3 class="text-lg font-medium text-gray-900">Input Nilai Siswa</h3>
        </div>
        <div class="p-6">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
          <div><label class="block text-sm font-medium text-gray-700 mb-2">Pilih Kelas</label> <select id="select-kelas-nilai" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"> <option value="">-- Pilih Kelas --</option> </select>
          </div>
          <div><label class="block text-sm font-medium text-gray-700 mb-2">Pilih Mata Pelajaran</label> <select id="select-mapel-nilai" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"> <option value="">-- Pilih Mata Pelajaran --</option> </select>
          </div>
-         <div><label class="block text-sm font-medium text-gray-700 mb-2">Kurikulum</label> <select id="select-kurikulum-nilai" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"> <option value="merdeka">Kurikulum Merdeka</option> <option value="k13">Kurikulum 2013</option> </select>
-         </div>
+         
         </div>
         <div id="nilai-form-container" class="hidden">
          <div class="overflow-x-auto">
@@ -422,7 +411,10 @@
              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">NISN</th>
              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Siswa</th>
-             <th id="nilai-header" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nilai</th>
+             <th id="nilai-header" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nilai Angka</th>
+             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kriteria</th>
+             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Predikat</th>
+             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Capaian Kompetensi</th>
             </tr>
            </thead>
            <tbody id="nilai-table-body" class="bg-white divide-y divide-gray-200">
@@ -668,11 +660,10 @@
         <h3 class="text-lg font-medium text-gray-900">Download Legger Nilai</h3>
        </div>
        <div class="p-6">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
          <div><label class="block text-sm font-medium text-gray-700 mb-2">Pilih Kelas</label> <select id="select-kelas-legger" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"> <option value="">-- Pilih Kelas --</option> </select>
          </div>
-         <div><label class="block text-sm font-medium text-gray-700 mb-2">Kurikulum</label> <select id="select-kurikulum-legger" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"> <option value="merdeka">Kurikulum Merdeka</option> <option value="k13">Kurikulum 2013</option> </select>
-         </div>
+         
          <div class="flex items-end"><button id="download-legger-btn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium">
            <svg class="h-4 w-4 inline mr-2" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
            </svg> Download Excel </button>
@@ -703,9 +694,9 @@
        </div>
        <div class="p-6">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-         <div><label class="block text-sm font-medium text-gray-700 mb-2">Pilih Siswa</label> <select id="select-siswa-cetak" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"> <option value="">-- Pilih Siswa --</option> </select>
+         <div><label class="block text-sm font-medium text-gray-700 mb-2">Pilih Kelas</label> <select id="select-kelas-cetak" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"> <option value="">-- Pilih Kelas --</option> </select>
          </div>
-         <div><label class="block text-sm font-medium text-gray-700 mb-2">Template Rapor</label> <select id="select-template-rapor" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"> <option value="merdeka">Kurikulum Merdeka</option> <option value="k13">Kurikulum 2013</option> </select>
+         <div><label class="block text-sm font-medium text-gray-700 mb-2">Pilih Siswa</label> <select id="select-siswa-cetak" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"> <option value="">-- Pilih Kelas Dahulu --</option> </select>
          </div>
          <div class="flex items-end"><button id="preview-rapor-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium mr-2"> Preview </button> <button id="cetak-rapor-btn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"> Cetak </button>
          </div>
@@ -713,7 +704,7 @@
         <div id="rapor-preview" class="hidden print-area"><!-- Preview rapor akan ditampilkan di sini -->
         </div>
         <div id="rapor-empty-state" class="text-center text-gray-500 py-8">
-         Pilih siswa dan template untuk melihat preview rapor.
+         Pilih kelas, lalu pilih siswa atau semua siswa di kelas untuk melihat preview rapor.
         </div>
        </div>
       </div>
@@ -737,7 +728,7 @@
         <div id="tab-lembaga" class="tab-content">
          <div class="space-y-6">
           <div class="bg-blue-50 p-4 rounded-lg">
-           <h4 class="font-medium text-blue-900 mb-2">📋 Informasi Penting</h4>
+           <h4 class="font-medium text-blue-900 mb-2">ðŸ“‹ Informasi Penting</h4>
            <p class="text-sm text-blue-700">Data lembaga ini akan muncul di header rapor dan seluruh dokumen resmi. Logo lembaga akan terintegrasi ke seluruh aplikasi.</p>
           </div>
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-6"><!-- Logo Upload -->
@@ -782,14 +773,14 @@
             </div>
            </div>
           </div>
-          <div class="flex justify-end pt-4 border-t border-gray-200"><button id="simpan-lembaga-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md text-sm font-medium"> 💾 Simpan Data Lembaga </button>
+          <div class="flex justify-end pt-4 border-t border-gray-200"><button id="simpan-lembaga-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md text-sm font-medium"> ðŸ’¾ Simpan Data Lembaga </button>
           </div>
          </div>
         </div><!-- Tab Content: Data Akademik -->
         <div id="tab-akademik" class="tab-content hidden">
          <div class="space-y-6">
           <div class="bg-green-50 p-4 rounded-lg">
-           <h4 class="font-medium text-green-900 mb-2">📅 Informasi Penting</h4>
+           <h4 class="font-medium text-green-900 mb-2">ðŸ“… Informasi Penting</h4>
            <p class="text-sm text-green-700">Data akademik ini akan muncul di rapor dan dokumen akademik. Pastikan tahun ajaran dan semester sudah benar.</p>
           </div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -815,14 +806,14 @@
            <div class="md:col-span-2"><label class="block text-sm font-medium text-gray-700 mb-2">Catatan Akademik</label> <textarea id="setting-catatan-akademik" rows="3" placeholder="Catatan khusus untuk periode akademik ini..." class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
            </div>
           </div>
-          <div class="flex justify-end pt-4 border-t border-gray-200"><button id="simpan-akademik-btn" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md text-sm font-medium"> 📅 Simpan Data Akademik </button>
+          <div class="flex justify-end pt-4 border-t border-gray-200"><button id="simpan-akademik-btn" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md text-sm font-medium"> ðŸ“… Simpan Data Akademik </button>
           </div>
          </div>
         </div><!-- Tab Content: Manajemen Tutor -->
         <div id="tab-tutor" class="tab-content hidden">
          <div class="space-y-6">
           <div class="bg-purple-50 p-4 rounded-lg">
-           <h4 class="font-medium text-purple-900 mb-2">👨‍🏫 Informasi Penting</h4>
+           <h4 class="font-medium text-purple-900 mb-2">ðŸ‘¨â€ðŸ« Informasi Penting</h4>
            <p class="text-sm text-purple-700">Data tutor akan terintegrasi ke rapor dan dapat dipilih sebagai wali kelas. TTD tutor akan muncul di rapor.</p>
           </div>
           <div class="flex justify-between items-center">
@@ -969,8 +960,7 @@
      </div>
      <div><label class="block text-sm font-medium text-gray-700 mb-1">Nama Mata Pelajaran</label> <input type="text" name="nama_mapel" required placeholder="Contoh: Matematika, IPA, IPS" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
      </div>
-     <div><label class="block text-sm font-medium text-gray-700 mb-1">Kurikulum</label> <select name="kurikulum" required class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"> <option value="">-- Pilih Kurikulum --</option> <option value="merdeka">Kurikulum Merdeka</option> <option value="k13">Kurikulum 2013</option> </select>
-     </div>
+     <input type="hidden" name="kurikulum" value="merdeka">
      <div class="flex justify-end space-x-3 pt-4"><button type="button" id="batal-mapel-btn" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-md"> Batal </button> <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md"> Simpan </button>
      </div>
     </form>
@@ -993,9 +983,7 @@
        </div>
       </div><!-- Form Pengaturan -->
       <form id="form-atur-kelas" class="space-y-4">
-       <div><label class="block text-sm font-medium text-gray-700 mb-2">Kurikulum yang Digunakan</label> <select name="kurikulum" required class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"> <option value="">-- Pilih Kurikulum --</option> <option value="merdeka">Kurikulum Merdeka</option> <option value="k13">Kurikulum 2013</option> </select>
-        <p class="text-xs text-gray-500 mt-1">Kurikulum ini akan mempengaruhi format penilaian dan rapor</p>
-       </div>
+       <input type="hidden" name="kurikulum" value="merdeka">
        <div><label class="block text-sm font-medium text-gray-700 mb-2">Wali Kelas</label> <select name="wali_kelas" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"> <option value="">-- Pilih Tutor sebagai Wali Kelas --</option> </select>
         <p class="text-xs text-gray-500 mt-1">Pilih dari daftar tutor yang sudah terdaftar</p>
        </div>
@@ -1170,18 +1158,47 @@
         };
 
         // Load data from localStorage
-        function loadData() {
+        function loadStoredData() {
             const saved = localStorage.getItem('eraporku_data');
             if (saved) {
-                appData = { ...appData, ...JSON.parse(saved) };
+                const parsedData = JSON.parse(saved);
+                appData = {
+                    ...appData,
+                    ...parsedData,
+                    settings: {
+                        ...appData.settings,
+                        ...(parsedData.settings || {})
+                    }
+                };
             }
+            normalizeAppData();
+        }
+
+        function loadData() {
+            loadStoredData();
             updateDashboardStats();
-            loadSettingsForm();
+            
+            if (document.getElementById('setting-school-name')) {
+                loadSettingsForm();
+            }
             
             // Load logo if exists
             if (appData.settings.logo_url) {
                 updateAppLogo(appData.settings.logo_url);
             }
+        }
+
+        function normalizeAppData() {
+            appData.siswa = Array.isArray(appData.siswa) ? appData.siswa : [];
+            appData.kelas = Array.isArray(appData.kelas) ? appData.kelas : [];
+            appData.mapel = Array.isArray(appData.mapel) ? appData.mapel : [];
+            appData.nilai = Array.isArray(appData.nilai) ? appData.nilai : [];
+            appData.tutor = Array.isArray(appData.tutor) ? appData.tutor : [];
+            appData.ekstrakurikuler = Array.isArray(appData.ekstrakurikuler) ? appData.ekstrakurikuler : [];
+            appData.kehadiran = Array.isArray(appData.kehadiran) ? appData.kehadiran : [];
+            appData.settings = appData.settings || {};
+            appData.kelas = appData.kelas.map(kelas => ({ ...kelas, kurikulum: 'merdeka' }));
+            appData.mapel = appData.mapel.map(mapel => ({ ...mapel, kurikulum: 'merdeka' }));
         }
 
         // Save data to localStorage
@@ -1240,7 +1257,12 @@
             document.getElementById('login-page').classList.add('hidden');
             document.getElementById('main-app').classList.remove('hidden');
             document.getElementById('whatsapp-widget').classList.remove('hidden');
-            loadData();
+            try {
+                loadData();
+            } catch (error) {
+                console.error('Gagal memuat data aplikasi:', error);
+                showToast('Login berhasil, tetapi sebagian data gagal dimuat.', 'error');
+            }
         }
 
         // Setup UI based on user level
@@ -1277,6 +1299,12 @@
         // Enhanced login form handler
         document.getElementById('login-form').addEventListener('submit', function(e) {
             e.preventDefault();
+            try {
+                loadStoredData();
+            } catch (error) {
+                console.error('Gagal membaca data tersimpan:', error);
+                showToast('Data tersimpan bermasalah. Login admin tetap dapat digunakan.', 'error');
+            }
             
             const username = document.getElementById('username').value.toLowerCase().trim();
             const password = document.getElementById('password').value.trim();
@@ -1289,10 +1317,13 @@
                     tutor_id: '',
                     nama: 'Administrator'
                 };
+                
+                // Simpan ke storage sesuai key aplikasi Bapak
                 localStorage.setItem('eraporku_user', JSON.stringify(currentUser));
-                showToast('Login berhasil! Selamat datang Administrator');
+                
+                showToast('Login berhasil! Selamat datang Administrator', 'success');
+                checkAuth();
                 return;
-                window.location.replace('dashboard_admin.html');
             }
             
             // Check tutor login
@@ -1309,8 +1340,7 @@
                     nama: tutor.nama_tutor
                 };
                 localStorage.setItem('eraporku_user', JSON.stringify(currentUser));
-                showMainApp();
-                setupUserInterface();
+                checkAuth();
                 showToast(`Selamat datang, ${tutor.nama_tutor}!`);
                 return;
             }
@@ -1536,7 +1566,7 @@
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
-                    console.log('🔄 File loaded, processing...');
+                    console.log('ðŸ”„ File loaded, processing...');
                     const data = new Uint8Array(e.target.result);
                     const workbook = XLSX.read(data, { type: 'array' });
                     
@@ -1547,15 +1577,15 @@
                     
                     const sheetName = workbook.SheetNames[0];
                     const worksheet = workbook.Sheets[sheetName];
-                    console.log('📊 Processing sheet:', sheetName);
+                    console.log('ðŸ“Š Processing sheet:', sheetName);
                     
                     // Handle merged cells - ambil data mentah dulu
                     const range = XLSX.utils.decode_range(worksheet['!ref']);
-                    console.log('📊 Worksheet range:', range);
+                    console.log('ðŸ“Š Worksheet range:', range);
                     
                     // Check for merged cells
                     const merges = worksheet['!merges'] || [];
-                    console.log('🔗 Merged cells found:', merges.length);
+                    console.log('ðŸ”— Merged cells found:', merges.length);
                     
                     // Convert to JSON dengan handling merge cells
                     const jsonData = XLSX.utils.sheet_to_json(worksheet, { 
@@ -1566,8 +1596,8 @@
                         range: range
                     });
                     
-                    console.log('📈 Total rows found:', jsonData.length);
-                    console.log('🔍 First 5 rows preview:', jsonData.slice(0, 5));
+                    console.log('ðŸ“ˆ Total rows found:', jsonData.length);
+                    console.log('ðŸ” First 5 rows preview:', jsonData.slice(0, 5));
                     
                     if (jsonData.length < 2) {
                         showToast('File Excel kosong atau tidak memiliki data!', 'error');
@@ -1586,8 +1616,8 @@
                         const potentialHeaders = row.map(h => String(h || '').trim().toLowerCase());
                         const validHeaders = potentialHeaders.filter(h => h && h.length > 0);
                         
-                        console.log(`🔍 Row ${i} potential headers:`, potentialHeaders);
-                        console.log(`✅ Valid headers count: ${validHeaders.length}`);
+                        console.log(`ðŸ” Row ${i} potential headers:`, potentialHeaders);
+                        console.log(`âœ… Valid headers count: ${validHeaders.length}`);
                         
                         // Cek apakah ini baris header yang valid (minimal 3 kolom berisi)
                         if (validHeaders.length >= 3) {
@@ -1600,7 +1630,7 @@
                             if (hasKnownKeyword) {
                                 headerRowIndex = i;
                                 headers = potentialHeaders;
-                                console.log(`🎯 Header row found at index ${i}`);
+                                console.log(`ðŸŽ¯ Header row found at index ${i}`);
                                 break;
                             }
                         }
@@ -1608,13 +1638,13 @@
                     
                     // Jika tidak menemukan header yang valid, gunakan baris pertama
                     if (headers.length === 0) {
-                        console.log('⚠️ No clear header found, using first row');
+                        console.log('âš ï¸ No clear header found, using first row');
                         headerRowIndex = 0;
                         headers = jsonData[0].map(h => String(h || '').trim().toLowerCase());
                     }
                     
-                    console.log('📋 Final headers detected:', headers);
-                    console.log('📍 Header row index:', headerRowIndex);
+                    console.log('ðŸ“‹ Final headers detected:', headers);
+                    console.log('ðŸ“ Header row index:', headerRowIndex);
                     
                     // Mapping kolom yang lebih fleksibel - fokus pada NIPD, NISN, dan rombel
                     const columnMap = {
@@ -1651,12 +1681,12 @@
                         anak_ke: findFlexibleColumn(headers, ['anak ke', 'anak_ke'])
                     };
                     
-                    console.log('🗺️ Column mapping result:', columnMap);
+                    console.log('ðŸ—ºï¸ Column mapping result:', columnMap);
                     
                     // Cek kolom wajib
                     const requiredFound = columnMap.nisn !== -1 && columnMap.nama !== -1;
                     if (!requiredFound) {
-                        console.error('❌ Required columns not found:', {
+                        console.error('âŒ Required columns not found:', {
                             nisn_found: columnMap.nisn !== -1,
                             nama_found: columnMap.nama !== -1
                         });
@@ -1671,7 +1701,7 @@
                     let kelasCreated = 0;
                     const kelasSet = new Set();
                     
-                    console.log('🔄 Starting data processing...');
+                    console.log('ðŸ”„ Starting data processing...');
                     
                     // Process data rows (skip header row yang sudah diidentifikasi)
                     for (let i = headerRowIndex + 1; i < jsonData.length; i++) {
@@ -1688,7 +1718,7 @@
                         
                         // Debug untuk 3 baris pertama data (setelah header)
                         if (i <= headerRowIndex + 3) {
-                            console.log(`📝 Row ${i} (data row ${i - headerRowIndex}) raw data:`, {
+                            console.log(`ðŸ“ Row ${i} (data row ${i - headerRowIndex}) raw data:`, {
                                 nisn: rawNisn,
                                 nama: rawNama,
                                 nipd: columnMap.nipd !== -1 ? row[columnMap.nipd] : 'N/A',
@@ -1716,7 +1746,7 @@
                         let finalNisn = cleanNisn;
                         if (!finalNisn || finalNisn.trim() === '') {
                             finalNisn = 'TEMP_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
-                            console.log(`🔄 Generated temporary NISN for ${cleanNama}: ${finalNisn}`);
+                            console.log(`ðŸ”„ Generated temporary NISN for ${cleanNama}: ${finalNisn}`);
                         }
                         
                         // Build siswa object dengan data yang sudah dibersihkan
@@ -1757,7 +1787,7 @@
                             status: 'Aktif'
                         };
                         
-                        console.log(`✅ Processed row ${i + 1}:`, {
+                        console.log(`âœ… Processed row ${i + 1}:`, {
                             nisn: siswa.nisn,
                             nama: siswa.nama,
                             kelas: siswa.kelas,
@@ -1792,7 +1822,7 @@
                                     jumlah_siswa: 0
                                 });
                                 kelasCreated++;
-                                console.log(`🏫 Kelas baru dibuat: ${siswa.kelas} (${tingkat})`);
+                                console.log(`ðŸ« Kelas baru dibuat: ${siswa.kelas} (${tingkat})`);
                             }
                             kelasSet.add(siswa.kelas);
                         }
@@ -1803,12 +1833,12 @@
                             // Update existing student
                             appData.siswa[existingIndex] = { ...appData.siswa[existingIndex], ...siswa };
                             updated++;
-                            console.log(`🔄 Updated student: ${siswa.nama}`);
+                            console.log(`ðŸ”„ Updated student: ${siswa.nama}`);
                         } else {
                             // Add new student
                             appData.siswa.push(siswa);
                             imported++;
-                            console.log(`➕ Added new student: ${siswa.nama} (NISN: ${siswa.nisn})`);
+                            console.log(`âž• Added new student: ${siswa.nama} (NISN: ${siswa.nisn})`);
                         }
                     }
                     
@@ -1818,7 +1848,7 @@
                     loadKelasGrid();
                     
                     // Show results
-                    console.log('📊 Import summary:', { imported, updated, skipped, kelasCreated, errors: errors.length });
+                    console.log('ðŸ“Š Import summary:', { imported, updated, skipped, kelasCreated, errors: errors.length });
                     
                     let message = `Import selesai! `;
                     if (imported > 0) message += `Ditambah: ${imported} siswa`;
@@ -1841,7 +1871,7 @@
                     }
                     
                 } catch (error) {
-                    console.error('❌ Upload error:', error);
+                    console.error('âŒ Upload error:', error);
                     showToast(`Error memproses file: ${error.message}`, 'error');
                 }
                 
@@ -2089,7 +2119,7 @@
 
             // Populate form dengan data yang ada
             const form = document.getElementById('form-atur-kelas');
-            form.kurikulum.value = kelas.kurikulum || '';
+            form.kurikulum.value = 'merdeka';
             form.wali_kelas.value = kelas.wali_kelas_id || '';
             form.tahun_ajaran.value = kelas.tahun_ajaran || appData.settings.tahun_ajaran || '';
             form.semester.value = kelas.semester || appData.settings.semester || '';
@@ -2135,7 +2165,7 @@
             if (kelasIndex !== -1) {
                 appData.kelas[kelasIndex] = {
                     ...appData.kelas[kelasIndex],
-                    kurikulum: formData.get('kurikulum'),
+                    kurikulum: 'merdeka',
                     wali_kelas_id: waliKelasId,
                     wali_kelas: waliKelasNama,
                     tahun_ajaran: formData.get('tahun_ajaran'),
@@ -2156,14 +2186,14 @@
         });
 
         // Mapel Management
-        let currentKurikulum = 'merdeka';
+        
 
         function loadMapelTable() {
             const tbody = document.getElementById('mapel-table-body');
-            const filteredMapel = appData.mapel.filter(m => m.kurikulum === currentKurikulum);
+            const filteredMapel = appData.mapel;
             
             if (filteredMapel.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-gray-500">Belum ada mata pelajaran. Klik "Tambah Mapel" untuk menambah mata pelajaran.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center text-gray-500">Belum ada mata pelajaran. Klik "Tambah Mapel" untuk menambah mata pelajaran.</td></tr>';
                 return;
             }
             
@@ -2172,11 +2202,6 @@
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${index + 1}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${mapel.kode_mapel}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${mapel.nama_mapel}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        <span class="px-2 py-1 text-xs font-medium rounded-full ${mapel.kurikulum === 'merdeka' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'}">
-                            ${mapel.kurikulum === 'merdeka' ? 'Kurikulum Merdeka' : 'Kurikulum 2013'}
-                        </span>
-                    </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <button onclick="editMapel('${mapel.id}')" class="text-blue-600 hover:text-blue-900 mr-3">Edit</button>
                         <button onclick="deleteMapel('${mapel.id}')" class="text-red-600 hover:text-red-900">Hapus</button>
@@ -2184,24 +2209,7 @@
                 </tr>
             `).join('');
         }
-
-        // Kurikulum tab handlers
-        document.querySelectorAll('.kurikulum-tab').forEach(tab => {
-            tab.addEventListener('click', function() {
-                document.querySelectorAll('.kurikulum-tab').forEach(t => {
-                    t.classList.remove('active', 'border-blue-500', 'text-blue-600');
-                    t.classList.add('border-transparent', 'text-gray-500');
-                });
-                
-                this.classList.add('active', 'border-blue-500', 'text-blue-600');
-                this.classList.remove('border-transparent', 'text-gray-500');
-                
-                currentKurikulum = this.dataset.kurikulum;
-                loadMapelTable();
-            });
-        });
-
-        // Mapel form handlers
+// Mapel form handlers
         document.getElementById('tambah-mapel-btn').addEventListener('click', function() {
             document.getElementById('modal-mapel').classList.remove('hidden');
             document.getElementById('modal-mapel').classList.add('flex');
@@ -2221,7 +2229,7 @@
                 id: Date.now().toString(),
                 kode_mapel: formData.get('kode_mapel'),
                 nama_mapel: formData.get('nama_mapel'),
-                kurikulum: formData.get('kurikulum')
+                kurikulum: 'merdeka'
             };
             
             appData.mapel.push(mapel);
@@ -2261,13 +2269,12 @@
             
             // Load mapel options based on kurikulum
             function updateMapelOptions() {
-                const kurikulum = document.getElementById('select-kurikulum-nilai').value;
-                const filteredMapel = appData.mapel.filter(m => m.kurikulum === kurikulum);
+                const kurikulum = 'merdeka';
+                const filteredMapel = appData.mapel;
                 mapelSelect.innerHTML = '<option value="">-- Pilih Mata Pelajaran --</option>' +
                     filteredMapel.map(mapel => `<option value="${mapel.id}">${mapel.nama_mapel}</option>`).join('');
             }
             
-            document.getElementById('select-kurikulum-nilai').addEventListener('change', updateMapelOptions);
             updateMapelOptions();
             
             // Handle selection changes
@@ -2290,7 +2297,7 @@
         function loadNilaiForm(kelas, mapelId) {
             const siswaKelas = appData.siswa.filter(s => s.kelas === kelas);
             const mapel = appData.mapel.find(m => m.id === mapelId);
-            const kurikulum = document.getElementById('select-kurikulum-nilai').value;
+            const kurikulum = 'merdeka';
             
             // Check if tutor has access to this class
             if (currentUser.level === 'tutor') {
@@ -2309,14 +2316,8 @@
                 document.getElementById('nilai-form-container').classList.add('hidden');
                 return;
             }
-            
-            // Update header based on kurikulum
             const nilaiHeader = document.getElementById('nilai-header');
-            if (kurikulum === 'merdeka') {
-                nilaiHeader.innerHTML = 'Nilai (A/B/C)';
-            } else {
-                nilaiHeader.innerHTML = 'Nilai (0-100)';
-            }
+            nilaiHeader.innerHTML = 'Nilai Angka (0-100)';
             
             const tbody = document.getElementById('nilai-table-body');
             tbody.innerHTML = siswaKelas.map((siswa, index) => {
@@ -2329,25 +2330,76 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${siswa.nisn}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${siswa.nama}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            ${kurikulum === 'merdeka' ? 
-                                `<select class="nilai-input border border-gray-300 rounded px-2 py-1" data-nisn="${siswa.nisn}">
-                                    <option value="">-</option>
-                                    <option value="A" ${nilaiValue === 'A' ? 'selected' : ''}>A</option>
-                                    <option value="B" ${nilaiValue === 'B' ? 'selected' : ''}>B</option>
-                                    <option value="C" ${nilaiValue === 'C' ? 'selected' : ''}>C</option>
-                                </select>` :
-                                `<input type="number" min="0" max="100" class="nilai-input border border-gray-300 rounded px-2 py-1 w-20" data-nisn="${siswa.nisn}" value="${nilaiValue}">`
-                            }
+                            <input type="number" min="0" max="100" class="nilai-input border border-gray-300 rounded px-2 py-1 w-24 text-sm text-center" data-nisn="${siswa.nisn}" data-mapel="${mapel ? mapel.nama_mapel : ''}" value="${getNilaiAngka(existingNilai)}">
                         </td>
-                        <td class="px-6 py-4">
-                            <textarea class="deskripsi-input border border-gray-300 rounded px-2 py-1 w-full text-xs" rows="2" data-nisn="${siswa.nisn}" placeholder="Deskripsi capaian kompetensi...">${existingNilai ? existingNilai.deskripsi || '' : ''}</textarea>
-                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold nilai-kriteria" data-nisn="${siswa.nisn}">-</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm nilai-predikat" data-nisn="${siswa.nisn}">-</td>
+                        <td class="px-6 py-4 text-xs text-gray-700 nilai-deskripsi" data-nisn="${siswa.nisn}">-</td>
                     </tr>
                 `;
             }).join('');
             
             document.getElementById('nilai-empty-state').classList.add('hidden');
             document.getElementById('nilai-form-container').classList.remove('hidden');
+            refreshNilaiOtomatis();
+            document.querySelectorAll('.nilai-input').forEach(input => {
+                input.addEventListener('input', refreshNilaiOtomatis);
+            });
+        }
+
+        function getNilaiAngka(nilai) {
+            if (!nilai) return '';
+            if (nilai.nilai_angka !== undefined && nilai.nilai_angka !== null && nilai.nilai_angka !== '') return nilai.nilai_angka;
+            if (!isNaN(parseInt(nilai.nilai, 10))) return parseInt(nilai.nilai, 10);
+            if (nilai.nilai === 'A') return 92;
+            if (nilai.nilai === 'B') return 80;
+            if (nilai.nilai === 'C') return 70;
+            return '';
+        }
+
+        function hitungNilaiOtomatis(nilaiAngka, namaMapel) {
+            const angka = parseInt(nilaiAngka, 10);
+            if (isNaN(angka)) {
+                return { angka: '', kriteria: '', predikat: '', capaian: '', deskripsi: '' };
+            }
+
+            let kriteria = 'D';
+            let predikat = 'Perlu Bimbingan';
+            let capaian = 'BB';
+            if (angka >= 90) {
+                kriteria = 'A';
+                predikat = 'Sangat Baik';
+                capaian = 'SB';
+            } else if (angka >= 80) {
+                kriteria = 'B';
+                predikat = 'Baik';
+                capaian = 'BSH';
+            } else if (angka >= 70) {
+                kriteria = 'C';
+                predikat = 'Cukup';
+                capaian = 'MB';
+            }
+
+            return {
+                angka,
+                kriteria,
+                predikat,
+                capaian,
+                deskripsi: getDeskripsiCapaian(namaMapel || 'mata pelajaran', angka)
+            };
+        }
+
+        function refreshNilaiOtomatis() {
+            document.querySelectorAll('.nilai-input').forEach(input => {
+                const hasil = hitungNilaiOtomatis(input.value, input.dataset.mapel || '');
+                const nisn = input.dataset.nisn;
+                const kriteriaEl = document.querySelector(`.nilai-kriteria[data-nisn="${nisn}"]`);
+                const predikatEl = document.querySelector(`.nilai-predikat[data-nisn="${nisn}"]`);
+                const deskripsiEl = document.querySelector(`.nilai-deskripsi[data-nisn="${nisn}"]`);
+                if (kriteriaEl) kriteriaEl.textContent = hasil.kriteria || '-';
+                if (predikatEl) predikatEl.textContent = hasil.predikat || '-';
+                if (deskripsiEl) deskripsiEl.textContent = hasil.deskripsi || '-';
+            });
         }
 
         // Save nilai
@@ -2355,26 +2407,24 @@
             const kelas = document.getElementById('select-kelas-nilai').value;
             const mapelId = document.getElementById('select-mapel-nilai').value;
             const nilaiInputs = document.querySelectorAll('.nilai-input');
-            const deskripsiInputs = document.querySelectorAll('.deskripsi-input');
             
             let saved = 0;
             nilaiInputs.forEach(input => {
                 const nisn = input.dataset.nisn;
-                const nilai = input.value;
-                const deskripsiInput = Array.from(deskripsiInputs).find(d => d.dataset.nisn === nisn);
-                const deskripsi = deskripsiInput ? deskripsiInput.value : '';
+                const nilaiAngka = parseInt(input.value, 10);
+                const hasil = hitungNilaiOtomatis(input.value, input.dataset.mapel || '');
                 
-                if (nilai) {
-                    // Remove existing nilai for this student and subject
+                if (!isNaN(nilaiAngka)) {
                     appData.nilai = appData.nilai.filter(n => !(n.nisn === nisn && n.mapel_id === mapelId));
-                    
-                    // Add new nilai
                     appData.nilai.push({
                         id: Date.now().toString() + Math.random(),
                         nisn: nisn,
                         mapel_id: mapelId,
-                        nilai: nilai,
-                        deskripsi: deskripsi,
+                        nilai: hasil.kriteria,
+                        nilai_angka: nilaiAngka,
+                        predikat: hasil.predikat,
+                        capaian: hasil.capaian,
+                        deskripsi: hasil.deskripsi,
                         tanggal: new Date().toISOString().split('T')[0]
                     });
                     saved++;
@@ -2444,30 +2494,52 @@
 
         // Cetak Rapor
         function loadCetakSelectors() {
+            const kelasSelect = document.getElementById('select-kelas-cetak');
             const siswaSelect = document.getElementById('select-siswa-cetak');
             
-            // Filter siswa for tutors - only their class students
-            let availableSiswa = appData.siswa;
+            let availableKelas = appData.kelas;
             if (currentUser.level === 'tutor') {
-                const tutorKelas = appData.kelas.filter(k => k.wali_kelas_id === currentUser.tutor_id);
-                const tutorKelasNames = tutorKelas.map(k => k.nama_kelas);
-                availableSiswa = appData.siswa.filter(s => tutorKelasNames.includes(s.kelas));
+                availableKelas = appData.kelas.filter(k => k.wali_kelas_id === currentUser.tutor_id);
             }
             
-            siswaSelect.innerHTML = '<option value="">-- Pilih Siswa --</option>' +
-                availableSiswa.map(siswa => `<option value="${siswa.nisn}">${siswa.nama} (${siswa.nisn})</option>`).join('');
+            kelasSelect.innerHTML = '<option value="">-- Pilih Kelas --</option>' +
+                availableKelas.map(kelas => `<option value="${kelas.nama_kelas}">${kelas.nama_kelas}</option>`).join('');
+            
+            function updateSiswaCetakOptions() {
+                const kelas = kelasSelect.value;
+                if (!kelas) {
+                    siswaSelect.innerHTML = '<option value="">-- Pilih Kelas Dahulu --</option>';
+                    return;
+                }
+                
+                const siswaKelas = appData.siswa.filter(s => s.kelas === kelas);
+                siswaSelect.innerHTML = '<option value="__all">Semua Siswa di Kelas Ini</option>' +
+                    siswaKelas.map(siswa => `<option value="${siswa.nisn}">${siswa.nama} (${siswa.nisn})</option>`).join('');
+            }
+            
+            kelasSelect.onchange = updateSiswaCetakOptions;
+            updateSiswaCetakOptions();
         }
 
         document.getElementById('preview-rapor-btn').addEventListener('click', function() {
+            const kelas = document.getElementById('select-kelas-cetak').value;
             const nisn = document.getElementById('select-siswa-cetak').value;
-            const template = document.getElementById('select-template-rapor').value;
             
-            if (!nisn) {
-                showToast('Pilih siswa terlebih dahulu!', 'error');
+            if (!kelas) {
+                showToast('Pilih kelas terlebih dahulu!', 'error');
                 return;
             }
             
-            generateRaporPreview(nisn, template);
+            if (!nisn) {
+                showToast('Pilih siswa atau semua siswa di kelas!', 'error');
+                return;
+            }
+            
+            if (nisn === '__all') {
+                generateRaporKelasPreview(kelas);
+            } else {
+                generateRaporPreview(nisn);
+            }
         });
 
         document.getElementById('cetak-rapor-btn').addEventListener('click', function() {
@@ -2477,50 +2549,51 @@
                 return;
             }
             
-            // Show loading
             showToast('Menyiapkan dokumen untuk cetak...', 'info');
-            
-            // Delay untuk memastikan preview sudah ter-render
             setTimeout(() => {
                 window.print();
             }, 500);
         });
 
-        function generateRaporPreview(nisn, template) {
+        function generateRaporPreview(nisn) {
             const siswa = appData.siswa.find(s => s.nisn === nisn);
-            const nilaiSiswa = appData.nilai.filter(n => n.nisn === nisn);
-            
-            let raporHTML = '';
-            
-            if (template === 'merdeka') {
-                raporHTML = generateRaporMerdeka(siswa, nilaiSiswa);
-            } else {
-                raporHTML = generateRaporK13(siswa, nilaiSiswa);
+            if (!siswa) {
+                showToast('Data siswa tidak ditemukan!', 'error');
+                return;
             }
-            
-            document.getElementById('rapor-preview').innerHTML = raporHTML;
+            const nilaiSiswa = appData.nilai.filter(n => n.nisn === nisn);
+            document.getElementById('rapor-preview').innerHTML = generateRaporMerdeka(siswa, nilaiSiswa);
             document.getElementById('rapor-preview').classList.remove('hidden');
             document.getElementById('rapor-empty-state').classList.add('hidden');
         }
 
-        function generateRaporMerdeka(siswa, nilaiSiswa) {
-            // Tentukan fase berdasarkan kelas/tingkat
+        function generateRaporKelasPreview(kelas) {
+            const siswaKelas = appData.siswa.filter(s => s.kelas === kelas);
+            if (siswaKelas.length === 0) {
+                showToast('Tidak ada siswa di kelas ini!', 'error');
+                return;
+            }
+            
+            document.getElementById('rapor-preview').innerHTML = siswaKelas.map((siswa, index) => {
+                const nilaiSiswa = appData.nilai.filter(n => n.nisn === siswa.nisn);
+                const pageBreak = index < siswaKelas.length - 1 ? '<div class="page-break"></div>' : '';
+                return generateRaporMerdeka(siswa, nilaiSiswa) + pageBreak;
+            }).join('');
+            document.getElementById('rapor-preview').classList.remove('hidden');
+            document.getElementById('rapor-empty-state').classList.add('hidden');
+        }
+function generateRaporMerdeka(siswa, nilaiSiswa) {
             const kelas = siswa.kelas || '';
-            let fase = 'Fase C';
-            let tingkatKelas = 'Paket C';
+            let fase = 'F';
             
             if (kelas.toLowerCase().includes('paket a') || kelas.toLowerCase().includes('setara sd')) {
-                fase = 'Fase A-B';
-                tingkatKelas = 'Paket A (Setara SD)';
+                fase = 'A-B';
             } else if (kelas.toLowerCase().includes('paket b') || kelas.toLowerCase().includes('setara smp')) {
-                fase = 'Fase D';
-                tingkatKelas = 'Paket B (Setara SMP)';
+                fase = 'D';
             } else if (kelas.toLowerCase().includes('paket c') || kelas.toLowerCase().includes('setara sma')) {
-                fase = 'Fase E-F';
-                tingkatKelas = 'Paket C (Setara SMA)';
+                fase = 'E-F';
             }
 
-            // Get wali kelas info
             const kelasData = appData.kelas.find(k => k.nama_kelas === siswa.kelas);
             let waliKelasNama = 'Belum diatur';
             let waliKelasTTD = '';
@@ -2533,230 +2606,172 @@
                 }
             }
 
+            const tempatRapor = appData.settings.tempat_rapor || 'Jombang';
+            const tanggalRapor = formatTanggalIndonesia(appData.settings.tanggal_rapor);
+            const semesterText = appData.settings.semester === '1' ? 'Ganjil' : appData.settings.semester === '2' ? 'Genap' : '-';
+
             return `
-                <div class="bg-white p-4 max-w-full mx-auto text-xs">
-                    <!-- Header dengan Logo dan Identitas Lembaga -->
-                    <div class="text-center mb-4 border-b-2 border-black pb-3">
-                        <div class="flex items-center justify-center mb-2">
-                            ${appData.settings.logo_url ? 
-                                `<img src="${appData.settings.logo_url}" alt="Logo" class="w-12 h-12 mr-3">` : 
-                                '<div class="w-12 h-12 bg-blue-600 rounded mr-3 flex items-center justify-center"><span class="text-white font-bold text-xs">LOGO</span></div>'
-                            }
-                            <div>
-                                <h1 class="text-lg font-bold mb-1">LAPORAN HASIL BELAJAR</h1>
-                                <h2 class="text-base font-semibold">${appData.settings.school_name}</h2>
-                                <p class="text-xs">Tahun Ajaran ${appData.settings.tahun_ajaran || '-'} | Semester ${appData.settings.semester === '1' ? 'Ganjil' : appData.settings.semester === '2' ? 'Genap' : '-'}</p>
-                                <p class="text-xs">${appData.settings.school_address}</p>
-                                ${appData.settings.npsn ? `<p class="text-xs">NPSN: ${appData.settings.npsn}</p>` : ''}
-                            </div>
-                        </div>
+                <div class="bg-white p-6 max-w-full mx-auto text-xs">
+                    <div class="text-center mb-4">
+                        <h1 class="text-lg font-bold mb-1">LAPORAN HASIL BELAJAR</h1>
+                        <h2 class="text-base font-semibold">${appData.settings.school_name || 'PKBM/SKB'}</h2>
+                        <p class="text-xs">${appData.settings.school_address || ''}</p>
                     </div>
+
+                    <h3 class="font-bold mb-2 text-sm">A. IDENTITAS PESERTA DIDIK</h3>
+                    <table class="w-full border-collapse border border-black text-xs mb-4">
+                        <tbody>
+                            <tr>
+                                <td class="border border-black px-2 py-1 font-medium w-32">Nama Peserta Didik</td>
+                                <td class="border border-black px-2 py-1 text-center w-4">:</td>
+                                <td class="border border-black px-2 py-1 font-semibold">${siswa.nama || '-'}</td>
+                                <td class="border border-black px-2 py-1 font-medium w-28">Kelas/Fase</td>
+                                <td class="border border-black px-2 py-1 text-center w-4">:</td>
+                                <td class="border border-black px-2 py-1">${siswa.kelas || '-'} / ${fase}</td>
+                            </tr>
+                            <tr>
+                                <td class="border border-black px-2 py-1 font-medium">NIPD/NISN</td>
+                                <td class="border border-black px-2 py-1 text-center">:</td>
+                                <td class="border border-black px-2 py-1">${siswa.nipd || '-'}/${siswa.nisn || '-'}</td>
+                                <td class="border border-black px-2 py-1 font-medium">Semester</td>
+                                <td class="border border-black px-2 py-1 text-center">:</td>
+                                <td class="border border-black px-2 py-1">${semesterText}</td>
+                            </tr>
+                            <tr>
+                                <td class="border border-black px-2 py-1 font-medium">Satuan Pendidikan</td>
+                                <td class="border border-black px-2 py-1 text-center">:</td>
+                                <td class="border border-black px-2 py-1">${appData.settings.school_name || '-'}</td>
+                                <td class="border border-black px-2 py-1 font-medium">Tahun Ajaran</td>
+                                <td class="border border-black px-2 py-1 text-center">:</td>
+                                <td class="border border-black px-2 py-1">${appData.settings.tahun_ajaran || '-'}</td>
+                            </tr>
+                        </tbody>
+                    </table>
                     
-                    <!-- Identitas Siswa dalam 1 baris -->
-                    <div class="mb-4">
-                        <table class="w-full text-xs border-collapse">
-                            <tr>
-                                <td class="py-1 w-20 font-medium">Nama</td>
-                                <td class="py-1 w-4">:</td>
-                                <td class="py-1 font-semibold">${siswa.nama}</td>
-                                <td class="py-1 w-20 font-medium">Sekolah</td>
-                                <td class="py-1 w-4">:</td>
-                                <td class="py-1">${appData.settings.school_name}</td>
+                    <h3 class="font-bold mb-2 text-sm">B. HASIL BELAJAR</h3>
+                    <h4 class="font-semibold mb-2 text-xs">1. Intrakurikuler</h4>
+                    <table class="w-full border-collapse border border-black text-xs mb-4">
+                        <thead>
+                            <tr class="bg-gray-100">
+                                <th class="border border-black px-2 py-1 text-left">Mata Pelajaran</th>
+                                <th class="border border-black px-2 py-1 text-center w-14">Nilai</th>
+                                <th class="border border-black px-2 py-1 text-center w-14">Kriteria</th>
+                                <th class="border border-black px-2 py-1 text-center w-20">Predikat</th>
+                                <th class="border border-black px-2 py-1 text-left">Deskripsi</th>
                             </tr>
-                            <tr>
-                                <td class="py-1 font-medium">NISN</td>
-                                <td class="py-1">:</td>
-                                <td class="py-1">${siswa.nisn}</td>
-                                <td class="py-1 font-medium">Alamat</td>
-                                <td class="py-1">:</td>
-                                <td class="py-1">${appData.settings.school_address}</td>
+                        </thead>
+                        <tbody>
+                            ${generateMataPelajaranRows(nilaiSiswa)}
+                        </tbody>
+                    </table>
+
+                    <h4 class="font-semibold mb-2 text-xs">2. Kokurikuler</h4>
+                    <table class="w-full border-collapse border border-black text-xs mb-4">
+                        <thead>
+                            <tr class="bg-gray-100">
+                                <th class="border border-black px-2 py-1 text-left">Kegiatan</th>
+                                <th class="border border-black px-2 py-1 text-center w-28">Waktu</th>
+                                <th class="border border-black px-2 py-1 text-center w-20">Predikat</th>
+                                <th class="border border-black px-2 py-1 text-left">Deskripsi</th>
                             </tr>
-                            <tr>
-                                <td class="py-1 font-medium">NIPD</td>
-                                <td class="py-1">:</td>
-                                <td class="py-1">${siswa.nipd || '-'}</td>
-                                <td class="py-1 font-medium">Kelas</td>
-                                <td class="py-1">:</td>
-                                <td class="py-1">${siswa.kelas || '-'}</td>
+                        </thead>
+                        <tbody>
+                            ${generateKokurikulerRows(siswa.nisn)}
+                        </tbody>
+                    </table>
+
+                    <h4 class="font-semibold mb-2 text-xs">3. Ekstrakurikuler</h4>
+                    <table class="w-full border-collapse border border-black text-xs mb-4">
+                        <thead>
+                            <tr class="bg-gray-100">
+                                <th class="border border-black px-2 py-1 text-left">Kegiatan</th>
+                                <th class="border border-black px-2 py-1 text-center w-24">Predikat</th>
+                                <th class="border border-black px-2 py-1 text-left">Keterangan</th>
                             </tr>
-                            <tr>
-                                <td class="py-1 font-medium">TTL</td>
-                                <td class="py-1">:</td>
-                                <td class="py-1">${siswa.tempat_lahir || '-'}, ${siswa.tanggal_lahir || '-'}</td>
-                                <td class="py-1 font-medium">Fase</td>
-                                <td class="py-1">:</td>
-                                <td class="py-1 font-semibold">${fase}</td>
-                            </tr>
-                            <tr>
-                                <td class="py-1 font-medium">JK</td>
-                                <td class="py-1">:</td>
-                                <td class="py-1">${siswa.jk === 'L' ? 'Laki-laki' : siswa.jk === 'P' ? 'Perempuan' : '-'}</td>
-                                <td class="py-1 font-medium">Semester</td>
-                                <td class="py-1">:</td>
-                                <td class="py-1">${appData.settings.semester === '1' ? 'Ganjil' : appData.settings.semester === '2' ? 'Genap' : '-'}</td>
-                            </tr>
-                        </table>
-                    </div>
-                    
-                    <!-- Capaian Pembelajaran -->
-                    <div class="mb-3">
-                        <h3 class="font-bold mb-2 text-center bg-gray-100 py-1 text-sm">CAPAIAN PEMBELAJARAN</h3>
-                        <table class="w-full border-collapse border border-black text-xs">
-                            <thead>
-                                <tr class="bg-gray-100">
-                                    <th class="border border-black px-1 py-1 text-center w-6">No</th>
-                                    <th class="border border-black px-1 py-1 text-left">Mata Pelajaran</th>
-                                    <th class="border border-black px-1 py-1 text-center w-12">Nilai</th>
-                                    <th class="border border-black px-1 py-1 text-center w-12">Capaian</th>
-                                    <th class="border border-black px-1 py-1 text-left">Deskripsi Capaian Kompetensi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr class="bg-gray-50">
-                                    <td colspan="5" class="border border-black px-1 py-1 font-semibold text-xs">A. MATA PELAJARAN UMUM</td>
-                                </tr>
-                                ${generateMataPelajaranRows(nilaiSiswa, 'umum')}
-                                <tr class="bg-gray-50">
-                                    <td colspan="5" class="border border-black px-1 py-1 font-semibold text-xs">B. MATA PELAJARAN KEJURUAN (Jika Ada)</td>
-                                </tr>
-                                ${generateMataPelajaranRows(nilaiSiswa, 'kejuruan')}
-                            </tbody>
-                        </table>
+                        </thead>
+                        <tbody>
+                            ${generateEkstrakurikulerRows(siswa.nisn)}
+                        </tbody>
+                    </table>
+
+                    <h3 class="font-bold mb-2 text-sm">C. CATATAN WALI KELAS</h3>
+                    <div class="border border-black p-2 min-h-20 mb-4 text-xs">
+                        ${generateCatatanWaliKelas(siswa.nisn)}
                     </div>
 
-                    <!-- Keterangan Kriteria Penilaian -->
-                    <div class="mb-3">
-                        <h3 class="font-bold mb-2 text-center bg-gray-100 py-1 text-sm">KETERANGAN KRITERIA PENILAIAN</h3>
-                        <div class="border border-black p-2">
-                            <div class="grid grid-cols-3 gap-4 text-xs">
-                                <div>
-                                    <p class="font-semibold">A (Sangat Baik)</p>
-                                    <p>Nilai ≥ ${Math.max(85, parseInt(appData.settings.kkm || 75) + 10)}</p>
-                                </div>
-                                <div>
-                                    <p class="font-semibold">B (Baik)</p>
-                                    <p>Nilai ${parseInt(appData.settings.kkm || 75)} - ${Math.max(84, parseInt(appData.settings.kkm || 75) + 9)}</p>
-                                </div>
-                                <div>
-                                    <p class="font-semibold">C (Cukup)</p>
-                                    <p>Nilai ${Math.max(55, parseInt(appData.settings.kkm || 75) - 20)} - ${parseInt(appData.settings.kkm || 75) - 1}</p>
-                                </div>
-                            </div>
-                            <p class="text-xs mt-2 italic">KKM (Kriteria Ketuntasan Minimal): ${appData.settings.kkm || 75}</p>
-                        </div>
-                    </div>
-
-                    <!-- Ekstrakurikuler dan Ketidakhadiran dalam 1 baris -->
-                    <div class="grid grid-cols-2 gap-4 mb-3">
-                        <div>
-                            <h3 class="font-bold mb-2 text-center bg-gray-100 py-1 text-sm">EKSTRAKURIKULER</h3>
-                            <table class="w-full border-collapse border border-black text-xs">
-                                <thead>
-                                    <tr class="bg-gray-100">
-                                        <th class="border border-black px-1 py-1 text-center w-6">No</th>
-                                        <th class="border border-black px-1 py-1 text-left">Kegiatan</th>
-                                        <th class="border border-black px-1 py-1 text-center w-12">Predikat</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${generateEkstrakurikulerRows(siswa.nisn)}
-                                </tbody>
-                            </table>
-                        </div>
-                        <div>
-                            <h3 class="font-bold mb-2 text-center bg-gray-100 py-1 text-sm">KETIDAKHADIRAN</h3>
-                            <table class="w-full border-collapse border border-black text-xs">
-                                <tbody>
-                                    ${generateKehadiranRows(siswa.nisn)}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- Catatan Wali Kelas -->
-                    <div class="mb-3">
-                        <h3 class="font-bold mb-2 text-center bg-gray-100 py-1 text-sm">CATATAN WALI KELAS</h3>
-                        <div class="border border-black p-2 min-h-12">
-                            ${generateCatatanWaliKelas(siswa.nisn)}
-                        </div>
-                    </div>
-
-                    <!-- Tanda Tangan -->
-                    <div class="grid grid-cols-3 gap-4 mt-4">
-                        <div class="text-center">
-                            <p class="mb-1 text-xs">Mengetahui,</p>
-                            <p class="font-semibold mb-8 text-xs">Orang Tua/Wali</p>
-                            <p class="border-t border-black pt-1 text-xs">(...........................)</p>
-                        </div>
-                        <div class="text-center">
-                            <p class="mb-1 text-xs">${appData.settings.tempat_rapor || 'Jombang'}, ${formatTanggalIndonesia(appData.settings.tanggal_rapor)}</p>
-                            <p class="font-semibold mb-1 text-xs">Wali Kelas</p>
-                            ${waliKelasTTD ? 
-                                `<div class="mb-6"><img src="${waliKelasTTD}" alt="TTD" class="w-16 h-8 mx-auto object-contain"></div>` : 
-                                '<div class="mb-8"></div>'
-                            }
-                            <p class="border-t border-black pt-1 text-xs">${waliKelasNama}</p>
-                            ${kelasData && kelasData.wali_kelas_nip ? `<p class="text-xs">NIP. ${kelasData.wali_kelas_nip}</p>` : ''}
-                        </div>
-                        <div class="text-center">
-                            <p class="mb-1 text-xs">Kepala Lembaga</p>
-                            <div class="mb-8"></div>
-                            <p class="border-t border-black pt-1 text-xs">${appData.settings.headmaster}</p>
-                            <p class="text-xs">NIP. ${appData.settings.headmaster_nip}</p>
-                        </div>
-                    </div>
+                    <h3 class="font-bold mb-2 text-sm">D. PENGESAHAN</h3>
+                    <table class="w-full border-collapse text-xs">
+                        <tbody>
+                            <tr>
+                                <td class="text-center py-1 w-1/3"></td>
+                                <td class="text-center py-1 w-1/3"></td>
+                                <td class="text-center py-1 w-1/3">${tempatRapor}, ${tanggalRapor}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center py-1 font-medium">Orang Tua/Wali</td>
+                                <td class="text-center py-1 font-medium">Kepala Satuan Pendidikan</td>
+                                <td class="text-center py-1 font-medium">Wali Kelas</td>
+                            </tr>
+                            <tr>
+                                <td class="h-20"></td>
+                                <td class="h-20"></td>
+                                <td class="h-20 text-center align-middle">${waliKelasTTD ? `<img src="${waliKelasTTD}" alt="TTD" class="w-20 h-10 mx-auto object-contain">` : ''}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center pt-1">(...........................)</td>
+                                <td class="text-center pt-1">${appData.settings.headmaster || '-'}</td>
+                                <td class="text-center pt-1">${waliKelasNama}</td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td class="text-center">${appData.settings.headmaster_nip ? `NIP. ${appData.settings.headmaster_nip}` : ''}</td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             `;
         }
-
         // Helper functions untuk rapor
-        function generateMataPelajaranRows(nilaiSiswa, jenis) {
-            const mapelFiltered = nilaiSiswa.filter(nilai => {
-                const mapel = appData.mapel.find(m => m.id === nilai.mapel_id);
-                if (!mapel) return false;
-                
-                // Klasifikasi mata pelajaran
-                const mapelUmum = ['matematika', 'bahasa indonesia', 'bahasa inggris', 'ipa', 'ips', 'ppkn', 'seni budaya', 'pjok', 'prakarya'];
-                const isUmum = mapelUmum.some(mu => mapel.nama_mapel.toLowerCase().includes(mu));
-                
-                return jenis === 'umum' ? isUmum : !isUmum;
-            });
-
-            if (mapelFiltered.length === 0) {
-                return `<tr><td colspan="5" class="border border-black px-2 py-2 text-center text-gray-500">Tidak ada mata pelajaran ${jenis}</td></tr>`;
+        function generateMataPelajaranRows(nilaiSiswa) {
+            if (nilaiSiswa.length === 0) {
+                return `<tr><td colspan="5" class="border border-black px-2 py-2 text-center text-gray-500">Belum ada nilai intrakurikuler.</td></tr>`;
             }
 
-            return mapelFiltered.map((nilai, index) => {
+            return nilaiSiswa.map((nilai) => {
                 const mapel = appData.mapel.find(m => m.id === nilai.mapel_id);
-                const capaianKompetensi = getCapaianKompetensi(nilai.nilai);
-                const deskripsi = nilai.deskripsi || getDeskripsiCapaian(mapel ? mapel.nama_mapel : '', nilai.nilai);
+                const nilaiAngka = getNilaiAngka(nilai);
+                const hasilNilai = hitungNilaiOtomatis(nilaiAngka, mapel ? mapel.nama_mapel : '');
+                const deskripsi = nilai.deskripsi || hasilNilai.deskripsi;
                 
                 return `
                     <tr>
-                        <td class="border border-black px-1 py-1 text-center">${index + 1}</td>
-                        <td class="border border-black px-1 py-1 text-xs">${mapel ? mapel.nama_mapel : '-'}</td>
-                        <td class="border border-black px-1 py-1 text-center font-semibold">${nilai.nilai}</td>
-                        <td class="border border-black px-1 py-1 text-center font-semibold">${capaianKompetensi}</td>
-                        <td class="border border-black px-1 py-1 text-xs">${deskripsi}</td>
+                        <td class="border border-black px-2 py-1 text-xs">${mapel ? mapel.nama_mapel : '-'}</td>
+                        <td class="border border-black px-2 py-1 text-center font-semibold">${nilaiAngka || '-'}</td>
+                        <td class="border border-black px-2 py-1 text-center font-semibold">${hasilNilai.kriteria || '-'}</td>
+                        <td class="border border-black px-2 py-1 text-center">${nilai.predikat || hasilNilai.predikat || '-'}</td>
+                        <td class="border border-black px-2 py-1 text-xs">${deskripsi || '-'}</td>
                     </tr>
                 `;
             }).join('');
         }
 
         function getCapaianKompetensi(nilai) {
-            const kkm = parseInt(appData.settings.kkm || 75);
-            
-            // Untuk Kurikulum Merdeka: Berkembang Sesuai Harapan (BSH), Sangat Berkembang (SB), Mulai Berkembang (MB), Belum Berkembang (BB)
-            if (nilai === 'A' || (typeof nilai === 'number' && nilai >= Math.max(85, kkm + 10))) return 'SB';
-            if (nilai === 'B' || (typeof nilai === 'number' && nilai >= kkm)) return 'BSH';
-            if (nilai === 'C' || (typeof nilai === 'number' && nilai >= Math.max(55, kkm - 20))) return 'MB';
+            const angka = parseInt(nilai, 10);
+            if (isNaN(angka)) {
+                if (nilai === 'A') return 'SB';
+                if (nilai === 'B') return 'BSH';
+                if (nilai === 'C') return 'MB';
+                return 'BB';
+            }
+            if (angka >= 90) return 'SB';
+            if (angka >= 80) return 'BSH';
+            if (angka >= 70) return 'MB';
             return 'BB';
         }
 
         function getDeskripsiCapaian(namaMapel, nilai) {
             const capaian = getCapaianKompetensi(nilai);
-            const mapelLower = namaMapel.toLowerCase();
-            
             const deskripsiTemplate = {
                 'SB': `Peserta didik sangat baik dalam menguasai ${namaMapel} dan mampu mengaplikasikan konsep dengan sangat baik`,
                 'BSH': `Peserta didik baik dalam menguasai ${namaMapel} dan mampu mengaplikasikan konsep dengan baik`,
@@ -2780,173 +2795,6 @@
                 month: 'long', 
                 year: 'numeric' 
             });
-        }
-
-        function generateRaporK13(siswa, nilaiSiswa) {
-            // Get wali kelas info
-            const kelasData = appData.kelas.find(k => k.nama_kelas === siswa.kelas);
-            let waliKelasNama = 'Belum diatur';
-            let waliKelasTTD = '';
-            
-            if (kelasData && kelasData.wali_kelas_id) {
-                const waliKelas = appData.tutor.find(t => t.id === kelasData.wali_kelas_id);
-                if (waliKelas) {
-                    waliKelasNama = waliKelas.nama_tutor;
-                    waliKelasTTD = waliKelas.ttd_url || '';
-                }
-            }
-
-            return `
-                <div class="bg-white p-4 max-w-full mx-auto text-xs">
-                    <!-- Header dengan Logo dan Identitas Lembaga -->
-                    <div class="text-center mb-3 border-b-2 border-black pb-2">
-                        <div class="flex items-center justify-center mb-1">
-                            ${appData.settings.logo_url ? 
-                                `<img src="${appData.settings.logo_url}" alt="Logo" class="w-10 h-10 mr-2">` : 
-                                '<div class="w-10 h-10 bg-blue-600 rounded mr-2 flex items-center justify-center"><span class="text-white font-bold text-xs">LOGO</span></div>'
-                            }
-                            <div>
-                                <h1 class="text-base font-bold mb-1">LAPORAN HASIL BELAJAR</h1>
-                                <h2 class="text-sm font-semibold">${appData.settings.school_name}</h2>
-                                <p class="text-xs">Tahun Ajaran ${appData.settings.tahun_ajaran || '-'} | Semester ${appData.settings.semester === '1' ? 'Ganjil' : appData.settings.semester === '2' ? 'Genap' : '-'}</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Identitas dalam 1 baris -->
-                    <div class="mb-3">
-                        <table class="w-full text-xs border-collapse">
-                            <tr>
-                                <td class="py-1 w-20 font-medium">Nama</td>
-                                <td class="py-1 w-4">:</td>
-                                <td class="py-1 font-semibold">${siswa.nama}</td>
-                                <td class="py-1 w-20 font-medium">Lembaga</td>
-                                <td class="py-1 w-4">:</td>
-                                <td class="py-1">${appData.settings.school_name}</td>
-                            </tr>
-                            <tr>
-                                <td class="py-1 font-medium">NISN</td>
-                                <td class="py-1">:</td>
-                                <td class="py-1">${siswa.nisn}</td>
-                                <td class="py-1 font-medium">NPSN</td>
-                                <td class="py-1">:</td>
-                                <td class="py-1">${appData.settings.npsn || '-'}</td>
-                            </tr>
-                            <tr>
-                                <td class="py-1 font-medium">NIPD</td>
-                                <td class="py-1">:</td>
-                                <td class="py-1">${siswa.nipd || '-'}</td>
-                                <td class="py-1 font-medium">Kelas</td>
-                                <td class="py-1">:</td>
-                                <td class="py-1">${siswa.kelas || '-'}</td>
-                            </tr>
-                            <tr>
-                                <td class="py-1 font-medium">TTL</td>
-                                <td class="py-1">:</td>
-                                <td class="py-1">${siswa.tempat_lahir || '-'}, ${siswa.tanggal_lahir || '-'}</td>
-                                <td class="py-1 font-medium">Semester</td>
-                                <td class="py-1">:</td>
-                                <td class="py-1">${appData.settings.semester === '1' ? 'Ganjil' : appData.settings.semester === '2' ? 'Genap' : '-'}</td>
-                            </tr>
-                            <tr>
-                                <td class="py-1 font-medium">JK</td>
-                                <td class="py-1">:</td>
-                                <td class="py-1">${siswa.jk === 'L' ? 'Laki-laki' : siswa.jk === 'P' ? 'Perempuan' : '-'}</td>
-                                <td class="py-1 font-medium">Tahun Ajaran</td>
-                                <td class="py-1">:</td>
-                                <td class="py-1">${appData.settings.tahun_ajaran || '-'}</td>
-                            </tr>
-                        </table>
-                    </div>
-                    
-                    <!-- Hasil Belajar -->
-                    <div class="mb-6">
-                        <h3 class="font-bold mb-3 text-center bg-gray-100 py-2">HASIL BELAJAR</h3>
-                        <table class="w-full border-collapse border border-black text-xs">
-                            <thead>
-                                <tr class="bg-gray-100">
-                                    <th class="border border-black px-2 py-2 text-center w-8">No</th>
-                                    <th class="border border-black px-2 py-2 text-left">Mata Pelajaran</th>
-                                    <th class="border border-black px-2 py-2 text-center w-16">Pengetahuan</th>
-                                    <th class="border border-black px-2 py-2 text-center w-16">Keterampilan</th>
-                                    <th class="border border-black px-2 py-2 text-center w-16">Nilai Akhir</th>
-                                    <th class="border border-black px-2 py-2 text-center w-16">Predikat</th>
-                                    <th class="border border-black px-2 py-2 text-left">Deskripsi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr class="bg-gray-50">
-                                    <td colspan="7" class="border border-black px-2 py-1 font-semibold">A. MATA PELAJARAN UMUM</td>
-                                </tr>
-                                ${generateMataPelajaranRowsK13(nilaiSiswa, 'umum')}
-                                <tr class="bg-gray-50">
-                                    <td colspan="7" class="border border-black px-2 py-1 font-semibold">B. MATA PELAJARAN KEJURUAN (Jika Ada)</td>
-                                </tr>
-                                ${generateMataPelajaranRowsK13(nilaiSiswa, 'kejuruan')}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <!-- Ekstrakurikuler -->
-                    <div class="mb-4">
-                        <h3 class="font-bold mb-2 text-center bg-gray-100 py-1 text-sm">EKSTRAKURIKULER</h3>
-                        <table class="w-full border-collapse border border-black text-xs">
-                            <thead>
-                                <tr class="bg-gray-100">
-                                    <th class="border border-black px-2 py-1 text-center w-8">No</th>
-                                    <th class="border border-black px-2 py-1 text-left">Kegiatan Ekstrakurikuler</th>
-                                    <th class="border border-black px-2 py-1 text-center w-20">Predikat</th>
-                                    <th class="border border-black px-2 py-1 text-left">Keterangan</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${generateEkstrakurikulerRowsK13(siswa.nisn)}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <!-- Ketidakhadiran -->
-                    <div class="mb-4">
-                        <h3 class="font-bold mb-2 text-center bg-gray-100 py-1 text-sm">KETIDAKHADIRAN</h3>
-                        <table class="w-full border-collapse border border-black text-xs">
-                            ${generateKehadiranRowsK13(siswa.nisn)}
-                        </table>
-                    </div>
-
-                    <!-- Catatan Wali Kelas -->
-                    <div class="mb-4">
-                        <h3 class="font-bold mb-2 text-center bg-gray-100 py-1 text-sm">CATATAN WALI KELAS</h3>
-                        <div class="border border-black p-2 min-h-12">
-                            ${generateCatatanWaliKelas(siswa.nisn)}
-                        </div>
-                    </div>
-
-                    <!-- Tanda Tangan -->
-                    <div class="grid grid-cols-3 gap-4 mt-4">
-                        <div class="text-center">
-                            <p class="mb-1 text-xs">Mengetahui,</p>
-                            <p class="font-semibold mb-8 text-xs">Orang Tua/Wali</p>
-                            <p class="border-t border-black pt-1 text-xs">(...........................)</p>
-                        </div>
-                        <div class="text-center">
-                            <p class="mb-1 text-xs">${appData.settings.tempat_rapor || 'Jombang'}, ${formatTanggalIndonesia(appData.settings.tanggal_rapor)}</p>
-                            <p class="font-semibold mb-1 text-xs">Wali Kelas</p>
-                            ${waliKelasTTD ? 
-                                `<div class="mb-6"><img src="${waliKelasTTD}" alt="TTD" class="w-16 h-8 mx-auto object-contain"></div>` : 
-                                '<div class="mb-8"></div>'
-                            }
-                            <p class="border-t border-black pt-1 text-xs">${waliKelasNama}</p>
-                            ${kelasData && kelasData.wali_kelas_nip ? `<p class="text-xs">NIP. ${kelasData.wali_kelas_nip}</p>` : ''}
-                        </div>
-                        <div class="text-center">
-                            <p class="mb-1 text-xs">Kepala Lembaga</p>
-                            <div class="mb-8"></div>
-                            <p class="border-t border-black pt-1 text-xs">${appData.settings.headmaster}</p>
-                            <p class="text-xs">NIP. ${appData.settings.headmaster_nip}</p>
-                        </div>
-                    </div>
-                </div>
-            `;
         }
 
         // Settings Management
@@ -3296,62 +3144,32 @@
             }
         }
 
-        // Helper function untuk K13
-        function generateMataPelajaranRowsK13(nilaiSiswa, jenis) {
-            const mapelFiltered = nilaiSiswa.filter(nilai => {
-                const mapel = appData.mapel.find(m => m.id === nilai.mapel_id);
-                if (!mapel) return false;
-                
-                // Klasifikasi mata pelajaran
-                const mapelUmum = ['matematika', 'bahasa indonesia', 'bahasa inggris', 'ipa', 'ips', 'ppkn', 'seni budaya', 'pjok', 'prakarya'];
-                const isUmum = mapelUmum.some(mu => mapel.nama_mapel.toLowerCase().includes(mu));
-                
-                return jenis === 'umum' ? isUmum : !isUmum;
-            });
+        // Helper functions untuk kokurikuler, ekstrakurikuler dan kehadiran
+        function generateKokurikulerRows(nisn) {
+            const semester = appData.settings.semester || '1';
+            const kokurikuler = (appData.kokurikuler || []).filter(k => k.nisn === nisn && k.semester === semester);
 
-            if (mapelFiltered.length === 0) {
-                return `<tr><td colspan="7" class="border border-black px-2 py-2 text-center text-gray-500">Tidak ada mata pelajaran ${jenis}</td></tr>`;
-            }
-
-            return mapelFiltered.map((nilai, index) => {
-                const mapel = appData.mapel.find(m => m.id === nilai.mapel_id);
-                const nilaiAngka = typeof nilai.nilai === 'number' ? nilai.nilai : parseInt(nilai.nilai) || 0;
-                
-                // Untuk K13: pisahkan pengetahuan dan keterampilan (simulasi)
-                const pengetahuan = nilaiAngka;
-                const keterampilan = Math.max(nilaiAngka - 2, 0); // Simulasi nilai keterampilan
-                const nilaiAkhir = Math.round((pengetahuan + keterampilan) / 2);
-                
-                const kkm = parseInt(appData.settings.kkm || 75);
-                const predikat = nilaiAkhir >= Math.max(85, kkm + 10) ? 'A' : nilaiAkhir >= kkm ? 'B' : nilaiAkhir >= Math.max(55, kkm - 20) ? 'C' : 'D';
-                const deskripsi = nilai.deskripsi || getDeskripsiK13(mapel ? mapel.nama_mapel : '', nilaiAkhir, predikat);
-                
+            if (kokurikuler.length === 0) {
                 return `
                     <tr>
-                        <td class="border border-black px-2 py-2 text-center">${index + 1}</td>
-                        <td class="border border-black px-2 py-2">${mapel ? mapel.nama_mapel : '-'}</td>
-                        <td class="border border-black px-2 py-2 text-center">${pengetahuan}</td>
-                        <td class="border border-black px-2 py-2 text-center">${keterampilan}</td>
-                        <td class="border border-black px-2 py-2 text-center font-semibold">${nilaiAkhir}</td>
-                        <td class="border border-black px-2 py-2 text-center font-semibold">${predikat}</td>
-                        <td class="border border-black px-2 py-2 text-xs">${deskripsi}</td>
+                        <td class="border border-black px-2 py-1">-</td>
+                        <td class="border border-black px-2 py-1 text-center">-</td>
+                        <td class="border border-black px-2 py-1 text-center">-</td>
+                        <td class="border border-black px-2 py-1">-</td>
                     </tr>
                 `;
-            }).join('');
+            }
+
+            return kokurikuler.map(kegiatan => `
+                <tr>
+                    <td class="border border-black px-2 py-1 text-xs">${kegiatan.kegiatan || '-'}</td>
+                    <td class="border border-black px-2 py-1 text-center text-xs">${kegiatan.waktu || '-'}</td>
+                    <td class="border border-black px-2 py-1 text-center text-xs">${kegiatan.predikat || '-'}</td>
+                    <td class="border border-black px-2 py-1 text-xs">${kegiatan.deskripsi || kegiatan.keterangan || '-'}</td>
+                </tr>
+            `).join('');
         }
 
-        function getDeskripsiK13(namaMapel, nilai, predikat) {
-            const deskripsiTemplate = {
-                'A': `Sangat baik dalam menguasai ${namaMapel}, mampu menganalisis dan menerapkan konsep dengan sangat baik`,
-                'B': `Baik dalam menguasai ${namaMapel}, mampu memahami dan menerapkan konsep dengan baik`,
-                'C': `Cukup dalam menguasai ${namaMapel}, perlu bimbingan untuk meningkatkan pemahaman konsep`,
-                'D': `Perlu bimbingan intensif dalam menguasai ${namaMapel} untuk mencapai kompetensi yang diharapkan`
-            };
-            
-            return deskripsiTemplate[predikat] || `Menunjukkan capaian yang sesuai dengan kemampuannya dalam ${namaMapel}`;
-        }
-
-        // Helper functions untuk ekstrakurikuler dan kehadiran
         function generateEkstrakurikulerRows(nisn) {
             const semester = appData.settings.semester || '1';
             const ekstrakurikuler = appData.ekstrakurikuler.filter(e => e.nisn === nisn && e.semester === semester);
@@ -3359,30 +3177,6 @@
             if (ekstrakurikuler.length === 0) {
                 return `
                     <tr>
-                        <td class="border border-black px-1 py-1 text-center">1</td>
-                        <td class="border border-black px-1 py-1">-</td>
-                        <td class="border border-black px-1 py-1 text-center">-</td>
-                    </tr>
-                `;
-            }
-            
-            return ekstrakurikuler.map((ekskul, index) => `
-                <tr>
-                    <td class="border border-black px-1 py-1 text-center">${index + 1}</td>
-                    <td class="border border-black px-1 py-1 text-xs">${ekskul.kegiatan}</td>
-                    <td class="border border-black px-1 py-1 text-center text-xs">${ekskul.predikat || '-'}</td>
-                </tr>
-            `).join('');
-        }
-
-        function generateEkstrakurikulerRowsK13(nisn) {
-            const semester = appData.settings.semester || '1';
-            const ekstrakurikuler = appData.ekstrakurikuler.filter(e => e.nisn === nisn && e.semester === semester);
-            
-            if (ekstrakurikuler.length === 0) {
-                return `
-                    <tr>
-                        <td class="border border-black px-2 py-1 text-center">1</td>
                         <td class="border border-black px-2 py-1">-</td>
                         <td class="border border-black px-2 py-1 text-center">-</td>
                         <td class="border border-black px-2 py-1">-</td>
@@ -3390,17 +3184,15 @@
                 `;
             }
             
-            return ekstrakurikuler.map((ekskul, index) => `
+            return ekstrakurikuler.map((ekskul) => `
                 <tr>
-                    <td class="border border-black px-2 py-1 text-center">${index + 1}</td>
-                    <td class="border border-black px-2 py-1 text-xs">${ekskul.kegiatan}</td>
+                    <td class="border border-black px-2 py-1 text-xs">${ekskul.kegiatan || '-'}</td>
                     <td class="border border-black px-2 py-1 text-center text-xs">${ekskul.predikat || '-'}</td>
                     <td class="border border-black px-2 py-1 text-xs">${ekskul.keterangan || '-'}</td>
                 </tr>
             `).join('');
         }
-
-        function generateKehadiranRows(nisn) {
+function generateKehadiranRows(nisn) {
             const semester = appData.settings.semester || '1';
             const kehadiran = appData.kehadiran.find(k => k.nisn === nisn && k.semester === semester);
             
@@ -3426,31 +3218,7 @@
                 </tr>
             `;
         }
-
-        function generateKehadiranRowsK13(nisn) {
-            const semester = appData.settings.semester || '1';
-            const kehadiran = appData.kehadiran.find(k => k.nisn === nisn && k.semester === semester);
-            
-            const sakit = kehadiran ? kehadiran.sakit || 0 : 0;
-            const izin = kehadiran ? kehadiran.izin || 0 : 0;
-            const alpha = kehadiran ? kehadiran.alpha || 0 : 0;
-            
-            return `
-                <tr>
-                    <td class="border border-black px-2 py-1 w-32">Sakit</td>
-                    <td class="border border-black px-2 py-1 w-16 text-center">${sakit}</td>
-                    <td class="border border-black px-2 py-1 w-16">hari</td>
-                    <td class="border border-black px-2 py-1 w-32">Izin</td>
-                    <td class="border border-black px-2 py-1 w-16 text-center">${izin}</td>
-                    <td class="border border-black px-2 py-1 w-16">hari</td>
-                    <td class="border border-black px-2 py-1 w-32">Tanpa Keterangan</td>
-                    <td class="border border-black px-2 py-1 w-16 text-center">${alpha}</td>
-                    <td class="border border-black px-2 py-1 w-16">hari</td>
-                </tr>
-            `;
-        }
-
-        function generateCatatanWaliKelas(nisn) {
+function generateCatatanWaliKelas(nisn) {
             const semester = appData.settings.semester || '1';
             const kehadiran = appData.kehadiran.find(k => k.nisn === nisn && k.semester === semester);
             
@@ -3741,7 +3509,7 @@
             // Handle selection changes
             function updateLeggerPreview() {
                 const kelas = kelasSelect.value;
-                const kurikulum = document.getElementById('select-kurikulum-legger').value;
+                const kurikulum = 'merdeka';
                 
                 if (kelas) {
                     generateLeggerPreview(kelas, kurikulum);
@@ -3752,12 +3520,11 @@
             }
             
             kelasSelect.addEventListener('change', updateLeggerPreview);
-            document.getElementById('select-kurikulum-legger').addEventListener('change', updateLeggerPreview);
         }
 
         function generateLeggerPreview(kelas, kurikulum) {
             const siswaKelas = appData.siswa.filter(s => s.kelas === kelas);
-            const mapelKurikulum = appData.mapel.filter(m => m.kurikulum === kurikulum);
+            const mapelKurikulum = appData.mapel;
             
             if (siswaKelas.length === 0) {
                 document.getElementById('legger-empty-state').innerHTML = 'Tidak ada siswa di kelas ini.';
@@ -3828,7 +3595,7 @@
         // Download legger as Excel
         document.getElementById('download-legger-btn').addEventListener('click', function() {
             const kelas = document.getElementById('select-kelas-legger').value;
-            const kurikulum = document.getElementById('select-kurikulum-legger').value;
+            const kurikulum = 'merdeka';
             
             if (!kelas) {
                 showToast('Pilih kelas terlebih dahulu!', 'error');
@@ -3840,7 +3607,7 @@
 
         function downloadLeggerExcel(kelas, kurikulum) {
             const siswaKelas = appData.siswa.filter(s => s.kelas === kelas);
-            const mapelKurikulum = appData.mapel.filter(m => m.kurikulum === kurikulum);
+            const mapelKurikulum = appData.mapel;
             
             if (siswaKelas.length === 0 || mapelKurikulum.length === 0) {
                 showToast('Tidak ada data untuk didownload!', 'error');
@@ -3885,7 +3652,7 @@
                 [`LEGGER NILAI - ${kelas.toUpperCase()}`],
                 [`${appData.settings.school_name}`],
                 [`Tahun Ajaran: ${appData.settings.tahun_ajaran || '-'} | Semester: ${appData.settings.semester === '1' ? 'Ganjil' : 'Genap'}`],
-                [`Kurikulum: ${kurikulum === 'merdeka' ? 'Kurikulum Merdeka' : 'Kurikulum 2013'}`],
+                [`Kurikulum: Kurikulum Merdeka`],
                 []
             ], { origin: 'A1' });
             
@@ -3905,7 +3672,7 @@
             XLSX.utils.book_append_sheet(wb, ws, 'Legger Nilai');
             
             // Download file
-            const fileName = `Legger_Nilai_${kelas}_${kurikulum}_${appData.settings.tahun_ajaran || 'TA'}.xlsx`;
+            const fileName = "Legger_Nilai_" + kelas + "_merdeka_" + (appData.settings.tahun_ajaran || "TA") + ".xlsx";
             XLSX.writeFile(wb, fileName);
             
             showToast('Legger nilai berhasil didownload!');
@@ -4169,3 +3936,13 @@
     </script>
  <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'99bad7e2e37cfe13',t:'MTc2MjY2NTQ0Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
+
+
+
+
+
+
+
+
+
+
