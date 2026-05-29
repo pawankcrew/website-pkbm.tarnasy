@@ -149,7 +149,8 @@
     </svg><span class="whatsapp-text ml-3 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap"> Butuh Bantuan? </span> </button>
   </div><!-- Main Application -->
   <div id="main-app" class="hidden flex h-full"><!-- Sidebar -->
-   <aside class="hidden md:flex flex-col w-64 bg-gray-800 text-gray-300">
+   <div id="mobile-sidebar-backdrop" class="fixed inset-0 bg-black bg-opacity-40 z-30 hidden md:hidden"></div>
+   <aside id="app-sidebar" class="fixed inset-y-0 left-0 z-40 hidden w-72 max-w-[85vw] flex-col bg-gray-800 text-gray-300 md:static md:flex md:w-64">
     <div class="flex items-center justify-center h-20 bg-gray-900 border-b border-gray-700">
      <div id="sidebar-logo" class="h-10 w-10 bg-blue-600 rounded-full flex items-center justify-center mr-3">
       <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
@@ -201,17 +202,22 @@
       </svg> Keluar </button>
     </div>
    </aside><!-- Main Content -->
-   <main class="flex-1 overflow-y-auto"><!-- Header -->
+   <main class="flex-1 overflow-y-auto min-w-0"><!-- Header -->
     <header class="bg-white shadow-sm border-b border-gray-200">
-     <div class="flex items-center justify-between px-6 py-4">
-      <h1 id="page-title" class="text-2xl font-semibold text-gray-900">Dashboard</h1>
-      <div class="flex items-center space-x-4"><span id="school-name" class="text-sm text-gray-600">PKBM/SKB</span> <span class="user-info text-sm text-gray-700 font-medium">Administrator</span>
+     <div class="flex items-center justify-between px-4 md:px-6 py-4 gap-3">
+      <div class="flex items-center min-w-0">
+       <button id="mobile-menu-btn" type="button" class="md:hidden mr-3 p-2 rounded-md text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="Buka menu">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+       </button>
+       <h1 id="page-title" class="text-xl md:text-2xl font-semibold text-gray-900 truncate">Dashboard</h1>
+      </div>
+      <div class="flex items-center space-x-2 md:space-x-4 min-w-0"><span id="school-name" class="hidden sm:inline text-sm text-gray-600 truncate">PKBM/SKB</span> <span class="user-info text-xs md:text-sm text-gray-700 font-medium truncate">Administrator</span>
        <div class="h-8 w-8 bg-blue-600 rounded-full flex items-center justify-center"><span class="text-white text-sm font-medium">A</span>
        </div>
       </div>
      </div>
     </header><!-- Content Area -->
-    <div class="p-6"><!-- Dashboard Page -->
+    <div class="p-4 md:p-6"><!-- Dashboard Page -->
      <div id="page-dashboard" class="page-content">
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
        <div class="bg-white rounded-lg shadow p-6">
@@ -1157,25 +1163,55 @@
             }
         };
 
-        // Load data from localStorage
+        function isLocalServerMode() {
+            return window.location.protocol === 'http:' || window.location.protocol === 'https:';
+        }
+
+        function requestServerData(method, payload) {
+            const xhr = new XMLHttpRequest();
+            xhr.open(method, '/api/data', false);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.send(payload ? JSON.stringify(payload) : null);
+            
+            if (xhr.status < 200 || xhr.status >= 300) {
+                throw new Error(`Server data error ${xhr.status}: ${xhr.responseText || xhr.statusText}`);
+            }
+            
+            return xhr.responseText ? JSON.parse(xhr.responseText) : null;
+        }
+
+        // Load data from local server or localStorage fallback
         function loadStoredData() {
-            const saved = localStorage.getItem('eraporku_data');
-            if (saved) {
-                const parsedData = JSON.parse(saved);
+            if (isLocalServerMode()) {
+                const serverData = requestServerData('GET');
                 appData = {
                     ...appData,
-                    ...parsedData,
+                    ...serverData,
                     settings: {
                         ...appData.settings,
-                        ...(parsedData.settings || {})
+                        ...(serverData.settings || {})
                     }
                 };
+            } else {
+                const saved = localStorage.getItem('eraporku_data');
+                if (saved) {
+                    const parsedData = JSON.parse(saved);
+                    appData = {
+                        ...appData,
+                        ...parsedData,
+                        settings: {
+                            ...appData.settings,
+                            ...(parsedData.settings || {})
+                        }
+                    };
+                }
             }
             normalizeAppData();
         }
 
         function loadData() {
             loadStoredData();
+            offerLocalStorageMigration();
             updateDashboardStats();
             
             if (document.getElementById('setting-school-name')) {
@@ -1188,6 +1224,44 @@
             }
         }
 
+        function hasMeaningfulData(data) {
+            return !!data && (
+                (Array.isArray(data.siswa) && data.siswa.length > 0) ||
+                (Array.isArray(data.kelas) && data.kelas.length > 0) ||
+                (Array.isArray(data.mapel) && data.mapel.length > 0) ||
+                (Array.isArray(data.nilai) && data.nilai.length > 0) ||
+                (Array.isArray(data.tutor) && data.tutor.length > 0)
+            );
+        }
+
+        function offerLocalStorageMigration() {
+            if (!isLocalServerMode() || sessionStorage.getItem('eraporku_migration_checked')) return;
+            sessionStorage.setItem('eraporku_migration_checked', '1');
+            
+            const localDataRaw = localStorage.getItem('eraporku_data');
+            if (!localDataRaw || hasMeaningfulData(appData)) return;
+            
+            try {
+                const localData = JSON.parse(localDataRaw);
+                if (!hasMeaningfulData(localData)) return;
+                
+                if (confirm('Ditemukan data lama di browser ini. Pindahkan data tersebut ke server lokal agar bisa dipakai perangkat lain?')) {
+                    appData = {
+                        ...appData,
+                        ...localData,
+                        settings: {
+                            ...appData.settings,
+                            ...(localData.settings || {})
+                        }
+                    };
+                    saveData();
+                    showToast('Data lama berhasil dipindahkan ke server lokal.');
+                }
+            } catch (error) {
+                console.error('Gagal migrasi data lokal:', error);
+            }
+        }
+
         function normalizeAppData() {
             appData.siswa = Array.isArray(appData.siswa) ? appData.siswa : [];
             appData.kelas = Array.isArray(appData.kelas) ? appData.kelas : [];
@@ -1195,17 +1269,41 @@
             appData.nilai = Array.isArray(appData.nilai) ? appData.nilai : [];
             appData.tutor = Array.isArray(appData.tutor) ? appData.tutor : [];
             appData.ekstrakurikuler = Array.isArray(appData.ekstrakurikuler) ? appData.ekstrakurikuler : [];
+            appData.kokurikuler = Array.isArray(appData.kokurikuler) ? appData.kokurikuler : [];
             appData.kehadiran = Array.isArray(appData.kehadiran) ? appData.kehadiran : [];
             appData.settings = appData.settings || {};
             appData.kelas = appData.kelas.map(kelas => ({ ...kelas, kurikulum: 'merdeka' }));
             appData.mapel = appData.mapel.map(mapel => ({ ...mapel, kurikulum: 'merdeka' }));
         }
 
-        // Save data to localStorage
+        // Save data to local server or localStorage fallback
         function saveData() {
-            localStorage.setItem('eraporku_data', JSON.stringify(appData));
+            normalizeAppData();
+            if (isLocalServerMode()) {
+                requestServerData('PUT', appData);
+            } else {
+                localStorage.setItem('eraporku_data', JSON.stringify(appData));
+            }
             updateDashboardStats();
         }
+
+        function syncDataFromServerIfIdle() {
+            if (!isLocalServerMode()) return;
+            const activeTag = document.activeElement ? document.activeElement.tagName : '';
+            if (['INPUT', 'TEXTAREA', 'SELECT'].includes(activeTag)) return;
+            
+            try {
+                loadStoredData();
+                updateDashboardStats();
+            } catch (error) {
+                console.error('Gagal sinkron data dari server:', error);
+            }
+        }
+
+        window.addEventListener('focus', syncDataFromServerIfIdle);
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) syncDataFromServerIfIdle();
+        });
 
         // Show toast notification
         function showToast(message, type = 'success') {
@@ -1352,8 +1450,47 @@
         document.getElementById('logout-btn').addEventListener('click', function() {
             localStorage.removeItem('eraporku_user');
             currentUser = { username: '', level: '', tutor_id: '', nama: '' };
+            closeMobileMenu();
             showLoginPage();
             showToast('Anda telah keluar dari sistem');
+        });
+
+        function openMobileMenu() {
+            const sidebar = document.getElementById('app-sidebar');
+            const backdrop = document.getElementById('mobile-sidebar-backdrop');
+            sidebar.classList.remove('hidden');
+            sidebar.classList.add('flex');
+            backdrop.classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
+        }
+
+        function closeMobileMenu() {
+            const sidebar = document.getElementById('app-sidebar');
+            const backdrop = document.getElementById('mobile-sidebar-backdrop');
+            if (window.innerWidth < 768) {
+                sidebar.classList.add('hidden');
+                sidebar.classList.remove('flex');
+            }
+            backdrop.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+        }
+
+        document.getElementById('mobile-menu-btn').addEventListener('click', openMobileMenu);
+        document.getElementById('mobile-sidebar-backdrop').addEventListener('click', closeMobileMenu);
+        window.addEventListener('resize', function() {
+            const sidebar = document.getElementById('app-sidebar');
+            if (window.innerWidth >= 768) {
+                sidebar.classList.remove('hidden');
+                sidebar.classList.add('flex');
+                document.getElementById('mobile-sidebar-backdrop').classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
+            } else if (!document.getElementById('mobile-sidebar-backdrop').classList.contains('hidden')) {
+                sidebar.classList.remove('hidden');
+                sidebar.classList.add('flex');
+            } else {
+                sidebar.classList.add('hidden');
+                sidebar.classList.remove('flex');
+            }
         });
 
         // Navigation
@@ -1392,6 +1529,7 @@
                 document.getElementById('page-title').textContent = titles[target] || 'Dashboard';
                 
                 // Load specific page data
+                syncDataFromServerIfIdle();
                 if (target === 'siswa') loadSiswaTable();
                 if (target === 'kelas') loadKelasGrid();
                 if (target === 'mapel') loadMapelTable();
@@ -1401,6 +1539,7 @@
                 if (target === 'kehadiran') loadKehadiranSelectors();
                 if (target === 'legger') loadLeggerSelectors();
                 if (target === 'cetak') loadCetakSelectors();
+                closeMobileMenu();
             });
         });
 
