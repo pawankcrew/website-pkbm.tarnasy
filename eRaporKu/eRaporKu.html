@@ -938,7 +938,7 @@
         <div id="tab-lembaga" class="tab-content">
          <div class="space-y-6">
           <div class="bg-blue-50 p-4 rounded-lg">
-           <h4 class="font-medium text-blue-900 mb-2">ðŸ“‹ Informasi Penting</h4>
+           <h4 class="font-medium text-blue-900 mb-2">Informasi Penting</h4>
            <p class="text-sm text-blue-700">Data lembaga ini akan muncul di header rapor dan seluruh dokumen resmi. Logo lembaga akan terintegrasi ke seluruh aplikasi.</p>
           </div>
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-6"><!-- Logo Upload -->
@@ -990,7 +990,7 @@
         <div id="tab-akademik" class="tab-content hidden">
          <div class="space-y-6">
           <div class="bg-green-50 p-4 rounded-lg">
-           <h4 class="font-medium text-green-900 mb-2">ðŸ“… Informasi Penting</h4>
+           <h4 class="font-medium text-green-900 mb-2">Informasi Penting</h4>
            <p class="text-sm text-green-700">Data akademik ini akan muncul di rapor dan dokumen akademik. Pastikan tahun ajaran dan semester sudah benar.</p>
           </div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1036,7 +1036,7 @@
         <div id="tab-tutor" class="tab-content hidden">
          <div class="space-y-6">
           <div class="bg-purple-50 p-4 rounded-lg">
-           <h4 class="font-medium text-purple-900 mb-2">ðŸ‘¨â€ðŸ« Informasi Penting</h4>
+           <h4 class="font-medium text-purple-900 mb-2">Informasi Penting</h4>
            <p class="text-sm text-purple-700">Data tutor akan terintegrasi ke rapor dan dapat dipilih sebagai wali kelas. TTD tutor akan muncul di rapor.</p>
           </div>
           <div class="flex justify-between items-center gap-3 flex-wrap">
@@ -4952,27 +4952,35 @@ function generateCatatanWaliKelas(nisn) {
 
         function getKelulusanFooterHtml(tempat, tanggal) {
             const ttdKepala = appData.settings.headmaster_ttd
-                ? `<img src="${appData.settings.headmaster_ttd}" alt="TTD" style="height:48px;object-fit:contain;">`
-                : '<div style="height:48px;"></div>';
+                ? `<img src="${appData.settings.headmaster_ttd}" alt="TTD" style="height:55px;object-fit:contain;">`
+                : '<div style="height:55px;"></div>';
+                
             return `
-                <table style="width:100%;margin-top:20px;border:none;border-collapse:collapse;">
+                <table style="width:100%;margin-top:24px;border:none;border-collapse:collapse;">
                     <tr>
-                        <td style="width:35%;vertical-align:top;border:none;">
-                            <div class="foto-box">Pas Foto 3×4<br>(bercap tiga jari)</div>
-                        </td>
-                        <td style="width:30%;border:none;"></td>
-                        <td style="width:35%;vertical-align:top;text-align:center;border:none;">
-                            <p style="margin:0 0 4px;">${tempat}, ${tanggal}</p>
-                            <p style="margin:0;font-weight:bold;">Kepala ${appData.settings.school_name || 'PKBM/SKB'}</p>
-                            <div style="margin:8px 0;">${ttdKepala}</div>
-                            <p style="margin:0;font-weight:bold;text-decoration:underline;">${appData.settings.headmaster || '(...........................)'}</p>
-                            <p style="margin:4px 0 0;font-size:9pt;">${appData.settings.headmaster_nip ? 'NIP. ' + appData.settings.headmaster_nip : ''}</p>
+                        <td style="width:45%;border:none;"></td>
+                        
+                        <td style="width:55%;border:none;vertical-align:top;">
+                            <div style="display:flex;justify-content:flex-end;align-items:flex-end;gap:25px;">
+                                
+                                <div class="foto-box" style="margin: 0 0 16px 0; flex-shrink: 0; width: 76px; height: 114px; border: 1px dashed #000; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 8pt; line-height: 1.2; padding: 4px; box-sizing: border-box;">
+                                    Pas Foto 3×4<br>(bercap tiga jari)
+                                </div>
+                                
+                                <div style="text-align:center;width:190px;flex-shrink:0;">
+                                    <p style="margin:0 0 4px;font-size:10pt;">${tempat}, ${tanggal}</p>
+                                    <p style="margin:0;font-weight:bold;font-size:10pt;">Kepala ${appData.settings.school_name || 'PKBM/SKB'}</p>
+                                    <div style="margin:6px 0;height:55px;display:flex;align-items:center;justify-content:center;">${ttdKepala}</div>
+                                    <p style="margin:0;font-weight:bold;text-decoration:underline;font-size:10pt;white-space:nowrap;">${appData.settings.headmaster || '(...........................)'}</p>
+                                    <p style="margin:4px 0 0;font-size:9pt;">${appData.settings.headmaster_nip ? 'NIP. ' + appData.settings.headmaster_nip : ''}</p>
+                                </div>
+                                
+                            </div>
                         </td>
                     </tr>
                 </table>
             `;
         }
-
         function getKelasAkhirUpk() {
             return appData.kelas.filter(kelas => getKelulusanTingkatByText(kelas.nama_kelas, kelas.tingkat));
         }
@@ -5117,11 +5125,19 @@ function generateCatatanWaliKelas(nisn) {
                         <div style="font-size:13pt;font-weight:bold;text-decoration:underline;">SERTIFIKAT HASIL UJIAN PENDIDIKAN KESETARAAN (UPK)</div>
                         <div style="font-size:10pt;margin-top:4px;">Tahun Ajaran ${tahunAjaran}</div>
                     </div>
-                    <p style="text-align:justify;text-indent:32px;margin-bottom:8px;">
+                    <p style="text-align:justify;text-indent:32px;margin-bottom:12px;">
                         Yang bertanda tangan di bawah ini, Kepala <strong>${appData.settings.school_name || 'PKBM/SKB'}</strong>,
                         menerangkan bahwa peserta didik berikut telah mengikuti dan dinyatakan <strong>LULUS</strong> Ujian Pendidikan Kesetaraan (UPK)
                         program <strong>${getPaketLabel(tingkat)}</strong> dengan nilai sebagai berikut:
                     </p>
+
+                    <table style="width:100%;margin:0 0 16px 32px;font-size:10pt;border:none;border-collapse:collapse;">
+                        <tr><td style="width:140px;border:none;padding:2px 0;">Nama</td><td style="border:none;padding:2px 0;">: <strong>${siswa.nama || '-'}</strong></td></tr>
+                        <tr><td style="border:none;padding:2px 0;">NISN / NIPD</td><td style="border:none;padding:2px 0;">: ${siswa.nisn || '-'} / ${siswa.nipd || '-'}</td></tr>
+                        <tr><td style="border:none;padding:2px 0;">Tempat, Tanggal Lahir</td><td style="border:none;padding:2px 0;">: ${siswa.tempat_lahir || '-'}, ${siswa.tanggal_lahir ? formatTanggalIndonesia(siswa.tanggal_lahir) : '-'}</td></tr>
+                        <tr><td style="border:none;padding:2px 0;">Kelas / Paket</td><td style="border:none;padding:2px 0;">: ${siswa.kelas || '-'} / ${getPaketLabel(tingkat)}</td></tr>
+                    </table>
+
                     <table class="doc-table" style="font-size:10pt;">
                         <thead>
                             <tr>
@@ -5150,13 +5166,8 @@ function generateCatatanWaliKelas(nisn) {
                             </tr>
                         </tbody>
                     </table>
-                    <table style="width:100%;margin:12px 0;font-size:10pt;border:none;border-collapse:collapse;">
-                        <tr><td style="width:140px;border:none;">Nama</td><td style="border:none;">: <strong>${siswa.nama || '-'}</strong></td></tr>
-                        <tr><td style="border:none;">NISN / NIPD</td><td style="border:none;">: ${siswa.nisn || '-'} / ${siswa.nipd || '-'}</td></tr>
-                        <tr><td style="border:none;">Tempat, Tanggal Lahir</td><td style="border:none;">: ${siswa.tempat_lahir || '-'}, ${siswa.tanggal_lahir ? formatTanggalIndonesia(siswa.tanggal_lahir) : '-'}</td></tr>
-                        <tr><td style="border:none;">Kelas / Paket</td><td style="border:none;">: ${siswa.kelas || '-'} / ${getPaketLabel(tingkat)}</td></tr>
-                    </table>
-                    <p style="text-align:justify;margin-top:8px;">
+
+                    <p style="text-align:justify;margin-top:16px;">
                         Demikian sertifikat ini dibuat dengan sebenarnya untuk dipergunakan sebagaimana mestinya.
                     </p>
                     ${getKelulusanFooterHtml(tempat, tanggal)}
