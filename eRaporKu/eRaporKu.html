@@ -1,11 +1,13 @@
 ﻿<!doctype html>
 <html lang="id">
- <head>
+<head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>e-RaporKu - Pendidikan Kesetaraan</title>
   <link rel="icon" href="favicon.ico" type="image/x-icon">
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Baris di bawah ini untuk memperbaiki error XLSX is not defined -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
         body {
             box-sizing: border-box;
@@ -81,22 +83,39 @@
         
         @media print {
             @page {
-                size: 8.5in 13in; /* F4 size: 21.5cm x 33cm */
-                margin: 0.5in;
+                size: 215mm 330mm;
+                margin: 10mm;
+            }
+            @page rapor-f4 {
+                size: 215mm 330mm;
+                margin: 10mm;
+            }
+            @page legger-f4-landscape {
+                size: 330mm 215mm;
+                margin: 8mm;
+            }
+            @page kelulusan-a4 {
+                size: 210mm 297mm;
+                margin: 10mm;
             }
             body * {
                 visibility: hidden;
             }
-            .print-area, .print-area * {
+            .print-area, .print-area *,
+            .print-portrait-area, .print-portrait-area *,
+            .print-legger-area, .print-legger-area * {
                 visibility: visible;
             }
             .print-area {
+                page: rapor-f4;
                 position: absolute;
                 left: 0;
                 top: 0;
-                width: 100%;
+                width: 195mm;
+                min-height: 310mm;
                 box-shadow: none;
                 font-size: 10px !important;
+                overflow: visible !important;
             }
             .print-area table {
                 font-size: 9px !important;
@@ -114,6 +133,111 @@
                 page-break-after: always;
                 break-after: page;
             }
+            #app-sidebar,
+            header,
+            #whatsapp-widget,
+            #toast,
+            .no-print,
+            .kelulusan-toolbar,
+            .kelulusan-sub-nav {
+                display: none !important;
+                visibility: hidden !important;
+            }
+            .print-area, .print-area *,
+            .print-portrait-area, .print-portrait-area *,
+            .print-legger-area, .print-legger-area * {
+                visibility: visible;
+            }
+            .print-portrait-area {
+                page: kelulusan-a4;
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 190mm;
+                min-height: 277mm;
+                box-shadow: none;
+                overflow: visible !important;
+            }
+            .print-legger-area {
+                page: legger-f4-landscape;
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 314mm;
+                box-shadow: none;
+                overflow: visible !important;
+                font-size: 8px !important;
+            }
+            .print-legger-area table {
+                width: 100% !important;
+                table-layout: fixed;
+                border-collapse: collapse;
+                font-size: 7px !important;
+            }
+            .print-legger-area th,
+            .print-legger-area td {
+                padding: 2px 3px !important;
+            }
+            .kelulusan-doc {
+                page: kelulusan-a4;
+                width: 190mm;
+                min-height: 277mm;
+                margin: 0 auto;
+                page-break-after: always;
+                break-after: page;
+            }
+            .kelulusan-doc:last-child {
+                page-break-after: auto;
+                break-after: auto;
+            }
+        }
+
+        .kelulusan-sub-link.active {
+            background-color: #374151;
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .kelulusan-doc {
+            font-family: 'Times New Roman', Times, serif;
+            color: #000;
+            font-size: 11pt;
+            line-height: 1.35;
+            max-width: 210mm;
+            margin: 0 auto;
+            padding: 12mm 10mm;
+            background: #fff;
+        }
+
+        .kelulusan-doc .doc-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 8px 0;
+        }
+
+        .kelulusan-doc .doc-table th,
+        .kelulusan-doc .doc-table td {
+            border: 1px solid #000;
+            padding: 4px 6px;
+            vertical-align: middle;
+        }
+
+        .kelulusan-doc .doc-table th {
+            font-weight: bold;
+            text-align: center;
+            background: #fff;
+        }
+
+        .kelulusan-doc .foto-box {
+            width: 30mm;
+            height: 40mm;
+            border: 1px solid #000;
+            text-align: center;
+            font-size: 8pt;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
     </style>
   <style>@view-transition { navigation: auto; }</style>
@@ -180,9 +304,24 @@
       <li><a href="#" class="sidebar-link flex items-center px-6 py-3 hover:bg-gray-700" data-target="cetak">
         <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
         </svg> Cetak Rapor </a></li>
+      <li class="mt-2 border-t border-gray-700 pt-2">
+       <div class="px-6 py-2 text-xs font-semibold uppercase tracking-wider text-gray-400">Kelulusan &amp; UPK</div>
+       <a href="#" class="sidebar-link kelulusan-sub-link flex items-center pl-10 pr-6 py-2.5 hover:bg-gray-700 text-sm" data-target="kelulusan" data-kelulusan-tab="input-nilai-upk">
+        <svg class="h-4 w-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
+        Input Nilai UPK </a>
+       <a href="#" class="sidebar-link kelulusan-sub-link flex items-center pl-10 pr-6 py-2.5 hover:bg-gray-700 text-sm" data-target="kelulusan" data-kelulusan-tab="upk">
+        <svg class="h-4 w-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" /></svg>
+        Hasil Ujian UPK </a>
+       <a href="#" class="sidebar-link kelulusan-sub-link flex items-center pl-10 pr-6 py-2.5 hover:bg-gray-700 text-sm" data-target="kelulusan" data-kelulusan-tab="transkrip">
+        <svg class="h-4 w-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+        Transkrip Nilai </a>
+       <a href="#" class="sidebar-link kelulusan-sub-link flex items-center pl-10 pr-6 py-2.5 hover:bg-gray-700 text-sm" data-target="kelulusan" data-kelulusan-tab="skl">
+        <svg class="h-4 w-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+        SKL / Surat Keterangan Lulus </a>
+      </li>
       <li><a href="#" class="sidebar-link flex items-center px-6 py-3 hover:bg-gray-700" data-target="naik-kelas">
         <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11l5-5m0 0l5 5m-5-5v12" />
-        </svg> Naik Kelas </a></li>
+        </svg> Input Nilai Kokurikuler </a></li>
       <li><a href="#" class="sidebar-link flex items-center px-6 py-3 hover:bg-gray-700" data-target="ekstrakurikuler">
         <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M15 14h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg> Ekstrakurikuler </a></li>
@@ -314,7 +453,11 @@
        <div class="px-6 py-4 border-b border-gray-200">
         <div class="flex items-center justify-between">
          <h3 class="text-lg font-medium text-gray-900">Manajemen Siswa</h3>
-         <div class="flex space-x-3"><label for="upload-dapodik" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium cursor-pointer">
+         <div class="flex flex-wrap items-center gap-3">
+          <select id="filter-siswa-kelas" class="border border-gray-300 rounded px-3 py-2 text-sm">
+           <option value="">-- Semua Kelas --</option>
+          </select>
+          <label for="upload-dapodik" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium cursor-pointer">
            <svg class="h-4 w-4 inline mr-2" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
            </svg> Upload Data Dapodik </label> <input type="file" id="upload-dapodik" accept=".xlsx,.xls" class="hidden"> <button id="tambah-siswa-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium">
            <svg class="h-4 w-4 inline mr-2" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -620,11 +763,11 @@
         </div>
        </div>
       </div>
-     </div><!-- Naik Kelas Page -->
+     </div><!-- Input Nilai Kokurikuler Page -->
      <div id="page-naik-kelas" class="page-content hidden">
       <div class="bg-white rounded-lg shadow">
        <div class="px-6 py-4 border-b border-gray-200">
-        <h3 class="text-lg font-medium text-gray-900">Proses Naik Kelas Siswa</h3>
+        <h3 class="text-lg font-medium text-gray-900">Input Nilai Kokurikuler (P5)</h3>
        </div>
        <div class="p-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -641,21 +784,21 @@
              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">NISN</th>
              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Siswa</th>
-             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kelas Saat Ini</th>
-             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status Naik</th>
-             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kelas Tujuan</th>
-             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Proyek / Kegiatan P5</th>
+             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Waktu</th>
+             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Predikat</th>
+             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deskripsi</th>
             </tr>
            </thead>
            <tbody id="naik-kelas-table-body" class="bg-white divide-y divide-gray-200">
            </tbody>
           </table>
          </div>
-         <div class="mt-6 flex justify-end"><button id="simpan-semua-naik-btn" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md text-sm font-medium"> Simpan Semua Perubahan </button>
+         <div class="mt-6 flex justify-end"><button id="simpan-semua-naik-btn" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md text-sm font-medium"> Simpan Nilai Kokurikuler </button>
          </div>
         </div>
         <div id="naik-kelas-empty-state" class="text-center text-gray-500 py-8">
-         Pilih kelas untuk melihat daftar siswa yang akan diproses naik kelas.
+         Pilih kelas untuk mulai input nilai kokurikuler/P5.
         </div>
        </div>
       </div>
@@ -675,7 +818,7 @@
            </svg> Download Excel </button>
          </div>
         </div>
-        <div id="legger-preview" class="hidden">
+        <div id="legger-preview" class="hidden print-legger-area">
          <div class="overflow-x-auto">
           <table id="legger-table" class="min-w-full divide-y divide-gray-200 border border-gray-300">
            <thead class="bg-gray-50">
@@ -711,6 +854,67 @@
         </div>
         <div id="rapor-empty-state" class="text-center text-gray-500 py-8">
          Pilih kelas, lalu pilih siswa atau semua siswa di kelas untuk melihat preview rapor.
+        </div>
+       </div>
+      </div>
+     </div><!-- Kelulusan & UPK Page -->
+     <div id="page-kelulusan" class="page-content hidden">
+      <div class="bg-white rounded-lg shadow">
+       <div class="px-6 py-4 border-b border-gray-200">
+        <h3 id="kelulusan-page-heading" class="text-lg font-medium text-gray-900">Hasil Ujian UPK</h3>
+        <p class="text-sm text-gray-500 mt-1">Dokumen kelulusan untuk siswa tingkat akhir: <strong>Kelas 6 (Paket A)</strong>, <strong>Kelas 9 (Paket B)</strong>, dan <strong>Kelas 12 (Paket C)</strong>. Format cetak: Portrait (tegak).</p>
+       </div>
+       <div class="p-6">
+        <div class="kelulusan-sub-nav flex flex-wrap gap-2 mb-4 no-print border-b border-gray-200 pb-4">
+         <button type="button" class="kelulusan-tab-btn px-4 py-2 text-sm font-medium rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300" data-kelulusan-tab="input-nilai-upk">Input Nilai UPK</button>
+         <button type="button" class="kelulusan-tab-btn px-4 py-2 text-sm font-medium rounded-md bg-blue-600 text-white" data-kelulusan-tab="upk">Hasil Ujian UPK</button>
+         <button type="button" class="kelulusan-tab-btn px-4 py-2 text-sm font-medium rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300" data-kelulusan-tab="transkrip">Transkrip Nilai</button>
+         <button type="button" class="kelulusan-tab-btn px-4 py-2 text-sm font-medium rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300" data-kelulusan-tab="skl">SKL</button>
+        </div>
+        <div id="kelulusan-tab-input-nilai-upk" class="kelulusan-tab-content hidden no-print">
+         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div><label class="block text-sm font-medium text-gray-700 mb-2">Pilih Kelas Akhir</label>
+           <select id="select-kelas-input-upk" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="">-- Pilih Kelas --</option>
+           </select>
+          </div>
+         </div>
+         <div id="input-upk-form-container" class="hidden">
+          <div class="overflow-x-auto border border-gray-200 rounded-md">
+           <table class="min-w-full divide-y divide-gray-200">
+            <thead id="input-upk-table-head" class="bg-gray-50"></thead>
+            <tbody id="input-upk-table-body" class="bg-white divide-y divide-gray-200"></tbody>
+           </table>
+          </div>
+          <div class="flex justify-end mt-4">
+           <button type="button" id="simpan-nilai-upk-btn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium">💾 Simpan Nilai UPK</button>
+          </div>
+         </div>
+         <div id="input-upk-empty-state" class="text-center text-gray-500 py-8">
+          Pilih kelas akhir untuk mulai input nilai UPK.
+         </div>
+        </div>
+        <div class="kelulusan-toolbar grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+         <div><label class="block text-sm font-medium text-gray-700 mb-2">Pilih Kelas (lulus)</label>
+          <select id="select-kelas-kelulusan" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+           <option value="">-- Pilih Kelas --</option>
+          </select>
+         </div>
+         <div><label class="block text-sm font-medium text-gray-700 mb-2">Pilih Siswa</label>
+          <select id="select-siswa-kelulusan" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+           <option value="">-- Pilih Kelas Dahulu --</option>
+          </select>
+         </div>
+         <div class="flex items-end gap-2 md:col-span-2 flex-wrap">
+          <button type="button" id="preview-kelulusan-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium">Preview</button>
+          <button type="button" id="cetak-kelulusan-btn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium">Cetak</button>
+          <button type="button" id="cetak-kelulusan-kelas-btn" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md text-sm font-medium">Cetak Massal per Kelas</button>
+         </div>
+        </div>
+        <div id="kelulusan-eligible-info" class="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-md text-sm text-amber-800 hidden"></div>
+        <div id="kelulusan-preview" class="hidden print-portrait-area"></div>
+        <div id="kelulusan-empty-state" class="text-center text-gray-500 py-8">
+         Pilih kelas dan siswa (atau cetak massal per kelas) untuk melihat dokumen kelulusan.
         </div>
        </div>
       </div>
@@ -809,6 +1013,19 @@
            <div><label class="block text-sm font-medium text-gray-700 mb-2">Kriteria Ketuntasan Minimal (KKM)</label> <input type="number" id="setting-kkm" min="50" max="100" placeholder="75" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
             <p class="text-xs text-gray-500 mt-1">Nilai minimal untuk mencapai kompetensi (50-100)</p>
            </div>
+           <div class="md:col-span-2">
+            <h4 class="text-lg font-medium text-gray-900 mb-4 border-b border-gray-200 pb-2">Penomoran Dokumen Kelulusan</h4>
+           </div>
+           <div><label class="block text-sm font-medium text-gray-700 mb-2">Format Master Nomor SKL</label> <input type="text" id="setting-format-skl" placeholder="05.[NNN]/SKL/PKBM-[A/B/C]/TARNASY/V/2026" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <p class="text-xs text-gray-500 mt-1">Tag [NNN] menjadi nomor urut, [A/B/C] mengikuti jenjang siswa. Bulan romawi dan tahun ditulis manual.</p>
+           </div>
+           <div><label class="block text-sm font-medium text-gray-700 mb-2">Nomor Awal SKL</label> <input type="number" id="setting-counter-skl" min="1" placeholder="1" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+           </div>
+           <div><label class="block text-sm font-medium text-gray-700 mb-2">Format Master Nomor Sertifikat UPK</label> <input type="text" id="setting-format-upk" placeholder="05.[NNN]/UPK/PKBM-[A/B/C]/TARNASY/V/2026" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <p class="text-xs text-gray-500 mt-1">Counter UPK terpisah dari SKL dan bisa di-reset dari nomor awal.</p>
+           </div>
+           <div><label class="block text-sm font-medium text-gray-700 mb-2">Nomor Awal UPK</label> <input type="number" id="setting-counter-upk" min="1" placeholder="1" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+           </div>
            <div class="md:col-span-2"><label class="block text-sm font-medium text-gray-700 mb-2">Catatan Akademik</label> <textarea id="setting-catatan-akademik" rows="3" placeholder="Catatan khusus untuk periode akademik ini..." class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
            </div>
           </div>
@@ -822,10 +1039,15 @@
            <h4 class="font-medium text-purple-900 mb-2">ðŸ‘¨â€ðŸ« Informasi Penting</h4>
            <p class="text-sm text-purple-700">Data tutor akan terintegrasi ke rapor dan dapat dipilih sebagai wali kelas. TTD tutor akan muncul di rapor.</p>
           </div>
-          <div class="flex justify-between items-center">
-           <h4 class="text-lg font-medium text-gray-900">Daftar Tutor</h4><button id="tambah-tutor-btn" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+          <div class="flex justify-between items-center gap-3 flex-wrap">
+           <h4 class="text-lg font-medium text-gray-900">Daftar Tutor</h4>
+           <div class="flex items-center gap-3 flex-wrap">
+            <label for="upload-tutor-excel" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium cursor-pointer">📁 Upload Excel Dapodik</label>
+            <input type="file" id="upload-tutor-excel" accept=".xlsx,.xls" class="hidden">
+            <button id="tambah-tutor-btn" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md text-sm font-medium">
             <svg class="h-4 w-4 inline mr-2" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg> Tambah Tutor </button>
+           </div>
           </div>
           <div class="overflow-x-auto">
            <table class="min-w-full divide-y divide-gray-200">
@@ -866,6 +1088,8 @@
        <div><label class="block text-sm font-medium text-gray-700 mb-1">NISN <span class="text-xs text-gray-500">(opsional)</span></label> <input type="text" name="nisn" placeholder="Kosongkan jika belum ada NISN" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
        </div>
        <div><label class="block text-sm font-medium text-gray-700 mb-1">NIPD</label> <input type="text" name="nipd" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+       </div>
+       <div><label class="block text-sm font-medium text-gray-700 mb-1">Nomor Ijazah / Transkrip Nilai</label> <input type="text" name="nomor_ijazah" placeholder="Nomor resmi ijazah/transkrip" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
        </div>
        <div><label class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap *</label> <input type="text" name="nama" required class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
        </div>
@@ -966,6 +1190,9 @@
      </div>
      <div><label class="block text-sm font-medium text-gray-700 mb-1">Nama Mata Pelajaran</label> <input type="text" name="nama_mapel" required placeholder="Contoh: Matematika, IPA, IPS" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
      </div>
+     <div><label class="block text-sm font-medium text-gray-700 mb-1">Tujuan Pembelajaran (TP)</label> <textarea name="tujuan_pembelajaran" rows="4" placeholder="Tulis TP per baris. Contoh: Memahami konsep bilangan; Menyelesaikan masalah kontekstual" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+      <p class="text-xs text-gray-500 mt-1">TP ini dipakai otomatis untuk menyusun deskripsi capaian kompetensi pada Input Nilai dan Rapor.</p>
+     </div>
      <input type="hidden" name="kurikulum" value="merdeka">
      <div class="flex justify-end space-x-3 pt-4"><button type="button" id="batal-mapel-btn" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-md"> Batal </button> <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md"> Simpan </button>
      </div>
@@ -1011,6 +1238,28 @@
         </div>
         <div><span class="font-medium text-blue-700">Status:</span> <span class="ml-2 text-blue-900">Aktif</span>
         </div>
+       </div>
+      </div>
+      <div class="bg-white border border-gray-200 rounded-lg">
+       <div class="px-4 py-3 border-b border-gray-200">
+        <h4 class="font-medium text-gray-900">Kenaikan Kelas / Kelulusan</h4>
+       </div>
+       <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+         <thead class="bg-gray-50">
+          <tr>
+           <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
+           <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Siswa</th>
+           <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+           <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Target Kelas</th>
+          </tr>
+         </thead>
+         <tbody id="atur-kenaikan-table-body" class="bg-white divide-y divide-gray-200">
+          <tr>
+           <td colspan="4" class="px-4 py-3 text-center text-sm text-gray-500">Pilih kelas untuk memuat data siswa.</td>
+          </tr>
+         </tbody>
+        </table>
        </div>
       </div>
      </div>
@@ -1131,6 +1380,7 @@
             kelas: [],
             mapel: [],
             nilai: [],
+            nilai_upk: [],
             tutor: [],
             ekstrakurikuler: [],
             kehadiran: [],
@@ -1159,7 +1409,11 @@
                 tempat_rapor: "",
                 tanggal_rapor: "",
                 catatan_akademik: "",
-                kkm: "75"
+                kkm: "75",
+                format_nomor_skl: "05.[NNN]/SKL/PKBM-[A/B/C]/TARNASY/V/2026",
+                counter_skl: "1",
+                format_nomor_upk: "05.[NNN]/UPK/PKBM-[A/B/C]/TARNASY/V/2026",
+                counter_upk: "1"
             }
         };
 
@@ -1230,6 +1484,7 @@
                 (Array.isArray(data.kelas) && data.kelas.length > 0) ||
                 (Array.isArray(data.mapel) && data.mapel.length > 0) ||
                 (Array.isArray(data.nilai) && data.nilai.length > 0) ||
+                (Array.isArray(data.nilai_upk) && data.nilai_upk.length > 0) ||
                 (Array.isArray(data.tutor) && data.tutor.length > 0)
             );
         }
@@ -1267,13 +1522,25 @@
             appData.kelas = Array.isArray(appData.kelas) ? appData.kelas : [];
             appData.mapel = Array.isArray(appData.mapel) ? appData.mapel : [];
             appData.nilai = Array.isArray(appData.nilai) ? appData.nilai : [];
+            appData.nilai_upk = Array.isArray(appData.nilai_upk) ? appData.nilai_upk : [];
             appData.tutor = Array.isArray(appData.tutor) ? appData.tutor : [];
             appData.ekstrakurikuler = Array.isArray(appData.ekstrakurikuler) ? appData.ekstrakurikuler : [];
             appData.kokurikuler = Array.isArray(appData.kokurikuler) ? appData.kokurikuler : [];
             appData.kehadiran = Array.isArray(appData.kehadiran) ? appData.kehadiran : [];
             appData.settings = appData.settings || {};
             appData.kelas = appData.kelas.map(kelas => ({ ...kelas, kurikulum: 'merdeka' }));
-            appData.mapel = appData.mapel.map(mapel => ({ ...mapel, kurikulum: 'merdeka' }));
+            appData.mapel = appData.mapel.map(mapel => ({ ...mapel, kurikulum: 'merdeka', tujuan_pembelajaran: mapel.tujuan_pembelajaran || '' }));
+            appData.siswa = appData.siswa.map(siswa => ({ ...siswa, nomor_ijazah: siswa.nomor_ijazah || siswa.nomor_transkrip || '' }));
+            if (appData.settings.format_nomor_skl === "05.[NNN]/SKL/PKBM-[B/C]/TARNASY/V/2026") {
+                appData.settings.format_nomor_skl = "05.[NNN]/SKL/PKBM-[A/B/C]/TARNASY/V/2026";
+            }
+            if (appData.settings.format_nomor_upk === "05.[NNN]/UPK/PKBM-[B/C]/TARNASY/V/2026") {
+                appData.settings.format_nomor_upk = "05.[NNN]/UPK/PKBM-[A/B/C]/TARNASY/V/2026";
+            }
+            appData.settings.format_nomor_skl = appData.settings.format_nomor_skl || "05.[NNN]/SKL/PKBM-[A/B/C]/TARNASY/V/2026";
+            appData.settings.counter_skl = appData.settings.counter_skl || "1";
+            appData.settings.format_nomor_upk = appData.settings.format_nomor_upk || "05.[NNN]/UPK/PKBM-[A/B/C]/TARNASY/V/2026";
+            appData.settings.counter_upk = appData.settings.counter_upk || "1";
         }
 
         // Save data to local server or localStorage fallback
@@ -1519,18 +1786,22 @@
                     'mapel': 'Manajemen Mata Pelajaran',
                     'nilai': 'Input Nilai',
                     'cek-data': 'Cek Data Diri Siswa',
-                    'naik-kelas': 'Naik Kelas',
+                    'naik-kelas': 'Input Nilai Kokurikuler',
                     'ekstrakurikuler': 'Ekstrakurikuler',
                     'kehadiran': 'Kehadiran & Catatan',
                     'legger': 'Download Legger Nilai',
                     'cetak': 'Cetak Rapor',
+                    'kelulusan': 'Kelulusan & UPK',
                     'pengaturan': 'Pengaturan'
                 };
                 document.getElementById('page-title').textContent = titles[target] || 'Dashboard';
                 
                 // Load specific page data
                 syncDataFromServerIfIdle();
-                if (target === 'siswa') loadSiswaTable();
+                if (target === 'siswa') {
+                    loadFilterSiswaKelasOptions();
+                    loadSiswaTable();
+                }
                 if (target === 'kelas') loadKelasGrid();
                 if (target === 'mapel') loadMapelTable();
                 if (target === 'nilai') loadNilaiSelectors();
@@ -1539,9 +1810,86 @@
                 if (target === 'kehadiran') loadKehadiranSelectors();
                 if (target === 'legger') loadLeggerSelectors();
                 if (target === 'cetak') loadCetakSelectors();
+                if (target === 'kelulusan') {
+                    if (activeKelulusanTab === 'input-nilai-upk') {
+                        loadInputNilaiUpkSelectors();
+                    } else {
+                        loadKelulusanSelectors();
+                    }
+                }
                 closeMobileMenu();
             });
         });
+
+        let activeKelulusanTab = 'upk';
+
+        document.querySelectorAll('.kelulusan-sub-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const tab = this.dataset.kelulusanTab || 'upk';
+                switchKelulusanTab(tab);
+                document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+                document.querySelectorAll('.kelulusan-sub-link').forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+                document.querySelectorAll('.page-content').forEach(page => page.classList.add('hidden'));
+                document.getElementById('page-kelulusan').classList.remove('hidden');
+                const titles = { 'input-nilai-upk': 'Input Nilai UPK', upk: 'Hasil Ujian UPK', transkrip: 'Transkrip Nilai', skl: 'SKL / Surat Keterangan Lulus' };
+                document.getElementById('page-title').textContent = 'Kelulusan & UPK — ' + (titles[tab] || '');
+                document.getElementById('kelulusan-page-heading').textContent = titles[tab] || 'Kelulusan';
+                if (tab === 'input-nilai-upk') {
+                    loadInputNilaiUpkSelectors();
+                } else {
+                    loadKelulusanSelectors();
+                }
+                closeMobileMenu();
+            });
+        });
+
+        document.querySelectorAll('.kelulusan-tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                switchKelulusanTab(this.dataset.kelulusanTab || 'upk');
+            });
+        });
+
+        function switchKelulusanTab(tab) {
+            activeKelulusanTab = tab || 'upk';
+            const titles = { 'input-nilai-upk': 'Input Nilai UPK', upk: 'Hasil Ujian UPK', transkrip: 'Transkrip Nilai', skl: 'SKL / Surat Keterangan Lulus' };
+            document.getElementById('kelulusan-page-heading').textContent = titles[activeKelulusanTab] || 'Kelulusan';
+            document.querySelectorAll('.kelulusan-tab-btn').forEach(btn => {
+                const isActive = btn.dataset.kelulusanTab === activeKelulusanTab;
+                btn.classList.toggle('bg-blue-600', isActive);
+                btn.classList.toggle('text-white', isActive);
+                btn.classList.toggle('bg-gray-200', !isActive);
+                btn.classList.toggle('text-gray-700', !isActive);
+            });
+            document.querySelectorAll('.kelulusan-sub-link').forEach(link => {
+                link.classList.toggle('active', link.dataset.kelulusanTab === activeKelulusanTab);
+            });
+            const isInputNilaiUpk = activeKelulusanTab === 'input-nilai-upk';
+            const inputTab = document.getElementById('kelulusan-tab-input-nilai-upk');
+            if (inputTab) inputTab.classList.toggle('hidden', !isInputNilaiUpk);
+            document.querySelectorAll('.kelulusan-toolbar').forEach(el => {
+                el.classList.toggle('hidden', isInputNilaiUpk);
+            });
+            const preview = document.getElementById('kelulusan-preview');
+            const emptyState = document.getElementById('kelulusan-empty-state');
+            const info = document.getElementById('kelulusan-eligible-info');
+            if (isInputNilaiUpk) {
+                if (preview) preview.classList.add('hidden');
+                if (emptyState) emptyState.classList.add('hidden');
+                if (info) info.classList.add('hidden');
+                loadInputNilaiUpkSelectors();
+                return;
+            }
+            if (preview && preview.innerHTML.trim()) {
+                preview.classList.remove('hidden');
+                if (emptyState) emptyState.classList.add('hidden');
+                refreshKelulusanPreviewFromSelection();
+            } else {
+                if (preview) preview.classList.add('hidden');
+                if (emptyState) emptyState.classList.remove('hidden');
+            }
+        }
 
         // Update dashboard statistics
         function updateDashboardStats() {
@@ -1552,30 +1900,104 @@
         }
 
         // Siswa Management
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, char => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[char]));
+        }
+
+        function loadFilterSiswaKelasOptions() {
+            const filter = document.getElementById('filter-siswa-kelas');
+            if (!filter) return;
+            const selected = filter.value;
+            filter.innerHTML = '<option value="">-- Semua Kelas --</option>' +
+                appData.kelas.map(kelas => `<option value="${escapeHtml(kelas.nama_kelas)}">${escapeHtml(kelas.nama_kelas)}</option>`).join('');
+            if ([...filter.options].some(opt => opt.value === selected)) {
+                filter.value = selected;
+            }
+        }
+
+        function syncSiswaNisnReferences(oldNisn, newNisn) {
+            appData.nilai = (appData.nilai || []).map(n => n.nisn === oldNisn ? { ...n, nisn: newNisn } : n);
+            appData.nilai_upk = (appData.nilai_upk || []).map(n => n.nisn === oldNisn ? { ...n, nisn: newNisn } : n);
+            appData.kokurikuler = (appData.kokurikuler || []).map(k => k.nisn === oldNisn ? { ...k, nisn: newNisn } : k);
+            appData.ekstrakurikuler = (appData.ekstrakurikuler || []).map(e => e.nisn === oldNisn ? { ...e, nisn: newNisn } : e);
+            appData.kehadiran = (appData.kehadiran || []).map(k => k.nisn === oldNisn ? { ...k, nisn: newNisn } : k);
+        }
+
+        function updateSiswaNisnInline(oldNisn, rawValue, input) {
+            const siswaIndex = appData.siswa.findIndex(s => s.nisn === oldNisn);
+            if (siswaIndex === -1) return;
+            let newNisn = String(rawValue || '').trim();
+            if (!newNisn) {
+                newNisn = 'TEMP_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+            }
+            if (newNisn === oldNisn) return;
+            const duplicate = appData.siswa.some((s, idx) => idx !== siswaIndex && s.nisn === newNisn && !newNisn.startsWith('TEMP_'));
+            if (duplicate) {
+                showToast('NISN sudah digunakan siswa lain!', 'error');
+                if (input) input.value = oldNisn.startsWith('TEMP_') ? '' : oldNisn;
+                return;
+            }
+            appData.siswa[siswaIndex].nisn = newNisn;
+            syncSiswaNisnReferences(oldNisn, newNisn);
+            saveData();
+            loadSiswaTable();
+            showToast('NISN siswa berhasil diperbarui!');
+        }
+
+        function attachSiswaNisnInlineHandlers() {
+            document.querySelectorAll('.siswa-nisn-inline').forEach(input => {
+                input.addEventListener('change', function() {
+                    updateSiswaNisnInline(this.dataset.oldNisn, this.value, this);
+                });
+                input.addEventListener('blur', function() {
+                    if (this.value.trim() !== (this.dataset.oldNisn || '') && !(this.dataset.oldNisn || '').startsWith('TEMP_')) {
+                        updateSiswaNisnInline(this.dataset.oldNisn, this.value, this);
+                    }
+                });
+            });
+        }
+
+        const filterSiswaKelasEl = document.getElementById('filter-siswa-kelas');
+        if (filterSiswaKelasEl) {
+            filterSiswaKelasEl.addEventListener('change', loadSiswaTable);
+        }
+
         function loadSiswaTable() {
             const tbody = document.getElementById('siswa-table-body');
+            loadFilterSiswaKelasOptions();
+            const selectedKelas = document.getElementById('filter-siswa-kelas')?.value || '';
+            const siswaList = selectedKelas ? appData.siswa.filter(s => s.kelas === selectedKelas) : appData.siswa;
             
             if (appData.siswa.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-4 text-center text-gray-500">Belum ada data siswa. Upload data dapodik atau tambah siswa manual.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="8" class="px-6 py-4 text-center text-gray-500">Belum ada data siswa. Upload data dapodik atau tambah siswa manual.</td></tr>';
+                return;
+            }
+            if (siswaList.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="px-6 py-4 text-center text-gray-500">Tidak ada siswa pada kelas yang dipilih.</td></tr>';
                 return;
             }
             
-            tbody.innerHTML = appData.siswa.map((siswa, index) => {
+            tbody.innerHTML = siswaList.map((siswa, index) => {
                 const statusNaik = getStatusNaikKelas(siswa);
                 const isGanjil = appData.settings.semester === '1';
+                const nisnValue = siswa.nisn && !String(siswa.nisn).startsWith('TEMP_') ? siswa.nisn : '';
                 
                 return `
                 <tr>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${index + 1}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        ${siswa.nisn.startsWith('TEMP_') ? 
-                            `<span class="text-orange-600 text-xs">NISN Kosong</span>` : 
-                            siswa.nisn
-                        }
+                        <input type="text" class="siswa-nisn-inline border border-blue-300 bg-blue-50 rounded px-2 py-1 w-36 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" data-old-nisn="${escapeHtml(siswa.nisn)}" value="${escapeHtml(nisnValue)}" placeholder="Isi NISN">
+                        ${String(siswa.nisn || '').startsWith('TEMP_') ? '<div class="text-orange-600 text-xs mt-1">NISN Kosong</div>' : ''}
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${siswa.nipd || '-'}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 ${statusNaik.class}">${siswa.nama}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${siswa.kelas || '-'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${escapeHtml(siswa.nipd || '-')}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 ${statusNaik.class}">${escapeHtml(siswa.nama)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${escapeHtml(siswa.kelas || '-')}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${siswa.jk === 'L' ? 'L' : siswa.jk === 'P' ? 'P' : '-'}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm">
                         ${isGanjil ? 
@@ -1586,17 +2008,13 @@
                         }
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <button onclick="editSiswa('${siswa.nisn}')" class="text-blue-600 hover:text-blue-900 mr-2">Edit</button>
-                        <button onclick="naikKelas('${siswa.nisn}')" class="text-green-600 hover:text-green-900 mr-2" title="Naik Kelas">
-                            <svg class="h-4 w-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11l5-5m0 0l5 5m-5-5v12"></path>
-                            </svg>
-                        </button>
-                        <button onclick="deleteSiswa('${siswa.nisn}')" class="text-red-600 hover:text-red-900">Hapus</button>
+                        <button onclick="editSiswa('${escapeHtml(siswa.nisn)}')" class="text-blue-600 hover:text-blue-900 mr-2">Edit</button>
+                        <button onclick="deleteSiswa('${escapeHtml(siswa.nisn)}')" class="text-red-600 hover:text-red-900">Hapus</button>
                     </td>
                 </tr>
             `;
             }).join('');
+            attachSiswaNisnInlineHandlers();
         }
 
         // Load kelas options for siswa form
@@ -1609,8 +2027,12 @@
         }
 
         // Siswa form handlers
+        let currentEditSiswaNisn = null;
+
         document.getElementById('tambah-siswa-btn').addEventListener('click', function() {
+            currentEditSiswaNisn = null;
             loadKelasOptions();
+            document.querySelector('#modal-siswa .text-lg').textContent = 'Tambah Siswa Baru';
             document.getElementById('modal-siswa').classList.remove('hidden');
             document.getElementById('modal-siswa').classList.add('flex');
         });
@@ -1619,7 +2041,22 @@
             document.getElementById('modal-siswa').classList.add('hidden');
             document.getElementById('modal-siswa').classList.remove('flex');
             document.getElementById('form-siswa').reset();
+            currentEditSiswaNisn = null;
         });
+
+        function editSiswa(nisn) {
+            const siswa = appData.siswa.find(s => s.nisn === nisn);
+            if (!siswa) return;
+            currentEditSiswaNisn = nisn;
+            loadKelasOptions();
+            const form = document.getElementById('form-siswa');
+            Object.keys(siswa).forEach(key => {
+                if (form.elements[key]) form.elements[key].value = siswa[key] || '';
+            });
+            document.querySelector('#modal-siswa .text-lg').textContent = 'Edit Data Siswa';
+            document.getElementById('modal-siswa').classList.remove('hidden');
+            document.getElementById('modal-siswa').classList.add('flex');
+        }
 
         document.getElementById('form-siswa').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -1629,6 +2066,7 @@
                 // Data Utama
                 nisn: formData.get('nisn'),
                 nipd: formData.get('nipd') || '',
+                nomor_ijazah: formData.get('nomor_ijazah') || '',
                 nama: formData.get('nama'),
                 jk: formData.get('jk'),
                 agama: formData.get('agama'),
@@ -1667,21 +2105,31 @@
                 siswa.nisn = 'TEMP_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
             } else {
                 // Check if NISN already exists (hanya jika bukan NISN sementara)
-                if (appData.siswa.find(s => s.nisn === siswa.nisn && !s.nisn.startsWith('TEMP_'))) {
+                if (appData.siswa.find(s => s.nisn === siswa.nisn && s.nisn !== currentEditSiswaNisn && !s.nisn.startsWith('TEMP_'))) {
                     showToast('NISN sudah ada!', 'error');
                     return;
                 }
             }
             
-            appData.siswa.push(siswa);
+            if (currentEditSiswaNisn) {
+                const siswaIndex = appData.siswa.findIndex(s => s.nisn === currentEditSiswaNisn);
+                if (siswaIndex !== -1) appData.siswa[siswaIndex] = { ...appData.siswa[siswaIndex], ...siswa };
+                appData.nilai = appData.nilai.map(n => n.nisn === currentEditSiswaNisn ? { ...n, nisn: siswa.nisn } : n);
+                appData.nilai_upk = (appData.nilai_upk || []).map(n => n.nisn === currentEditSiswaNisn ? { ...n, nisn: siswa.nisn } : n);
+                appData.kokurikuler = (appData.kokurikuler || []).map(k => k.nisn === currentEditSiswaNisn ? { ...k, nisn: siswa.nisn } : k);
+            } else {
+                appData.siswa.push(siswa);
+            }
             saveData();
             loadSiswaTable();
             
             document.getElementById('modal-siswa').classList.add('hidden');
             document.getElementById('modal-siswa').classList.remove('flex');
             this.reset();
+            currentEditSiswaNisn = null;
+            document.querySelector('#modal-siswa .text-lg').textContent = 'Tambah Siswa Baru';
             
-            showToast('Siswa berhasil ditambahkan!');
+            showToast('Siswa berhasil disimpan!');
         });
 
         // Delete siswa
@@ -2272,10 +2720,51 @@
             document.getElementById('atur-total-siswa').textContent = siswaKelas.length;
             document.getElementById('atur-siswa-l').textContent = siswaL;
             document.getElementById('atur-siswa-p').textContent = siswaP;
+            renderAturKenaikanTable(kelas, siswaKelas);
 
             // Show modal
             document.getElementById('modal-atur-kelas').classList.remove('hidden');
             document.getElementById('modal-atur-kelas').classList.add('flex');
+        }
+
+        function isKelasAkhir(kelas) {
+            const nama = `${kelas.nama_kelas || ''} ${kelas.tingkat || ''}`.toLowerCase();
+            return nama.includes('paket c') || nama.includes('xii') || nama.includes('kelas 12') || nama.includes('akhir');
+        }
+
+        function renderAturKenaikanTable(kelas, siswaKelas) {
+            const tbody = document.getElementById('atur-kenaikan-table-body');
+            const targetOptions = appData.kelas
+                .filter(k => k.id !== kelas.id)
+                .map(k => `<option value="${k.nama_kelas}">${k.nama_kelas}</option>`)
+                .join('');
+            const kelasAkhir = isKelasAkhir(kelas);
+
+            if (siswaKelas.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="px-4 py-3 text-center text-sm text-gray-500">Belum ada siswa di kelas ini.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = siswaKelas.map((siswa, index) => `
+                <tr>
+                    <td class="px-4 py-2 text-sm text-gray-900">${index + 1}</td>
+                    <td class="px-4 py-2 text-sm text-gray-900">${siswa.nama}<div class="text-xs text-gray-500">${siswa.nisn}</div></td>
+                    <td class="px-4 py-2">
+                        <select class="atur-status-naik-input border border-gray-300 rounded px-2 py-1 text-sm" data-nisn="${siswa.nisn}">
+                            <option value="">-- Pilih Status --</option>
+                            <option value="naik" ${siswa.status_naik === 'naik' ? 'selected' : ''}>Naik ke Kelas</option>
+                            <option value="tinggal" ${siswa.status_naik === 'tinggal' || siswa.status_naik === 'tidak_naik' ? 'selected' : ''}>Tinggal Kelas</option>
+                            ${kelasAkhir ? `<option value="lulus" ${siswa.status_naik === 'lulus' ? 'selected' : ''}>Lulus</option>` : ''}
+                        </select>
+                    </td>
+                    <td class="px-4 py-2">
+                        <select class="atur-kelas-target-input border border-gray-300 rounded px-2 py-1 text-sm" data-nisn="${siswa.nisn}">
+                            <option value="">-- Pilih Target --</option>
+                            ${targetOptions.replace(`value="${siswa.kelas_tujuan || ''}"`, `value="${siswa.kelas_tujuan || ''}" selected`)}
+                        </select>
+                    </td>
+                </tr>
+            `).join('');
         }
 
         // Modal atur kelas handlers
@@ -2312,6 +2801,19 @@
                     keterangan: formData.get('keterangan')
                 };
 
+                document.querySelectorAll('.atur-status-naik-input').forEach(input => {
+                    const siswaIndex = appData.siswa.findIndex(s => s.nisn === input.dataset.nisn);
+                    if (siswaIndex === -1) return;
+                    const targetInput = document.querySelector(`.atur-kelas-target-input[data-nisn="${input.dataset.nisn}"]`);
+                    const status = input.value;
+                    const targetKelas = targetInput ? targetInput.value : '';
+                    appData.siswa[siswaIndex].status_naik = status;
+                    appData.siswa[siswaIndex].kelas_tujuan = targetKelas;
+                    if (status === 'naik' && targetKelas) appData.siswa[siswaIndex].kelas = targetKelas;
+                    if (status === 'tinggal') appData.siswa[siswaIndex].kelas_tujuan = appData.siswa[siswaIndex].kelas;
+                    if (status === 'lulus') appData.siswa[siswaIndex].status = 'Lulus';
+                });
+
                 saveData();
                 loadKelasGrid();
 
@@ -2325,6 +2827,7 @@
         });
 
         // Mapel Management
+        let currentEditMapelId = null;
         
 
         function loadMapelTable() {
@@ -2340,7 +2843,10 @@
                 <tr>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${index + 1}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${mapel.kode_mapel}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${mapel.nama_mapel}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <div>${mapel.nama_mapel}</div>
+                        <div class="text-xs text-gray-500">${mapel.tujuan_pembelajaran ? 'TP terisi' : 'TP belum diisi'}</div>
+                    </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <button onclick="editMapel('${mapel.id}')" class="text-blue-600 hover:text-blue-900 mr-3">Edit</button>
                         <button onclick="deleteMapel('${mapel.id}')" class="text-red-600 hover:text-red-900">Hapus</button>
@@ -2350,6 +2856,8 @@
         }
 // Mapel form handlers
         document.getElementById('tambah-mapel-btn').addEventListener('click', function() {
+            currentEditMapelId = null;
+            document.querySelector('#modal-mapel .text-lg').textContent = 'Tambah Mata Pelajaran';
             document.getElementById('modal-mapel').classList.remove('hidden');
             document.getElementById('modal-mapel').classList.add('flex');
         });
@@ -2358,6 +2866,7 @@
             document.getElementById('modal-mapel').classList.add('hidden');
             document.getElementById('modal-mapel').classList.remove('flex');
             document.getElementById('form-mapel').reset();
+            currentEditMapelId = null;
         });
 
         document.getElementById('form-mapel').addEventListener('submit', function(e) {
@@ -2365,22 +2874,45 @@
             
             const formData = new FormData(this);
             const mapel = {
-                id: Date.now().toString(),
                 kode_mapel: formData.get('kode_mapel'),
                 nama_mapel: formData.get('nama_mapel'),
+                tujuan_pembelajaran: formData.get('tujuan_pembelajaran') || '',
                 kurikulum: 'merdeka'
             };
             
-            appData.mapel.push(mapel);
+            if (currentEditMapelId) {
+                const mapelIndex = appData.mapel.findIndex(m => m.id === currentEditMapelId);
+                if (mapelIndex !== -1) {
+                    appData.mapel[mapelIndex] = { ...appData.mapel[mapelIndex], ...mapel };
+                }
+            } else {
+                appData.mapel.push({ id: Date.now().toString(), ...mapel });
+            }
             saveData();
             loadMapelTable();
             
             document.getElementById('modal-mapel').classList.add('hidden');
             document.getElementById('modal-mapel').classList.remove('flex');
             this.reset();
+            currentEditMapelId = null;
+            document.querySelector('#modal-mapel .text-lg').textContent = 'Tambah Mata Pelajaran';
             
-            showToast('Mata pelajaran berhasil ditambahkan!');
+            showToast('Mata pelajaran berhasil disimpan!');
         });
+
+        function editMapel(id) {
+            const mapel = appData.mapel.find(m => m.id === id);
+            if (!mapel) return;
+
+            currentEditMapelId = id;
+            const form = document.getElementById('form-mapel');
+            form.kode_mapel.value = mapel.kode_mapel || '';
+            form.nama_mapel.value = mapel.nama_mapel || '';
+            form.tujuan_pembelajaran.value = mapel.tujuan_pembelajaran || '';
+            document.querySelector('#modal-mapel .text-lg').textContent = 'Edit Mata Pelajaran & TP';
+            document.getElementById('modal-mapel').classList.remove('hidden');
+            document.getElementById('modal-mapel').classList.add('flex');
+        }
 
         // Delete mapel
         function deleteMapel(id) {
@@ -2469,7 +3001,7 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${siswa.nisn}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${siswa.nama}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <input type="number" min="0" max="100" class="nilai-input border border-gray-300 rounded px-2 py-1 w-24 text-sm text-center" data-nisn="${siswa.nisn}" data-mapel="${mapel ? mapel.nama_mapel : ''}" value="${getNilaiAngka(existingNilai)}">
+                            <input type="number" min="0" max="100" class="nilai-input border border-gray-300 rounded px-2 py-1 w-24 text-sm text-center" data-nisn="${siswa.nisn}" data-mapel-id="${mapelId}" data-mapel="${mapel ? mapel.nama_mapel : ''}" value="${getNilaiAngka(existingNilai)}">
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold nilai-kriteria" data-nisn="${siswa.nisn}">-</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm nilai-predikat" data-nisn="${siswa.nisn}">-</td>
@@ -2496,7 +3028,24 @@
             return '';
         }
 
-        function hitungNilaiOtomatis(nilaiAngka, namaMapel) {
+        function getNilaiNumerikAsli(nilai) {
+            const angka = getNilaiAngka(nilai);
+            return angka === '' || angka === null || angka === undefined ? null : parseInt(angka, 10);
+        }
+
+        function getMapelTpList(mapel) {
+            if (!mapel || !mapel.tujuan_pembelajaran) return [];
+            return String(mapel.tujuan_pembelajaran)
+                .split(/\r?\n|;/)
+                .map(tp => tp.trim())
+                .filter(Boolean);
+        }
+
+        function getMapelByName(namaMapel) {
+            return appData.mapel.find(m => m.nama_mapel === namaMapel);
+        }
+
+        function hitungNilaiOtomatis(nilaiAngka, namaMapel, mapelData = null) {
             const angka = parseInt(nilaiAngka, 10);
             if (isNaN(angka)) {
                 return { angka: '', kriteria: '', predikat: '', capaian: '', deskripsi: '' };
@@ -2524,13 +3073,14 @@
                 kriteria,
                 predikat,
                 capaian,
-                deskripsi: getDeskripsiCapaian(namaMapel || 'mata pelajaran', angka)
+                deskripsi: getDeskripsiCapaian(namaMapel || 'mata pelajaran', angka, mapelData || getMapelByName(namaMapel))
             };
         }
 
         function refreshNilaiOtomatis() {
             document.querySelectorAll('.nilai-input').forEach(input => {
-                const hasil = hitungNilaiOtomatis(input.value, input.dataset.mapel || '');
+                const mapelData = appData.mapel.find(m => m.id === input.dataset.mapelId);
+                const hasil = hitungNilaiOtomatis(input.value, input.dataset.mapel || '', mapelData);
                 const nisn = input.dataset.nisn;
                 const kriteriaEl = document.querySelector(`.nilai-kriteria[data-nisn="${nisn}"]`);
                 const predikatEl = document.querySelector(`.nilai-predikat[data-nisn="${nisn}"]`);
@@ -2551,7 +3101,8 @@
             nilaiInputs.forEach(input => {
                 const nisn = input.dataset.nisn;
                 const nilaiAngka = parseInt(input.value, 10);
-                const hasil = hitungNilaiOtomatis(input.value, input.dataset.mapel || '');
+                const mapelData = appData.mapel.find(m => m.id === input.dataset.mapelId);
+                const hasil = hitungNilaiOtomatis(input.value, input.dataset.mapel || '', mapelData);
                 
                 if (!isNaN(nilaiAngka)) {
                     appData.nilai = appData.nilai.filter(n => !(n.nisn === nisn && n.mapel_id === mapelId));
@@ -2880,8 +3431,8 @@ function generateRaporMerdeka(siswa, nilaiSiswa) {
             return nilaiSiswa.map((nilai) => {
                 const mapel = appData.mapel.find(m => m.id === nilai.mapel_id);
                 const nilaiAngka = getNilaiAngka(nilai);
-                const hasilNilai = hitungNilaiOtomatis(nilaiAngka, mapel ? mapel.nama_mapel : '');
-                const deskripsi = nilai.deskripsi || hasilNilai.deskripsi;
+                const hasilNilai = hitungNilaiOtomatis(nilaiAngka, mapel ? mapel.nama_mapel : '', mapel);
+                const deskripsi = hasilNilai.deskripsi || nilai.deskripsi;
                 
                 return `
                     <tr>
@@ -2909,8 +3460,20 @@ function generateRaporMerdeka(siswa, nilaiSiswa) {
             return 'BB';
         }
 
-        function getDeskripsiCapaian(namaMapel, nilai) {
+        function getDeskripsiCapaian(namaMapel, nilai, mapelData = null) {
             const capaian = getCapaianKompetensi(nilai);
+            const tpList = getMapelTpList(mapelData || getMapelByName(namaMapel));
+            if (tpList.length > 0) {
+                const kuat = tpList.slice(0, Math.min(2, tpList.length)).join('; ');
+                const penguatan = tpList.slice(-Math.min(2, tpList.length)).join('; ');
+                const deskripsiTp = {
+                    'SB': `Peserta didik menunjukkan capaian sangat baik pada TP: ${kuat}.`,
+                    'BSH': `Peserta didik telah mencapai TP: ${kuat} dengan baik.`,
+                    'MB': `Peserta didik mulai berkembang pada TP: ${penguatan} dan perlu latihan berkelanjutan.`,
+                    'BB': `Peserta didik memerlukan bimbingan intensif pada TP: ${penguatan}.`
+                };
+                return deskripsiTp[capaian];
+            }
             const deskripsiTemplate = {
                 'SB': `Peserta didik sangat baik dalam menguasai ${namaMapel} dan mampu mengaplikasikan konsep dengan sangat baik`,
                 'BSH': `Peserta didik baik dalam menguasai ${namaMapel} dan mampu mengaplikasikan konsep dengan baik`,
@@ -2961,6 +3524,10 @@ function generateRaporMerdeka(siswa, nilaiSiswa) {
             document.getElementById('setting-tanggal-rapor').value = appData.settings.tanggal_rapor;
             document.getElementById('setting-catatan-akademik').value = appData.settings.catatan_akademik;
             document.getElementById('setting-kkm').value = appData.settings.kkm;
+            document.getElementById('setting-format-skl').value = appData.settings.format_nomor_skl || '';
+            document.getElementById('setting-counter-skl').value = appData.settings.counter_skl || '1';
+            document.getElementById('setting-format-upk').value = appData.settings.format_nomor_upk || '';
+            document.getElementById('setting-counter-upk').value = appData.settings.counter_upk || '1';
             
             // Load logo if exists
             if (appData.settings.logo_url) {
@@ -3102,6 +3669,10 @@ function generateRaporMerdeka(siswa, nilaiSiswa) {
             appData.settings.tanggal_rapor = document.getElementById('setting-tanggal-rapor').value;
             appData.settings.catatan_akademik = document.getElementById('setting-catatan-akademik').value;
             appData.settings.kkm = document.getElementById('setting-kkm').value;
+            appData.settings.format_nomor_skl = document.getElementById('setting-format-skl').value;
+            appData.settings.counter_skl = document.getElementById('setting-counter-skl').value;
+            appData.settings.format_nomor_upk = document.getElementById('setting-format-upk').value;
+            appData.settings.counter_upk = document.getElementById('setting-counter-upk').value;
             
             saveData();
             showToast('Data akademik berhasil disimpan!');
@@ -3178,6 +3749,113 @@ function generateRaporMerdeka(siswa, nilaiSiswa) {
             };
             reader.readAsDataURL(file);
         });
+
+        document.getElementById('upload-tutor-excel').addEventListener('change', handleTutorExcel);
+
+        function normalizeTutorHeader(value) {
+            return String(value || '').trim().toLowerCase();
+        }
+
+        function getTutorCell(row, index) {
+            return index !== -1 && index !== undefined ? cleanTextField(row[index]) : '';
+        }
+
+        function makeTutorUsername(nama) {
+            return String(nama || '').toLowerCase().replace(/\s+/g, '');
+        }
+
+        function handleTutorExcel(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            showToast('Sedang memproses data tutor...', 'info');
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                try {
+                    const data = new Uint8Array(evt.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    if (!workbook.SheetNames.length) {
+                        showToast('File Excel tutor tidak memiliki sheet data!', 'error');
+                        return;
+                    }
+                    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '', blankrows: false, raw: false });
+                    let headerRowIndex = -1;
+                    let headers = [];
+
+                    for (let i = 0; i < rows.length; i++) {
+                        const normalized = (rows[i] || []).map(normalizeTutorHeader);
+                        const hasNamaHeader = normalized.some(cell => cell.includes('nama lengkap') || cell.includes('nama tutor') || cell === 'nama' || cell.includes('nama'));
+                        if (hasNamaHeader) {
+                            headerRowIndex = i;
+                            headers = normalized;
+                            break;
+                        }
+                    }
+
+                    if (headerRowIndex === -1) {
+                        showToast('Header nama tutor tidak ditemukan di file Excel!', 'error');
+                        return;
+                    }
+
+                    const columnMap = {
+                        nama_tutor: findFlexibleColumn(headers, ['nama tutor', 'nama lengkap', 'nama gtk', 'nama ptk', 'nama']),
+                        nip: findFlexibleColumn(headers, ['nip', 'nuptk', 'nik']),
+                        pendidikan: findFlexibleColumn(headers, ['pendidikan', 'pendidikan terakhir', 'ijazah']),
+                        status: findFlexibleColumn(headers, ['status', 'status kepegawaian', 'keaktifan']),
+                        no_hp: findFlexibleColumn(headers, ['no hp', 'nomor hp', 'hp', 'telepon', 'no telepon', 'ponsel']),
+                        email: findFlexibleColumn(headers, ['email', 'e-mail', 'surel'])
+                    };
+
+                    if (columnMap.nama_tutor === -1) {
+                        showToast('Kolom nama tutor tidak ditemukan!', 'error');
+                        return;
+                    }
+
+                    let imported = 0;
+                    for (let i = headerRowIndex + 1; i < rows.length; i++) {
+                        const row = rows[i];
+                        if (!row || row.every(cell => !String(cell || '').trim())) continue;
+                        const namaTutor = getTutorCell(row, columnMap.nama_tutor);
+                        if (!namaTutor) continue;
+                        const noHpFromFile = getTutorCell(row, columnMap.no_hp);
+                        const defaultUsername = makeTutorUsername(namaTutor);
+                        const tutor = {
+                            id: Date.now().toString() + Math.random(),
+                            nama_tutor: namaTutor,
+                            nip: getTutorCell(row, columnMap.nip),
+                            jenis_kelamin: '',
+                            tempat_lahir: '',
+                            tanggal_lahir: '',
+                            pendidikan: getTutorCell(row, columnMap.pendidikan),
+                            alamat: '',
+                            no_hp: noHpFromFile || '123456',
+                            email: getTutorCell(row, columnMap.email),
+                            username: noHpFromFile ? defaultUsername : defaultUsername,
+                            password: noHpFromFile ? '' : '123456',
+                            ttd_url: '',
+                            status: getTutorCell(row, columnMap.status) || 'Aktif'
+                        };
+                        appData.tutor.push(tutor);
+                        imported++;
+                    }
+
+                    if (!imported) {
+                        showToast('Tidak ada data tutor valid yang dapat diimpor.', 'error');
+                        return;
+                    }
+
+                    saveData();
+                    loadTutorTable();
+                    showToast(`Berhasil mengimpor ${imported} tutor dari Excel!`);
+                } catch (error) {
+                    console.error('Gagal import tutor:', error);
+                    showToast('Gagal memproses Excel tutor. Periksa format file.', 'error');
+                } finally {
+                    e.target.value = '';
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
 
         document.getElementById('form-tutor').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -3536,8 +4214,7 @@ function generateCatatanWaliKelas(nisn) {
             // Generate table body
             const tbody = document.getElementById('naik-kelas-table-body');
             tbody.innerHTML = siswaKelas.map((siswa, index) => {
-                const statusNaik = siswa.status_naik || '';
-                const kelasTujuan = siswa.kelas_tujuan || '';
+                const existing = (appData.kokurikuler || []).find(k => k.nisn === siswa.nisn && k.semester === semester) || {};
                 
                 return `
                     <tr>
@@ -3546,44 +4223,26 @@ function generateCatatanWaliKelas(nisn) {
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${siswa.nama}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${siswa.kelas}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <select class="status-naik-input border border-gray-300 rounded px-2 py-1 text-sm" data-nisn="${siswa.nisn}">
-                                <option value="">-- Pilih Status --</option>
-                                <option value="naik" ${statusNaik === 'naik' ? 'selected' : ''}>Naik Kelas</option>
-                                <option value="tidak_naik" ${statusNaik === 'tidak_naik' ? 'selected' : ''}>Tidak Naik</option>
-                                <option value="lulus" ${statusNaik === 'lulus' ? 'selected' : ''}>Lulus</option>
-                            </select>
+                            <input type="text" class="kokurikuler-kegiatan-input border border-gray-300 rounded px-2 py-1 text-sm w-56" data-nisn="${siswa.nisn}" value="${existing.kegiatan || ''}" placeholder="Nama proyek/kegiatan P5">
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <select class="kelas-tujuan-input border border-gray-300 rounded px-2 py-1 text-sm ${statusNaik !== 'naik' ? 'hidden' : ''}" data-nisn="${siswa.nisn}">
-                                <option value="">-- Pilih Kelas --</option>
-                                ${appData.kelas.map(k => `<option value="${k.nama_kelas}" ${kelasTujuan === k.nama_kelas ? 'selected' : ''}>${k.nama_kelas}</option>`).join('')}
-                            </select>
-                            <span class="text-gray-500 text-sm ${statusNaik === 'naik' ? 'hidden' : ''}" data-nisn="${siswa.nisn}">-</span>
+                            <input type="text" class="kokurikuler-waktu-input border border-gray-300 rounded px-2 py-1 text-sm w-28" data-nisn="${siswa.nisn}" value="${existing.waktu || ''}" placeholder="Semester">
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <button onclick="resetStatusNaik('${siswa.nisn}')" class="text-red-600 hover:text-red-900 text-xs">Reset</button>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <select class="kokurikuler-predikat-input border border-gray-300 rounded px-2 py-1 text-sm" data-nisn="${siswa.nisn}">
+                                <option value="">-- Pilih --</option>
+                                <option value="Sangat Baik" ${existing.predikat === 'Sangat Baik' ? 'selected' : ''}>Sangat Baik</option>
+                                <option value="Baik" ${existing.predikat === 'Baik' ? 'selected' : ''}>Baik</option>
+                                <option value="Cukup" ${existing.predikat === 'Cukup' ? 'selected' : ''}>Cukup</option>
+                                <option value="Perlu Bimbingan" ${existing.predikat === 'Perlu Bimbingan' ? 'selected' : ''}>Perlu Bimbingan</option>
+                            </select>
+                        </td>
+                        <td class="px-6 py-4">
+                            <textarea class="kokurikuler-deskripsi-input border border-gray-300 rounded px-2 py-1 text-sm w-72" data-nisn="${siswa.nisn}" rows="2" placeholder="Deskripsi capaian P5">${existing.deskripsi || existing.keterangan || ''}</textarea>
                         </td>
                     </tr>
                 `;
             }).join('');
-            
-            // Add event listeners for status change
-            document.querySelectorAll('.status-naik-input').forEach(select => {
-                select.addEventListener('change', function() {
-                    const nisn = this.dataset.nisn;
-                    const status = this.value;
-                    const kelasTujuanSelect = document.querySelector(`.kelas-tujuan-input[data-nisn="${nisn}"]`);
-                    const kelasTujuanSpan = document.querySelector(`span[data-nisn="${nisn}"]`);
-                    
-                    if (status === 'naik') {
-                        kelasTujuanSelect.classList.remove('hidden');
-                        kelasTujuanSpan.classList.add('hidden');
-                    } else {
-                        kelasTujuanSelect.classList.add('hidden');
-                        kelasTujuanSpan.classList.remove('hidden');
-                    }
-                });
-            });
             
             document.getElementById('naik-kelas-empty-state').classList.add('hidden');
             document.getElementById('naik-kelas-form-container').classList.remove('hidden');
@@ -3603,33 +4262,42 @@ function generateCatatanWaliKelas(nisn) {
 
         // Save all naik kelas changes
         document.getElementById('simpan-semua-naik-btn').addEventListener('click', function() {
-            const statusInputs = document.querySelectorAll('.status-naik-input');
-            const kelasTujuanInputs = document.querySelectorAll('.kelas-tujuan-input');
+            const kegiatanInputs = document.querySelectorAll('.kokurikuler-kegiatan-input');
+            const waktuInputs = document.querySelectorAll('.kokurikuler-waktu-input');
+            const predikatInputs = document.querySelectorAll('.kokurikuler-predikat-input');
+            const deskripsiInputs = document.querySelectorAll('.kokurikuler-deskripsi-input');
+            const semester = document.getElementById('select-semester-naik').value;
             
             let updated = 0;
             
-            statusInputs.forEach(input => {
+            kegiatanInputs.forEach(input => {
                 const nisn = input.dataset.nisn;
-                const status = input.value;
-                const kelasTujuanInput = Array.from(kelasTujuanInputs).find(k => k.dataset.nisn === nisn);
-                const kelasTujuan = kelasTujuanInput ? kelasTujuanInput.value : '';
-                
-                const siswaIndex = appData.siswa.findIndex(s => s.nisn === nisn);
-                if (siswaIndex !== -1) {
-                    appData.siswa[siswaIndex].status_naik = status;
-                    appData.siswa[siswaIndex].kelas_tujuan = kelasTujuan;
-                    
-                    // If naik kelas, update current kelas
-                    if (status === 'naik' && kelasTujuan) {
-                        appData.siswa[siswaIndex].kelas = kelasTujuan;
-                    }
-                    
-                    if (status) updated++;
+                const waktuInput = Array.from(waktuInputs).find(w => w.dataset.nisn === nisn);
+                const predikatInput = Array.from(predikatInputs).find(p => p.dataset.nisn === nisn);
+                const deskripsiInput = Array.from(deskripsiInputs).find(d => d.dataset.nisn === nisn);
+                const kegiatan = input.value.trim();
+                const waktu = waktuInput ? waktuInput.value.trim() : '';
+                const predikat = predikatInput ? predikatInput.value : '';
+                const deskripsi = deskripsiInput ? deskripsiInput.value.trim() : '';
+
+                appData.kokurikuler = (appData.kokurikuler || []).filter(k => !(k.nisn === nisn && k.semester === semester));
+                if (kegiatan || waktu || predikat || deskripsi) {
+                    appData.kokurikuler.push({
+                        id: Date.now().toString() + Math.random(),
+                        nisn,
+                        semester,
+                        kegiatan,
+                        waktu,
+                        predikat,
+                        deskripsi,
+                        keterangan: deskripsi
+                    });
+                    updated++;
                 }
             });
             
             saveData();
-            showToast(`Berhasil memproses ${updated} siswa!`);
+            showToast(`Berhasil menyimpan nilai kokurikuler untuk ${updated} siswa!`);
         });
 
         // Legger Nilai Management
@@ -3661,9 +4329,17 @@ function generateCatatanWaliKelas(nisn) {
             kelasSelect.addEventListener('change', updateLeggerPreview);
         }
 
+        function getMapelLeggerAktif(siswaKelas) {
+            const nisnSet = new Set(siswaKelas.map(s => s.nisn));
+            return appData.mapel.filter(mapel => appData.nilai.some(nilai => {
+                const angka = getNilaiNumerikAsli(nilai);
+                return nisnSet.has(nilai.nisn) && nilai.mapel_id === mapel.id && angka !== null && !isNaN(angka);
+            }));
+        }
+
         function generateLeggerPreview(kelas, kurikulum) {
             const siswaKelas = appData.siswa.filter(s => s.kelas === kelas);
-            const mapelKurikulum = appData.mapel;
+            const mapelKurikulum = getMapelLeggerAktif(siswaKelas);
             
             if (siswaKelas.length === 0) {
                 document.getElementById('legger-empty-state').innerHTML = 'Tidak ada siswa di kelas ini.';
@@ -3673,7 +4349,7 @@ function generateCatatanWaliKelas(nisn) {
             }
             
             if (mapelKurikulum.length === 0) {
-                document.getElementById('legger-empty-state').innerHTML = 'Tidak ada mata pelajaran untuk kurikulum ini.';
+                document.getElementById('legger-empty-state').innerHTML = 'Belum ada nilai yang diinput untuk kelas ini.';
                 document.getElementById('legger-empty-state').classList.remove('hidden');
                 document.getElementById('legger-preview').classList.add('hidden');
                 return;
@@ -3700,15 +4376,12 @@ function generateCatatanWaliKelas(nisn) {
                 
                 const nilaiCells = mapelKurikulum.map(mapel => {
                     const nilai = nilaiSiswa.find(n => n.mapel_id === mapel.id);
-                    const nilaiValue = nilai ? nilai.nilai : '-';
+                    const numValue = getNilaiNumerikAsli(nilai);
+                    const nilaiValue = numValue !== null && !isNaN(numValue) ? numValue : '-';
                     
-                    if (nilai && nilai.nilai) {
-                        const numValue = typeof nilai.nilai === 'number' ? nilai.nilai : 
-                                       nilai.nilai === 'A' ? 90 : nilai.nilai === 'B' ? 80 : nilai.nilai === 'C' ? 70 : 0;
-                        if (numValue > 0) {
-                            totalNilai += numValue;
-                            jumlahMapel++;
-                        }
+                    if (numValue !== null && !isNaN(numValue)) {
+                        totalNilai += numValue;
+                        jumlahMapel++;
                     }
                     
                     return `<td class="px-3 py-2 text-center text-sm border border-gray-300">${nilaiValue}</td>`;
@@ -3746,7 +4419,7 @@ function generateCatatanWaliKelas(nisn) {
 
         function downloadLeggerExcel(kelas, kurikulum) {
             const siswaKelas = appData.siswa.filter(s => s.kelas === kelas);
-            const mapelKurikulum = appData.mapel;
+            const mapelKurikulum = getMapelLeggerAktif(siswaKelas);
             
             if (siswaKelas.length === 0 || mapelKurikulum.length === 0) {
                 showToast('Tidak ada data untuk didownload!', 'error');
@@ -3763,15 +4436,12 @@ function generateCatatanWaliKelas(nisn) {
                 
                 const nilaiRow = mapelKurikulum.map(mapel => {
                     const nilai = nilaiSiswa.find(n => n.mapel_id === mapel.id);
-                    const nilaiValue = nilai ? nilai.nilai : '';
+                    const numValue = getNilaiNumerikAsli(nilai);
+                    const nilaiValue = numValue !== null && !isNaN(numValue) ? numValue : '';
                     
-                    if (nilai && nilai.nilai) {
-                        const numValue = typeof nilai.nilai === 'number' ? nilai.nilai : 
-                                       nilai.nilai === 'A' ? 90 : nilai.nilai === 'B' ? 80 : nilai.nilai === 'C' ? 70 : 0;
-                        if (numValue > 0) {
-                            totalNilai += numValue;
-                            jumlahMapel++;
-                        }
+                    if (numValue !== null && !isNaN(numValue)) {
+                        totalNilai += numValue;
+                        jumlahMapel++;
                     }
                     
                     return nilaiValue;
@@ -4053,6 +4723,702 @@ function generateCatatanWaliKelas(nisn) {
             
             saveData();
             showToast(`Berhasil menyimpan ${saved} data kehadiran dan catatan!`);
+        });
+
+        // ========== Kelulusan & UPK ==========
+        const MAPEL_PAKET_A = [
+            { label: 'Pendidikan Agama dan Budi Pekerti', keys: ['agama', 'pai', 'pendidikan agama'] },
+            { label: 'Pendidikan Pancasila dan Kewarganegaraan', keys: ['ppkn', 'pkn', 'pancasila', 'kewarganegaraan'] },
+            { label: 'Bahasa Indonesia', keys: ['bahasa indonesia', 'bindo', 'b indonesia'] },
+            { label: 'Matematika', keys: ['matematika', 'mtk'] },
+            { label: 'Ilmu Pengetahuan Alam', keys: ['ipa', 'ilmu pengetahuan alam'] },
+            { label: 'Ilmu Pengetahuan Sosial', keys: ['ips', 'ilmu pengetahuan sosial'] },
+            { label: 'Seni Budaya', keys: ['seni budaya', 'senbud', 'seni'] },
+            { label: 'Pendidikan Jasmani, Olahraga dan Kesehatan', keys: ['pjok', 'penjas', 'jasmani', 'olahraga'] }
+        ];
+
+        const MAPEL_PAKET_B = [
+            { label: 'Pendidikan Agama dan Budi Pekerti', keys: ['agama', 'pai', 'pendidikan agama'] },
+            { label: 'Pendidikan Pancasila dan Kewarganegaraan', keys: ['ppkn', 'pkn', 'pancasila', 'kewarganegaraan'] },
+            { label: 'Bahasa Indonesia', keys: ['bahasa indonesia', 'bindo', 'b indonesia'] },
+            { label: 'Matematika', keys: ['matematika', 'mtk'] },
+            { label: 'Ilmu Pengetahuan Alam', keys: ['ipa', 'ilmu pengetahuan alam'] },
+            { label: 'Ilmu Pengetahuan Sosial', keys: ['ips', 'ilmu pengetahuan sosial'] },
+            { label: 'Bahasa Inggris', keys: ['bahasa inggris', 'bing', 'b inggris'] },
+            { label: 'Seni Budaya', keys: ['seni budaya', 'senbud', 'seni'] },
+            { label: 'Pendidikan Jasmani, Olahraga dan Kesehatan', keys: ['pjok', 'penjas', 'jasmani', 'olahraga'] },
+            { label: 'Prakarya dan Kewirausahaan / Keterampilan', keys: ['prakarya', 'keterampilan', 'kewirausahaan'] }
+        ];
+
+        const MAPEL_PAKET_C_UMUM = [
+            { label: 'Pendidikan Agama dan Budi Pekerti', keys: ['agama', 'pai'] },
+            { label: 'Pendidikan Pancasila dan Kewarganegaraan', keys: ['ppkn', 'pkn', 'pancasila'] },
+            { label: 'Bahasa Indonesia', keys: ['bahasa indonesia', 'bindo'] },
+            { label: 'Matematika', keys: ['matematika', 'mtk'] },
+            { label: 'Bahasa Inggris', keys: ['bahasa inggris', 'bing'] },
+            { label: 'Seni Budaya', keys: ['seni budaya', 'senbud'] },
+            { label: 'Pendidikan Jasmani, Olahraga dan Kesehatan', keys: ['pjok', 'penjas', 'jasmani'] }
+        ];
+
+        const MAPEL_PAKET_C_IPS = [
+            { label: 'Sosiologi', keys: ['sosiologi'] },
+            { label: 'Geografi', keys: ['geografi'] },
+            { label: 'Ekonomi', keys: ['ekonomi'] },
+            { label: 'Sejarah Indonesia', keys: ['sejarah'] }
+        ];
+
+        const MAPEL_PAKET_C_IPA = [
+            { label: 'Fisika', keys: ['fisika'] },
+            { label: 'Kimia', keys: ['kimia'] },
+            { label: 'Biologi', keys: ['biologi'] }
+        ];
+
+        function normalizeMapelKey(name) {
+            return (name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+        }
+
+        function mapelKeyMatches(mapelName, keys) {
+            const n = normalizeMapelKey(mapelName);
+            return keys.some(k => n.includes(normalizeMapelKey(k)) || normalizeMapelKey(k).includes(n));
+        }
+
+        function getKelulusanTingkatByText(namaKelas, tingkatKelas = '') {
+            const k = String(namaKelas || '').toLowerCase().trim();
+            const tingkat = String(tingkatKelas || '').toLowerCase().trim();
+
+            const isPaketA = tingkat.includes('paket a') || k.includes('paket a') || k.includes('setara sd');
+            const isPaketB = tingkat.includes('paket b') || k.includes('paket b') || k.includes('setara smp');
+            const isPaketC = tingkat.includes('paket c') || k.includes('paket c') || k.includes('setara sma');
+
+            const isKelas1_5 = /(\bi\b|\bii\b|\biii\b|\biv\b|\bv\b|kelas\s*i\b|kelas\s*ii\b|kelas\s*iii\b|kelas\s*iv\b|kelas\s*v\b|kelas\s*[1-5]\b|\b[1-5]\b)/.test(k) && !/(\bvi\b|kelas\s*vi|kelas\s*6|\b6\b)/.test(k);
+            const isKelas6 = /(\bvi\b|kelas\s*vi|kelas\s*6|\b6\b)/.test(k);
+            const isKelas7_8 = /(\bvii\b|\bviii\b|kelas\s*7|kelas\s*8|kelas\s*vii|kelas\s*viii|\b7\b|\b8\b)/.test(k);
+            const isKelas9 = /(\bix\b|kelas\s*ix|kelas\s*9|\b9\b)/.test(k);
+            const isKelas10_11 = /(kelas\s*10|kelas\s*11|kelas\s*x\s|kelas\s*xi\b|kelas\s+x\b|kelas\s+xi\b)/.test(k) && !/(\bxii\b|kelas\s*xii|kelas\s*12|\b12\b)/.test(k);
+            const isKelas12 = /(\bxii\b|kelas\s*xii|kelas\s*12|\b12\b)/.test(k);
+
+            if (isKelas1_5) return null;
+            if ((isPaketA || isKelas6) && isKelas6) return 'A';
+            if (isKelas7_8) return null;
+            if ((isPaketB || isKelas9) && isKelas9) return 'B';
+            if (isKelas10_11) return null;
+            if ((isPaketC || isKelas12) && isKelas12) return 'C';
+            return null;
+        }
+
+        function getKelulusanTingkat(siswa) {
+            if (!siswa || !siswa.kelas) return null;
+            const kelasData = appData.kelas.find(x => x.nama_kelas === siswa.kelas);
+            return getKelulusanTingkatByText(siswa.kelas, kelasData && kelasData.tingkat);
+        }
+
+        function isSiswaKelulusanEligible(siswa) {
+            return getKelulusanTingkat(siswa) !== null;
+        }
+
+        function getSiswaKelulusanEligible(kelasNama) {
+            return appData.siswa.filter(s => {
+                if (kelasNama && s.kelas !== kelasNama) return false;
+                return isSiswaKelulusanEligible(s);
+            });
+        }
+
+        function detectPeminatan(nilaiSiswa) {
+            const labels = nilaiSiswa.map(n => {
+                const m = appData.mapel.find(x => x.id === n.mapel_id);
+                return m ? m.nama_mapel.toLowerCase() : '';
+            }).join(' ');
+            const ipaScore = ['fisika', 'kimia', 'biologi'].filter(w => labels.includes(w)).length;
+            const ipsScore = ['sosiologi', 'geografi', 'ekonomi', 'sejarah'].filter(w => labels.includes(w)).length;
+            if (ipaScore > ipsScore) return 'IPA';
+            if (ipsScore > 0) return 'IPS';
+            return 'IPS';
+        }
+
+        function getDaftarMapelTranskrip(siswa, nilaiSiswa) {
+            const tingkat = getKelulusanTingkat(siswa);
+            if (tingkat === 'A') return MAPEL_PAKET_A.slice();
+            if (tingkat === 'B') return MAPEL_PAKET_B.slice();
+            const peminatan = detectPeminatan(nilaiSiswa);
+            const peminatanMapel = peminatan === 'IPA' ? MAPEL_PAKET_C_IPA : MAPEL_PAKET_C_IPS;
+            return MAPEL_PAKET_C_UMUM.concat(peminatanMapel);
+        }
+
+        function findNilaiByMapelDef(nilaiSiswa, mapelDef) {
+            for (const n of nilaiSiswa) {
+                const mapel = appData.mapel.find(m => m.id === n.mapel_id);
+                if (!mapel) continue;
+                if (mapelKeyMatches(mapel.nama_mapel, mapelDef.keys)) return n;
+            }
+            return null;
+        }
+
+        function getNilaiRaporAngka(nilaiRecord) {
+            if (!nilaiRecord) return null;
+            const v = getNilaiAngka(nilaiRecord);
+            const angka = parseInt(v, 10);
+            return isNaN(angka) ? null : angka;
+        }
+
+        function getNilaiUPKAngka(nilaiRecord) {
+            if (!nilaiRecord) return null;
+            if (nilaiRecord.nilai_upk !== undefined && nilaiRecord.nilai_upk !== null && nilaiRecord.nilai_upk !== '') {
+                const u = parseInt(nilaiRecord.nilai_upk, 10);
+                if (!isNaN(u)) return u;
+            }
+            return getNilaiRaporAngka(nilaiRecord);
+        }
+
+        function resolveMapelForDef(mapelDef) {
+            return appData.mapel.find(mapel => mapelKeyMatches(mapel.nama_mapel, mapelDef.keys || [mapelDef.label]));
+        }
+
+        function findNilaiUpkByMapelDef(siswa, mapelDef) {
+            if (!siswa) return null;
+            const resolvedMapel = resolveMapelForDef(mapelDef);
+            return (appData.nilai_upk || []).find(n => {
+                if (n.nisn !== siswa.nisn) return false;
+                if (resolvedMapel && n.mapel_id && n.mapel_id === resolvedMapel.id) return true;
+                return mapelKeyMatches(n.nama_mapel || '', mapelDef.keys || [mapelDef.label]);
+            }) || null;
+        }
+
+        function getNilaiUPKAngkaForMapel(siswa, nilaiRecord, mapelDef) {
+            const upkRecord = findNilaiUpkByMapelDef(siswa, mapelDef);
+            if (upkRecord && upkRecord.nilai !== undefined && upkRecord.nilai !== '') {
+                const nilai = parseInt(upkRecord.nilai, 10);
+                if (!isNaN(nilai)) return nilai;
+            }
+            return getNilaiUPKAngka(nilaiRecord);
+        }
+
+        function hitungNilaiIjazah(rapor, upk) {
+            if (rapor === null || upk === null) return null;
+            return Math.round((rapor + upk) / 2);
+        }
+
+        function nilaiKeHurufIjazah(angka) {
+            const n = Math.round(parseFloat(angka));
+            if (isNaN(n)) return '-';
+            if (n >= 90) return 'A';
+            if (n >= 80) return 'B';
+            if (n >= 70) return 'C';
+            if (n >= 60) return 'D';
+            return 'E';
+        }
+
+        function getPaketLabel(tingkat) {
+            if (tingkat === 'A') return 'Paket A (Setara SD)';
+            if (tingkat === 'B') return 'Paket B (Setara SMP)';
+            return 'Paket C (Setara SMA)';
+        }
+
+        function getNomorUrutDokumen(siswa, counterAwal) {
+            const base = parseInt(counterAwal, 10) || 1;
+            const eligible = getSiswaKelulusanEligible()
+                .slice()
+                .sort((a, b) => (a.nama || '').localeCompare(b.nama || ''));
+            const index = Math.max(0, eligible.findIndex(s => s.nisn === siswa.nisn));
+            return String(base + index).padStart(3, '0');
+        }
+
+        function generateNomorDokumen(format, siswa, counterAwal) {
+            const tingkat = getKelulusanTingkat(siswa) || '';
+            const nomorUrut = getNomorUrutDokumen(siswa, counterAwal);
+            return (format || '')
+                .replaceAll('[NNN]', nomorUrut)
+                .replaceAll('[A/B/C]', tingkat || '-')
+                .replaceAll('[B/C]', tingkat || '-');
+        }
+
+        function getKelulusanHeaderHtml() {
+            const logo = appData.settings.logo_url
+                ? `<img src="${appData.settings.logo_url}" alt="Logo" style="width:56px;height:56px;object-fit:contain;">`
+                : '';
+            return `
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+                    ${logo}
+                    <div style="flex:1;text-align:center;">
+                        <div style="font-size:10pt;font-weight:bold;">KEMENTERIAN PENDIDIKAN, KEBUDAYAAN, RISET, DAN TEKNOLOGI</div>
+                        <div style="font-size:10pt;font-weight:bold;">REPUBLIK INDONESIA</div>
+                        <div style="font-size:11pt;font-weight:bold;margin-top:4px;">${appData.settings.school_name || 'PKBM/SKB'}</div>
+                        <div style="font-size:9pt;">${appData.settings.school_address || ''}</div>
+                        <div style="font-size:9pt;">NPSN: ${appData.settings.npsn || '-'} | ${appData.settings.kabupaten || ''}, ${appData.settings.provinsi || ''}</div>
+                    </div>
+                    <div style="width:56px;"></div>
+                </div>
+            `;
+        }
+
+        function getKelulusanFooterHtml(tempat, tanggal) {
+            const ttdKepala = appData.settings.headmaster_ttd
+                ? `<img src="${appData.settings.headmaster_ttd}" alt="TTD" style="height:48px;object-fit:contain;">`
+                : '<div style="height:48px;"></div>';
+            return `
+                <table style="width:100%;margin-top:20px;border:none;border-collapse:collapse;">
+                    <tr>
+                        <td style="width:35%;vertical-align:top;border:none;">
+                            <div class="foto-box">Pas Foto 3×4<br>(bercap tiga jari)</div>
+                        </td>
+                        <td style="width:30%;border:none;"></td>
+                        <td style="width:35%;vertical-align:top;text-align:center;border:none;">
+                            <p style="margin:0 0 4px;">${tempat}, ${tanggal}</p>
+                            <p style="margin:0;font-weight:bold;">Kepala ${appData.settings.school_name || 'PKBM/SKB'}</p>
+                            <div style="margin:8px 0;">${ttdKepala}</div>
+                            <p style="margin:0;font-weight:bold;text-decoration:underline;">${appData.settings.headmaster || '(...........................)'}</p>
+                            <p style="margin:4px 0 0;font-size:9pt;">${appData.settings.headmaster_nip ? 'NIP. ' + appData.settings.headmaster_nip : ''}</p>
+                        </td>
+                    </tr>
+                </table>
+            `;
+        }
+
+        function getKelasAkhirUpk() {
+            return appData.kelas.filter(kelas => getKelulusanTingkatByText(kelas.nama_kelas, kelas.tingkat));
+        }
+
+        function getDaftarMapelUpkUntukKelas(kelasNama) {
+            const kelasData = appData.kelas.find(k => k.nama_kelas === kelasNama);
+            const tingkat = getKelulusanTingkatByText(kelasNama, kelasData && kelasData.tingkat);
+            if (tingkat === 'A') return MAPEL_PAKET_A.slice();
+            if (tingkat === 'B') return MAPEL_PAKET_B.slice();
+            if (tingkat === 'C') return MAPEL_PAKET_C_UMUM.concat(MAPEL_PAKET_C_IPS);
+            return [];
+        }
+
+        function loadInputNilaiUpkSelectors() {
+            const kelasSelect = document.getElementById('select-kelas-input-upk');
+            if (!kelasSelect) return;
+            const selected = kelasSelect.value;
+            const kelasAkhir = getKelasAkhirUpk();
+            kelasSelect.innerHTML = '<option value="">-- Pilih Kelas --</option>' +
+                kelasAkhir.map(kelas => `<option value="${escapeHtml(kelas.nama_kelas)}">${escapeHtml(kelas.nama_kelas)}</option>`).join('');
+            if (kelasAkhir.some(k => k.nama_kelas === selected)) kelasSelect.value = selected;
+            kelasSelect.onchange = function() {
+                if (this.value) {
+                    loadInputNilaiUpkForm(this.value);
+                } else {
+                    document.getElementById('input-upk-form-container').classList.add('hidden');
+                    document.getElementById('input-upk-empty-state').classList.remove('hidden');
+                }
+            };
+            if (kelasSelect.value) {
+                loadInputNilaiUpkForm(kelasSelect.value);
+            }
+        }
+
+        function loadInputNilaiUpkForm(kelasNama) {
+            const siswaKelas = appData.siswa.filter(s => s.kelas === kelasNama);
+            const mapelList = getDaftarMapelUpkUntukKelas(kelasNama);
+            const head = document.getElementById('input-upk-table-head');
+            const body = document.getElementById('input-upk-table-body');
+            if (!siswaKelas.length || !mapelList.length) {
+                document.getElementById('input-upk-form-container').classList.add('hidden');
+                document.getElementById('input-upk-empty-state').textContent = !siswaKelas.length ? 'Tidak ada siswa di kelas ini.' : 'Daftar mapel UPK untuk kelas ini belum tersedia.';
+                document.getElementById('input-upk-empty-state').classList.remove('hidden');
+                return;
+            }
+
+            head.innerHTML = `
+                <tr>
+                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
+                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">NISN</th>
+                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
+                    ${mapelList.map(def => `<th class="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider min-w-28">${escapeHtml(def.label)}</th>`).join('')}
+                </tr>`;
+
+            body.innerHTML = siswaKelas.map((siswa, index) => `
+                <tr>
+                    <td class="px-3 py-2 text-sm text-gray-900">${index + 1}</td>
+                    <td class="px-3 py-2 text-sm text-gray-900">${escapeHtml(siswa.nisn || '-')}</td>
+                    <td class="px-3 py-2 text-sm text-gray-900">${escapeHtml(siswa.nama || '-')}</td>
+                    ${mapelList.map(def => {
+                        const mapel = resolveMapelForDef(def);
+                        const existing = findNilaiUpkByMapelDef(siswa, def);
+                        return `<td class="px-3 py-2 text-center">
+                            <input type="number" min="0" max="100" class="nilai-upk-input border border-gray-300 rounded px-2 py-1 w-20 text-sm text-center focus:outline-none focus:ring-2 focus:ring-blue-500" data-nisn="${escapeHtml(siswa.nisn)}" data-kelas="${escapeHtml(kelasNama)}" data-mapel-id="${escapeHtml(mapel ? mapel.id : '')}" data-nama-mapel="${escapeHtml(def.label)}" value="${escapeHtml(existing ? existing.nilai : '')}">
+                        </td>`;
+                    }).join('')}
+                </tr>`).join('');
+
+            document.getElementById('input-upk-empty-state').classList.add('hidden');
+            document.getElementById('input-upk-form-container').classList.remove('hidden');
+        }
+
+        document.getElementById('simpan-nilai-upk-btn').addEventListener('click', function() {
+            const inputs = document.querySelectorAll('.nilai-upk-input');
+            let saved = 0;
+            inputs.forEach(input => {
+                const nilai = String(input.value || '').trim();
+                const nisn = input.dataset.nisn;
+                const namaMapel = input.dataset.namaMapel;
+                const mapelId = input.dataset.mapelId || '';
+                appData.nilai_upk = (appData.nilai_upk || []).filter(n => !(n.nisn === nisn && ((mapelId && n.mapel_id === mapelId) || (!mapelId && n.nama_mapel === namaMapel))));
+                if (nilai !== '') {
+                    appData.nilai_upk.push({
+                        id: Date.now().toString() + Math.random(),
+                        nisn,
+                        kelas: input.dataset.kelas,
+                        mapel_id: mapelId,
+                        nama_mapel: namaMapel,
+                        nilai: parseInt(nilai, 10),
+                        tanggal: new Date().toISOString().split('T')[0]
+                    });
+                    saved++;
+                }
+            });
+            saveData();
+            showToast(`Berhasil menyimpan ${saved} nilai UPK!`);
+        });
+
+        function buildTranskripRows(siswa, nilaiSiswa) {
+            const mapelList = getDaftarMapelTranskrip(siswa, nilaiSiswa);
+            let totalRapor = 0, totalUpk = 0, totalIjazah = 0, count = 0;
+            const rows = mapelList.map((def, idx) => {
+                const rec = findNilaiByMapelDef(nilaiSiswa, def);
+                const rapor = getNilaiRaporAngka(rec);
+                const upk = getNilaiUPKAngkaForMapel(siswa, rec, def);
+                const ijazah = hitungNilaiIjazah(rapor, upk);
+                if (rapor !== null) { totalRapor += rapor; count++; }
+                if (upk !== null) totalUpk += upk;
+                if (ijazah !== null) totalIjazah += ijazah;
+                const huruf = ijazah !== null ? nilaiKeHurufIjazah(ijazah) : '-';
+                return `
+                    <tr>
+                        <td style="text-align:center;width:28px;">${idx + 1}</td>
+                        <td>${def.label}</td>
+                        <td style="text-align:center;">${rapor !== null ? rapor : '-'}</td>
+                        <td style="text-align:center;">${upk !== null ? upk : '-'}</td>
+                        <td style="text-align:center;">${ijazah !== null ? ijazah + ' / ' + huruf : '-'}</td>
+                    </tr>
+                `;
+            }).join('');
+            const n = count || 1;
+            const avgRapor = count ? Math.round(totalRapor / n) : '-';
+            const avgUpk = count ? Math.round(totalUpk / n) : '-';
+            const avgIjazah = count ? Math.round(totalIjazah / n) : '-';
+            const avgHuruf = count ? nilaiKeHurufIjazah(avgIjazah) : '-';
+            return { rows, avgRapor, avgUpk, avgIjazah, avgHuruf };
+        }
+
+        function generateHasilUPK(siswa, nilaiSiswa) {
+            const tingkat = getKelulusanTingkat(siswa);
+            const tempat = appData.settings.tempat_rapor || appData.settings.kabupaten || '…………';
+            const tanggal = formatTanggalIndonesia(appData.settings.tanggal_kelulusan || appData.settings.tanggal_rapor);
+            const { rows, avgRapor, avgUpk, avgIjazah, avgHuruf } = buildTranskripRows(siswa, nilaiSiswa);
+            const tahunAjaran = appData.settings.tahun_ajaran || '-';
+            const nomorUpk = generateNomorDokumen(appData.settings.format_nomor_upk, siswa, appData.settings.counter_upk);
+
+            return `
+                <div class="kelulusan-doc">
+                    ${getKelulusanHeaderHtml()}
+                    <div style="text-align:right;font-size:10pt;margin-bottom:8px;">Nomor: ${nomorUpk || '-'}</div>
+                    <div style="text-align:center;margin:12px 0 16px;">
+                        <div style="font-size:13pt;font-weight:bold;text-decoration:underline;">SERTIFIKAT HASIL UJIAN PENDIDIKAN KESETARAAN (UPK)</div>
+                        <div style="font-size:10pt;margin-top:4px;">Tahun Ajaran ${tahunAjaran}</div>
+                    </div>
+                    <p style="text-align:justify;text-indent:32px;margin-bottom:8px;">
+                        Yang bertanda tangan di bawah ini, Kepala <strong>${appData.settings.school_name || 'PKBM/SKB'}</strong>,
+                        menerangkan bahwa peserta didik berikut telah mengikuti dan dinyatakan <strong>LULUS</strong> Ujian Pendidikan Kesetaraan (UPK)
+                        program <strong>${getPaketLabel(tingkat)}</strong> dengan nilai sebagai berikut:
+                    </p>
+                    <table class="doc-table" style="font-size:10pt;">
+                        <thead>
+                            <tr>
+                                <th style="width:28px;">No</th>
+                                <th>Mata Pelajaran</th>
+                                <th style="width:70px;">Nilai UPK</th>
+                                <th style="width:55px;">Predikat</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${getDaftarMapelTranskrip(siswa, nilaiSiswa).map((def, idx) => {
+                                const rec = findNilaiByMapelDef(nilaiSiswa, def);
+                                const upk = getNilaiUPKAngkaForMapel(siswa, rec, def);
+                                const pred = upk !== null ? nilaiKeHurufIjazah(upk) : '-';
+                                return `<tr>
+                                    <td style="text-align:center;">${idx + 1}</td>
+                                    <td>${def.label}</td>
+                                    <td style="text-align:center;font-weight:bold;">${upk !== null ? upk : '-'}</td>
+                                    <td style="text-align:center;">${pred}</td>
+                                </tr>`;
+                            }).join('')}
+                            <tr style="font-weight:bold;">
+                                <td colspan="2" style="text-align:center;">Rata-Rata Nilai</td>
+                                <td style="text-align:center;">${avgUpk}</td>
+                                <td style="text-align:center;">${avgHuruf}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table style="width:100%;margin:12px 0;font-size:10pt;border:none;border-collapse:collapse;">
+                        <tr><td style="width:140px;border:none;">Nama</td><td style="border:none;">: <strong>${siswa.nama || '-'}</strong></td></tr>
+                        <tr><td style="border:none;">NISN / NIPD</td><td style="border:none;">: ${siswa.nisn || '-'} / ${siswa.nipd || '-'}</td></tr>
+                        <tr><td style="border:none;">Tempat, Tanggal Lahir</td><td style="border:none;">: ${siswa.tempat_lahir || '-'}, ${siswa.tanggal_lahir ? formatTanggalIndonesia(siswa.tanggal_lahir) : '-'}</td></tr>
+                        <tr><td style="border:none;">Kelas / Paket</td><td style="border:none;">: ${siswa.kelas || '-'} / ${getPaketLabel(tingkat)}</td></tr>
+                    </table>
+                    <p style="text-align:justify;margin-top:8px;">
+                        Demikian sertifikat ini dibuat dengan sebenarnya untuk dipergunakan sebagaimana mestinya.
+                    </p>
+                    ${getKelulusanFooterHtml(tempat, tanggal)}
+                </div>
+            `;
+        }
+
+        function generateTranskripNilai(siswa, nilaiSiswa) {
+            const tingkat = getKelulusanTingkat(siswa);
+            const tempat = appData.settings.tempat_rapor || appData.settings.kabupaten || '…………';
+            const tanggal = formatTanggalIndonesia(appData.settings.tanggal_kelulusan || appData.settings.tanggal_rapor);
+            const titimangsa = appData.settings.titimangsa_kelulusan || `Kelulusan Tahun Ajaran ${appData.settings.tahun_ajaran || ''}`;
+            const { rows, avgRapor, avgUpk, avgIjazah, avgHuruf } = buildTranskripRows(siswa, nilaiSiswa);
+            const jk = (siswa.jk || '').toUpperCase();
+            const jkLabel = jk === 'L' || jk === 'LAKI-LAKI' ? 'Laki-laki' : jk === 'P' || jk === 'PEREMPUAN' ? 'Perempuan' : siswa.jk || '-';
+            const nomorTranskrip = siswa.nomor_ijazah || '-';
+
+            return `
+                <div class="kelulusan-doc">
+                    ${getKelulusanHeaderHtml()}
+                    <div style="text-align:center;margin:14px 0;">
+                        <div style="font-size:13pt;font-weight:bold;text-decoration:underline;">DAFTAR NILAI / TRANSKRIP NILAI</div>
+                        <div style="font-size:10pt;margin-top:4px;">Pendidikan Kesetaraan — ${getPaketLabel(tingkat)}</div>
+                    </div>
+                    <table style="width:100%;font-size:10pt;margin-bottom:10px;border:none;border-collapse:collapse;">
+                        <tr><td style="width:160px;border:none;">Nama Peserta Didik</td><td style="border:none;">: <strong>${siswa.nama || '-'}</strong></td></tr>
+                        <tr><td style="border:none;">Nomor Ijazah / Transkrip</td><td style="border:none;">: ${nomorTranskrip}</td></tr>
+                        <tr><td style="border:none;">Nomor Induk / NISN</td><td style="border:none;">: ${siswa.nipd || '-'} / ${siswa.nisn || '-'}</td></tr>
+                        <tr><td style="border:none;">Tempat, Tanggal Lahir</td><td style="border:none;">: ${siswa.tempat_lahir || '-'}, ${siswa.tanggal_lahir ? formatTanggalIndonesia(siswa.tanggal_lahir) : '-'}</td></tr>
+                        <tr><td style="border:none;">Jenis Kelamin</td><td style="border:none;">: ${jkLabel}</td></tr>
+                        <tr><td style="border:none;">Satuan Pendidikan</td><td style="border:none;">: ${appData.settings.school_name || '-'}</td></tr>
+                        <tr><td style="border:none;">Program / Kelas</td><td style="border:none;">: ${getPaketLabel(tingkat)} — ${siswa.kelas || '-'}</td></tr>
+                        <tr><td style="border:none;">Tahun Ajaran</td><td style="border:none;">: ${appData.settings.tahun_ajaran || '-'}</td></tr>
+                    </table>
+                    <table class="doc-table" style="font-size:9.5pt;">
+                        <thead>
+                            <tr>
+                                <th rowspan="2" style="width:28px;">No</th>
+                                <th rowspan="2">Mata Pelajaran</th>
+                                <th rowspan="2" style="width:62px;">Nilai Rata-Rata<br>Rapor</th>
+                                <th rowspan="2" style="width:62px;">Nilai Ujian<br>Pendidikan Kesetaraan</th>
+                                <th colspan="2">Nilai Ijazah</th>
+                            </tr>
+                            <tr>
+                                <th style="width:42px;">Angka</th>
+                                <th style="width:42px;">Huruf</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${getDaftarMapelTranskrip(siswa, nilaiSiswa).map((def, idx) => {
+                                const rec = findNilaiByMapelDef(nilaiSiswa, def);
+                                const rapor = getNilaiRaporAngka(rec);
+                                const upk = getNilaiUPKAngkaForMapel(siswa, rec, def);
+                                const ijazah = hitungNilaiIjazah(rapor, upk);
+                                const huruf = ijazah !== null ? nilaiKeHurufIjazah(ijazah) : '-';
+                                return `<tr>
+                                    <td style="text-align:center;">${idx + 1}</td>
+                                    <td>${def.label}</td>
+                                    <td style="text-align:center;">${rapor !== null ? rapor : '-'}</td>
+                                    <td style="text-align:center;">${upk !== null ? upk : '-'}</td>
+                                    <td style="text-align:center;">${ijazah !== null ? ijazah : '-'}</td>
+                                    <td style="text-align:center;">${huruf}</td>
+                                </tr>`;
+                            }).join('')}
+                            <tr style="font-weight:bold;background:#f9f9f9;">
+                                <td colspan="2" style="text-align:center;">Rata-Rata Nilai</td>
+                                <td style="text-align:center;">${avgRapor}</td>
+                                <td style="text-align:center;">${avgUpk}</td>
+                                <td style="text-align:center;">${avgIjazah}</td>
+                                <td style="text-align:center;">${avgHuruf}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p style="font-size:10pt;margin-top:12px;text-align:center;font-style:italic;">
+                        <strong>Titimangsa:</strong> ${titimangsa}
+                    </p>
+                    <p style="font-size:9pt;text-align:justify;margin-top:6px;">
+                        Keterangan: Nilai Ijazah dihitung dari rata-rata Nilai Rapor dan Nilai Ujian Pendidikan Kesetaraan (UPK) per mata pelajaran.
+                    </p>
+                    ${getKelulusanFooterHtml(tempat, tanggal)}
+                </div>
+            `;
+        }
+
+        function generateSKL(siswa, nilaiSiswa) {
+            const tingkat = getKelulusanTingkat(siswa);
+            const tempat = appData.settings.tempat_rapor || appData.settings.kabupaten || '…………';
+            const tanggal = formatTanggalIndonesia(appData.settings.tanggal_kelulusan || appData.settings.tanggal_rapor);
+            const { avgIjazah, avgHuruf } = buildTranskripRows(siswa, nilaiSiswa);
+            const nomorSkl = generateNomorDokumen(appData.settings.format_nomor_skl, siswa, appData.settings.counter_skl);
+
+            return `
+                <div class="kelulusan-doc">
+                    ${getKelulusanHeaderHtml()}
+                    <div style="text-align:right;font-size:10pt;margin-bottom:8px;">Nomor: ${nomorSkl}</div>
+                    <div style="text-align:center;margin:16px 0 20px;">
+                        <div style="font-size:14pt;font-weight:bold;text-decoration:underline;letter-spacing:0.5px;">SURAT KETERANGAN LULUS</div>
+                    </div>
+                    <p style="text-align:justify;text-indent:36px;line-height:1.6;">
+                        Yang bertanda tangan di bawah ini, Kepala <strong>${appData.settings.school_name || 'PKBM/SKB'}</strong>,
+                        yang beralamat di <strong>${appData.settings.school_address || '-'}</strong>, menerangkan bahwa:
+                    </p>
+                    <table style="width:100%;margin:16px 0 16px 40px;font-size:11pt;border:none;border-collapse:collapse;">
+                        <tr><td style="width:180px;border:none;vertical-align:top;">Nama</td><td style="border:none;vertical-align:top;">: <strong>${siswa.nama || '-'}</strong></td></tr>
+                        <tr><td style="border:none;vertical-align:top;">Nomor Induk / NISN</td><td style="border:none;">: ${siswa.nipd || '-'} / ${siswa.nisn || '-'}</td></tr>
+                        <tr><td style="border:none;vertical-align:top;">Tempat, Tanggal Lahir</td><td style="border:none;">: ${siswa.tempat_lahir || '-'}, ${siswa.tanggal_lahir ? formatTanggalIndonesia(siswa.tanggal_lahir) : '-'}</td></tr>
+                        <tr><td style="border:none;vertical-align:top;">Program Pendidikan</td><td style="border:none;">: ${getPaketLabel(tingkat)}</td></tr>
+                        <tr><td style="border:none;vertical-align:top;">Kelas</td><td style="border:none;">: ${siswa.kelas || '-'}</td></tr>
+                        <tr><td style="border:none;vertical-align:top;">Tahun Ajaran</td><td style="border:none;">: ${appData.settings.tahun_ajaran || '-'}</td></tr>
+                    </table>
+                    <p style="text-align:justify;text-indent:36px;line-height:1.6;">
+                        Berdasarkan hasil evaluasi capaian kompetensi, rapor, dan Ujian Pendidikan Kesetaraan (UPK),
+                        yang bersangkutan dinyatakan <strong>LULUS</strong> dari satuan pendidikan kesetaraan program
+                        <strong>${getPaketLabel(tingkat)}</strong> dengan rata-rata nilai ijazah
+                        <strong>${avgIjazah}</strong> (predikat <strong>${avgHuruf}</strong>).
+                    </p>
+                    <p style="text-align:justify;text-indent:36px;line-height:1.6;">
+                        Surat Keterangan Lulus (SKL) ini berlaku sebagai bukti kelulusan sementara sampai dengan diterbitkannya
+                        Ijazah/STTB asli oleh Dinas Pendidikan setempat sesuai ketentuan peraturan perundang-undangan.
+                    </p>
+                    <p style="text-align:justify;text-indent:36px;line-height:1.6;margin-top:8px;">
+                        Demikian surat keterangan ini dibuat dengan sebenarnya untuk dapat dipergunakan sebagaimana mestinya.
+                    </p>
+                    ${getKelulusanFooterHtml(tempat, tanggal)}
+                </div>
+            `;
+        }
+
+        function generateKelulusanDoc(siswa, docType) {
+            const nilaiSiswa = appData.nilai.filter(n => n.nisn === siswa.nisn);
+            if (docType === 'upk') return generateHasilUPK(siswa, nilaiSiswa);
+            if (docType === 'transkrip') return generateTranskripNilai(siswa, nilaiSiswa);
+            if (docType === 'skl') return generateSKL(siswa, nilaiSiswa);
+            return '';
+        }
+
+        function showKelulusanIneligibleMessage(siswa) {
+            const info = document.getElementById('kelulusan-eligible-info');
+            info.classList.remove('hidden');
+            info.innerHTML = `<strong>${siswa.nama}</strong> (${siswa.kelas}) tidak memenuhi syarat dokumen kelulusan. Hanya siswa <strong>Kelas 9 (Paket B)</strong> dan <strong>Kelas 12 (Paket C)</strong> yang dapat dicetak.`;
+        }
+
+        function hideKelulusanIneligibleMessage() {
+            document.getElementById('kelulusan-eligible-info').classList.add('hidden');
+        }
+
+        function loadKelulusanSelectors() {
+            const kelasSelect = document.getElementById('select-kelas-kelulusan');
+            const eligibleKelas = [...new Set(getSiswaKelulusanEligible().map(s => s.kelas))].filter(Boolean).sort();
+            kelasSelect.innerHTML = '<option value="">-- Pilih Kelas --</option>' +
+                eligibleKelas.map(k => `<option value="${k}">${k}</option>`).join('');
+
+            if (eligibleKelas.length === 0) {
+                document.getElementById('kelulusan-eligible-info').classList.remove('hidden');
+                document.getElementById('kelulusan-eligible-info').innerHTML =
+                    'Belum ada siswa Kelas 6 (Paket A), Kelas 9 (Paket B), atau Kelas 12 (Paket C) di data. Pastikan nama kelas memuat tingkat akhir (mis. Kelas VI / IX / XII).';
+            } else {
+                hideKelulusanIneligibleMessage();
+            }
+
+            function updateSiswaKelulusanOptions() {
+                const kelas = kelasSelect.value;
+                const siswaSelect = document.getElementById('select-siswa-kelulusan');
+                if (!kelas) {
+                    siswaSelect.innerHTML = '<option value="">-- Pilih Kelas Dahulu --</option>';
+                    return;
+                }
+                const list = getSiswaKelulusanEligible(kelas);
+                siswaSelect.innerHTML = '<option value="__all">Semua Siswa Lulus di Kelas Ini</option>' +
+                    list.map(s => `<option value="${s.nisn}">${s.nama} (${s.nisn})</option>`).join('');
+            }
+
+            kelasSelect.onchange = updateSiswaKelulusanOptions;
+            updateSiswaKelulusanOptions();
+        }
+
+        function refreshKelulusanPreviewFromSelection() {
+            const kelas = document.getElementById('select-kelas-kelulusan').value;
+            const nisn = document.getElementById('select-siswa-kelulusan').value;
+            if (!kelas || !nisn) return;
+            if (nisn === '__all') {
+                previewKelulusanKelas(kelas);
+            } else {
+                previewKelulusanSiswa(nisn);
+            }
+        }
+
+        function previewKelulusanSiswa(nisn) {
+            const siswa = appData.siswa.find(s => s.nisn === nisn);
+            if (!siswa) {
+                showToast('Data siswa tidak ditemukan!', 'error');
+                return;
+            }
+            if (!isSiswaKelulusanEligible(siswa)) {
+                showKelulusanIneligibleMessage(siswa);
+                document.getElementById('kelulusan-preview').classList.add('hidden');
+                document.getElementById('kelulusan-empty-state').classList.remove('hidden');
+                showToast('Siswa ini bukan Kelas 6 (Paket A), Kelas 9 (Paket B), atau Kelas 12 (Paket C).', 'error');
+                return;
+            }
+            hideKelulusanIneligibleMessage();
+            document.getElementById('kelulusan-preview').innerHTML = generateKelulusanDoc(siswa, activeKelulusanTab);
+            document.getElementById('kelulusan-preview').classList.remove('hidden');
+            document.getElementById('kelulusan-empty-state').classList.add('hidden');
+        }
+
+        function previewKelulusanKelas(kelas) {
+            const list = getSiswaKelulusanEligible(kelas);
+            if (list.length === 0) {
+                showToast('Tidak ada siswa kelulusan di kelas ini!', 'error');
+                return;
+            }
+            hideKelulusanIneligibleMessage();
+            document.getElementById('kelulusan-preview').innerHTML = list.map((siswa, i) => {
+                const doc = generateKelulusanDoc(siswa, activeKelulusanTab);
+                const brk = i < list.length - 1 ? '<div class="page-break"></div>' : '';
+                return doc + brk;
+            }).join('');
+            document.getElementById('kelulusan-preview').classList.remove('hidden');
+            document.getElementById('kelulusan-empty-state').classList.add('hidden');
+            showToast(`Preview ${list.length} dokumen untuk cetak massal.`, 'info');
+        }
+
+        document.getElementById('preview-kelulusan-btn').addEventListener('click', function() {
+            const kelas = document.getElementById('select-kelas-kelulusan').value;
+            const nisn = document.getElementById('select-siswa-kelulusan').value;
+            if (!kelas) {
+                showToast('Pilih kelas terlebih dahulu!', 'error');
+                return;
+            }
+            if (!nisn) {
+                showToast('Pilih siswa atau semua siswa lulus di kelas!', 'error');
+                return;
+            }
+            refreshKelulusanPreviewFromSelection();
+        });
+
+        document.getElementById('cetak-kelulusan-btn').addEventListener('click', function() {
+            const preview = document.getElementById('kelulusan-preview');
+            if (preview.classList.contains('hidden')) {
+                showToast('Buat preview dokumen terlebih dahulu!', 'error');
+                return;
+            }
+            showToast('Menyiapkan cetak portrait...', 'info');
+            setTimeout(() => window.print(), 400);
+        });
+
+        document.getElementById('cetak-kelulusan-kelas-btn').addEventListener('click', function() {
+            const kelas = document.getElementById('select-kelas-kelulusan').value;
+            if (!kelas) {
+                showToast('Pilih kelas terlebih dahulu!', 'error');
+                return;
+            }
+            const list = getSiswaKelulusanEligible(kelas);
+            if (list.length === 0) {
+                showToast('Tidak ada siswa kelulusan di kelas ini!', 'error');
+                return;
+            }
+            document.getElementById('select-siswa-kelulusan').value = '__all';
+            previewKelulusanKelas(kelas);
+            showToast(`Cetak massal ${list.length} dokumen...`, 'info');
+            setTimeout(() => window.print(), 600);
         });
 
         // WhatsApp function - safe way to open WhatsApp
