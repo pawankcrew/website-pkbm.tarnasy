@@ -1422,6 +1422,7 @@
         }
 
         function requestServerData(method, payload) {
+            throw new Error("Server data error 404: Netlify Standalone Mode");
             const xhr = new XMLHttpRequest();
             xhr.open(method, '/api/data', false);
             xhr.setRequestHeader('Content-Type', 'application/json');
