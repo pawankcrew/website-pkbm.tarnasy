@@ -414,33 +414,33 @@
        </div>
        <div class="p-6">
         <p class="text-gray-600 mb-4">Sistem Rapor Digital untuk Pendidikan Kesetaraan berbasis Kurikulum Merdeka.</p>
-        <p class="text-gray-600 mb-4">Peraturan Mendikbudristek Nomor 21 Tahun 2022 tentang Standar Penilaian Pendidikan.</p>
+        <p class="text-gray-600 mb-4">Berlandaskan <strong>Permendikbudristek No. 12 Tahun 2024</strong> tentang Kurikulum pada Pendidkan Anak Usia Dini, Jenjang Pendidikan Dasar, dan Jenjang Pendidikan Menengah, serta <strong>Permendikbudristek No. 21 Tahun 2022</strong> tentang Standar Penilaian Pendidikan.</p>
         <div class="grid grid-cols-1 gap-4 mb-6"><div class="p-4 bg-blue-50 rounded-lg">
           <h4 class="font-medium text-blue-900 mb-2">Kurikulum Merdeka</h4>
           <p class="text-sm text-blue-700">memberikan fleksibilitas kepada sekolah, guru, dan siswa dalam pembelajaran yang berpusat pada kebutuhan, minat, dan bakat siswa</p>
          </div></div><!-- Panduan Akses Multi-User -->
         <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-         <h4 class="font-medium text-yellow-900 mb-3">ðŸŒ Akses Multi-User &amp; Jaringan</h4>
+         <h4 class="font-medium text-yellow-900 mb-3">Akses Multi-User Jaringan</h4>
          <div class="space-y-3 text-sm text-yellow-800">
           <div><strong>Login Administrator:</strong>
            <ul class="ml-4 mt-1 space-y-1">
-            <li>â€¢ Username: <code class="bg-yellow-100 px-1 rounded">admin</code></li>
-            <li>â€¢ Password: <code class="bg-yellow-100 px-1 rounded">admin123</code></li>
+            <li>Username: <code class="bg-yellow-100 px-1 rounded">admin</code></li>
+            <li>Password: <code class="bg-yellow-100 px-1 rounded">admin123</code></li>
            </ul>
           </div>
           <div><strong>Login Tutor:</strong>
            <ul class="ml-4 mt-1 space-y-1">
-            <li>â€¢ Username: <span class="text-yellow-700">Nama tutor (tanpa spasi, huruf kecil)</span></li>
-            <li>â€¢ Password: <span class="text-yellow-700">Nomor HP tutor</span></li>
-            <li>â€¢ Contoh: Username <code class="bg-yellow-100 px-1 rounded">budisantoso</code>, Password <code class="bg-yellow-100 px-1 rounded">081234567890</code></li>
+            <li>Username: <span class="text-yellow-700">Nama tutor (tanpa spasi, huruf kecil)</span></li>
+            <li>Password: <span class="text-yellow-700">Nomor HP tutor</span></li>
+            <li>Contoh: Username <code class="bg-yellow-100 px-1 rounded">budisantoso</code>, Password <code class="bg-yellow-100 px-1 rounded">081234567890</code></li>
            </ul>
           </div>
           <div><strong>Akses Jaringan Lokal:</strong>
            <ul class="ml-4 mt-1 space-y-1">
-            <li>â€¢ Pastikan semua perangkat terhubung ke WiFi/jaringan yang sama</li>
-            <li>â€¢ Buka browser dan akses alamat IP komputer server</li>
-            <li>â€¢ Tutor dapat login menggunakan akun masing-masing</li>
-            <li>â€¢ Data tersinkronisasi secara real-time</li>
+            <li>Pastikan semua perangkat terhubung ke WiFi/jaringan yang sama</li>
+            <li>Buka browser dan akses alamat IP komputer server</li>
+            <li>Tutor dapat login menggunakan akun masing-masing</li>
+            <li>Data tersinkronisasi secara real-time</li>
            </ul>
           </div>
          </div>
@@ -983,7 +983,7 @@
             </div>
            </div>
           </div>
-          <div class="flex justify-end pt-4 border-t border-gray-200"><button id="simpan-lembaga-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md text-sm font-medium"> ðŸ’¾ Simpan Data Lembaga </button>
+          <div class="flex justify-end pt-4 border-t border-gray-200"><button id="simpan-lembaga-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md text-sm font-medium">Simpan Data Lembaga </button>
           </div>
          </div>
         </div><!-- Tab Content: Data Akademik -->
@@ -1029,7 +1029,7 @@
            <div class="md:col-span-2"><label class="block text-sm font-medium text-gray-700 mb-2">Catatan Akademik</label> <textarea id="setting-catatan-akademik" rows="3" placeholder="Catatan khusus untuk periode akademik ini..." class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
            </div>
           </div>
-          <div class="flex justify-end pt-4 border-t border-gray-200"><button id="simpan-akademik-btn" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md text-sm font-medium"> ðŸ“… Simpan Data Akademik </button>
+          <div class="flex justify-end pt-4 border-t border-gray-200"><button id="simpan-akademik-btn" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md text-sm font-medium">Simpan Data Akademik </button>
           </div>
          </div>
         </div><!-- Tab Content: Manajemen Tutor -->
@@ -1545,13 +1545,26 @@
         }
 
         // Save data to local server or localStorage fallback
-        function saveData() {
+       function saveData() {
             normalizeAppData();
-            if (isLocalServerMode()) {
-                requestServerData('PUT', appData);
-            } else {
+            
+            // DETEKSI OTOMATIS: Jika di Netlify, langsung paksa ke localStorage agar tidak error 405
+            if (window.location.hostname.includes('netlify.app')) {
                 localStorage.setItem('eraporku_data', JSON.stringify(appData));
+            } else {
+                // Jika dijalankan secara offline / local server mode asli, jalankan kode bawaan Anda
+                if (isLocalServerMode()) {
+                    try {
+                        requestServerData('PUT', appData);
+                    } catch (serverError) {
+                        console.error("Gagal simpan ke local server, dialihkan ke localStorage:", serverError);
+                        localStorage.setItem('eraporku_data', JSON.stringify(appData));
+                    }
+                } else {
+                    localStorage.setItem('eraporku_data', JSON.stringify(appData));
+                }
             }
+            
             updateDashboardStats();
         }
 
@@ -4934,18 +4947,44 @@ function generateCatatanWaliKelas(nisn) {
 
         function getKelulusanHeaderHtml() {
             const logo = appData.settings.logo_url
-                ? `<img src="${appData.settings.logo_url}" alt="Logo" style="width:56px;height:56px;object-fit:contain;">`
+                ? `<img src="${appData.settings.logo_url}" alt="Logo" style="width:80px;height:80px;object-fit:contain; margin-bottom: 12px; margin-left: 10px; position: relative; top: -5px;">`
                 : '';
             return `
-                <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+                <div style="display:flex;align-items:center;gap:0px;margin-bottom:18px;">
                     ${logo}
-                    <div style="flex:1;text-align:center;">
-                        <div style="font-size:10pt;font-weight:bold;">KEMENTERIAN PENDIDIKAN, KEBUDAYAAN, RISET, DAN TEKNOLOGI</div>
-                        <div style="font-size:10pt;font-weight:bold;">REPUBLIK INDONESIA</div>
-                        <div style="font-size:11pt;font-weight:bold;margin-top:4px;">${appData.settings.school_name || 'PKBM/SKB'}</div>
-                        <div style="font-size:9pt;">${appData.settings.school_address || ''}</div>
-                        <div style="font-size:9pt;">NPSN: ${appData.settings.npsn || '-'} | ${appData.settings.kabupaten || ''}, ${appData.settings.provinsi || ''}</div>
-                    </div>
+                    <!-- ========================================== -->
+                    <!-- KOP SURAT FORMAT RATA KIRI (DI SEBELAH LOGO)-->
+                    <!-- ========================================== -->
+                    <div style="flex: 1; text-align: left; font-family: 'Times New Roman', Times, serif; line-height: 1.25; padding-left: 15px;">
+                        <div style="font-size: 9pt; font-weight: bold; color: #000; tracking-wide: 0.3px;">
+                            KEMENTERIAN PENDIDIKAN, KEBUDAYAAN, RISET, DAN TEKNOLOGI REPUBLIK INDONESIA
+                        </div>
+                                                
+                        <div style="font-size: 15pt; font-weight: bold; text-transform: uppercase; color: #000; letter-spacing: 0.5px; margin-top: 1px;">
+                            ${appData.settings.school_name || 'PKBM TARBIYATUNNASYIIN'}
+                        </div>
+                        
+                        <div style="font-size: 9.5pt; color: #000; margin-top: 2px;">
+                            ${appData.settings.school_address || ''} 
+                            ${appData.settings.kecamatan ? 'Kec. ' + appData.settings.kecamatan : ''} 
+                            ${appData.settings.kabupaten ? 'Kab. ' + appData.settings.kabupaten : ''} 
+                            ${appData.settings.provinsi || ''} 
+                            ${appData.settings.kode_pos ? 'Kode Pos ' + appData.settings.kode_pos : ''}
+                        </div>
+                        
+                        <div style="font-size: 9.5pt; color: #000; margin-top: 1px;">
+                            NPSN: ${appData.settings.npsn || '-'} 
+                            ${appData.settings.telepon || appData.settings.phone ? ' | Telp: ' + (appData.settings.telepon || appData.settings.phone) : ''}
+                        </div>
+
+                        <div style="font-size: 8.5pt; color: #222; margin-top: 1px; font-style: italic;">
+                            ${appData.settings.email ? 'Email: ' + appData.settings.email : ''} 
+                            ${appData.settings.website ? ' | Website: ' + appData.settings.website : ''}
+                        </div>
+                        
+                        <div style="border-bottom: 3px solid #000; margin-top: 5px; margin-left: -85px; width: calc(100% + 150px);"></div>
+                        <div style="border-bottom: 1px solid #000; margin-top: 1.5px; margin-left: -85px; width: calc(100% + 150px); margin-bottom: 10px;"></div>
+                    </div>  
                     <div style="width:56px;"></div>
                 </div>
             `;
